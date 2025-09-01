@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package org.orange.oie.internship2025.conferenceroombooking;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
