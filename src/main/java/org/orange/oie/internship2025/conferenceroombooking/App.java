@@ -1,4 +1,4 @@
-package com.mycompany.app;
+package org.orange.oie.internship2025.conferenceroombooking;
 
 public class App {
     public static void main(String[] args) {
