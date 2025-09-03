@@ -12,6 +12,7 @@ import java.util.List;
     @NoArgsConstructor
     @AllArgsConstructor
     public class Job {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long jobId;
@@ -22,8 +23,5 @@ import java.util.List;
     @OneToMany(mappedBy = "job")
     private List<User> users = new ArrayList<>();
 }
-
-
-
 
 

@@ -2,7 +2,7 @@ package entity;
 import enums.RecurrenceOption;
 import enums.ReservationType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.time.LocalDateTime;
 
@@ -12,7 +12,6 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class Reservation {
 
     @Id
@@ -22,24 +21,20 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_type", nullable = false, length = 20)
-    private ReservationType reservationType;
+    private ReservationType type;
 
 
-    @NotBlank(message = "Start time is required")
+    @NotNull(message = "Start time is required")
     @Column(name = "start_time", nullable = false)
     private LocalDateTime startTime;
 
-    @NotBlank(message = "End time is required")
+    @NotNull(message = "End time is required")
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "recurrence_option", nullable = false, length = 20)
     private RecurrenceOption recurrenceOption= RecurrenceOption.ONE_TIME;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private ReservationType type;
 
     @ManyToOne
     @JoinColumn(name = "userId", nullable = false)

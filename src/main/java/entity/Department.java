@@ -12,7 +12,6 @@ import java.util.List;
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
     public class Department {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +22,7 @@ import java.util.List;
         private String deptName;
 
         @OneToOne
-        @JoinColumn(name = "manager_id", referencedColumnName = "id")
+        @JoinColumn(name = "manager_id", referencedColumnName = "user_id")
         private User manager;
 
         @OneToMany(mappedBy = "department")

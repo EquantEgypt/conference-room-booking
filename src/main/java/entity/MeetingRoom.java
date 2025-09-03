@@ -2,6 +2,7 @@ package entity;
 import enums.MeetingRoomStatus;
 import enums.RoomType;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
@@ -15,7 +16,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MeetingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +34,7 @@ public class MeetingRoom {
     @Column(nullable = false)
     private Integer floor;
 
+    @Min(value = 1, message = "Capacity must be at least 1")
     @Column(nullable = false)
     private Integer capacity;
 

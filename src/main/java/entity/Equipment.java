@@ -11,7 +11,6 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
     public class Equipment {
         @Id
         @GeneratedValue(strategy = GenerationType.IDENTITY)
