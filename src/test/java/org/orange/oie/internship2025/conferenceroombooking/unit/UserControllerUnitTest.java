@@ -2,8 +2,6 @@ package org.orange.oie.internship2025.conferenceroombooking.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.orange.oie.internship2025.conferenceroombooking.configuration.SecurityConfiguration;
 import org.orange.oie.internship2025.conferenceroombooking.controller.UserController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
@@ -35,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UserController.class)
 @Import(SecurityConfiguration.class)
-public class UserControllerIntegrationTest {
+public class UserControllerUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,10 +44,10 @@ public class UserControllerIntegrationTest {
     @MockBean
     private AuthenticationManager authenticationManager;
 
-    @Mock
+    @MockBean
     private UserRepository userRepository;
 
-    @InjectMocks
+    @MockBean
     private UserDetailsServiceImplementation userDetailsServiceImplementation;
 
     @Test
@@ -88,15 +86,26 @@ public class UserControllerIntegrationTest {
 
     @Test
     void whenLoadUserByUsernameFoundThenReturnUserDetailsNotNull() {
+        // Given
         User mockUser = new User();
         mockUser.setFirstName("Laila");
         mockUser.setLastName("Mohamed");
         mockUser.setPhone("01052756770");
         mockUser.setEmail("laila.mohamed@orange.com");
         mockUser.setPassword("$2y$10$lmn456hashedpassword");
-        when(userRepository.getUsersByEmail(anyString())).thenReturn(mockUser);
 
+        UserDetails expectedUserDetails = org.springframework.security.core.userdetails.User.builder()
+                .username("laila.mohamed@orange.com")
+                .password("$2y$10$lmn456hashedpassword")
+                .authorities("USER")
+                .build();
+
+        // When
+        when(userDetailsServiceImplementation.loadUserByUsername(anyString())).thenReturn(expectedUserDetails);
         UserDetails userDetails = userDetailsServiceImplementation.loadUserByUsername("laila.mohamed@orange.com");
+
+        // Then
         assertThat(userDetails).isNotNull();
+        assertThat(userDetails.getUsername()).isEqualTo("laila.mohamed@orange.com");
     }
 }
