@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.configuration.SecurityConfiguration;
 import org.orange.oie.internship2025.conferenceroombooking.controller.UserController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
-import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.UserDetailsServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,15 +15,12 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -82,30 +78,5 @@ public class UserControllerUnitTest {
                 .andDo(print())
                 .andExpect(status().isUnauthorized())
                 .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
-    }
-
-    @Test
-    void whenLoadUserByUsernameFoundThenReturnUserDetailsNotNull() {
-        // Given
-        User mockUser = new User();
-        mockUser.setFirstName("Laila");
-        mockUser.setLastName("Mohamed");
-        mockUser.setPhone("01052756770");
-        mockUser.setEmail("laila.mohamed@orange.com");
-        mockUser.setPassword("$2y$10$lmn456hashedpassword");
-
-        UserDetails expectedUserDetails = org.springframework.security.core.userdetails.User.builder()
-                .username("laila.mohamed@orange.com")
-                .password("$2y$10$lmn456hashedpassword")
-                .authorities("USER")
-                .build();
-
-        // When
-        when(userDetailsServiceImplementation.loadUserByUsername(anyString())).thenReturn(expectedUserDetails);
-        UserDetails userDetails = userDetailsServiceImplementation.loadUserByUsername("laila.mohamed@orange.com");
-
-        // Then
-        assertThat(userDetails).isNotNull();
-        assertThat(userDetails.getUsername()).isEqualTo("laila.mohamed@orange.com");
     }
 }

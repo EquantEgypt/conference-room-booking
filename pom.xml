@@ -129,6 +129,7 @@
                     <excludes>
                         <exclude>org/orange/oie/internship2025/conferenceroombooking/App.class</exclude>
                         <exclude>**/entity/**</exclude>
+                        <exclude>**/enums/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
