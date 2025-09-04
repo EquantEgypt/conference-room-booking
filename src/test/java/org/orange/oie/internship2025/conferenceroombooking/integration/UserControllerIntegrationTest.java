@@ -34,7 +34,7 @@ public class UserControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Test
-    void loginShouldReturnOkAndTokenWhenUsernameAndPasswordAreCorrect() throws Exception {
+    void loginShouldReturnOkAndTokenWhenUsernameAndPasswordAreFound() throws Exception {
         LoginRequest loginRequest = new LoginRequest("semaziz2004@yahoo.com", "password123");
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("token", "c2VtYXppejIwMDRAeWFob28uY29tOnBhc3N3b3JkMTIz");

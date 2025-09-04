@@ -123,6 +123,7 @@
                 <configuration>
                     <excludes>
                         <exclude>org/orange/oie/internship2025/conferenceroombooking/App.class</exclude>
+                        <exclude>**/entity/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>
