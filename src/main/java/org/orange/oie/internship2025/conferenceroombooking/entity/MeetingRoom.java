@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 
@@ -16,18 +17,19 @@ import java.util.Set;
 @Entity
 @Table(name = "meeting_rooms")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class MeetingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long roomId;
+    private Long room_id;
 
     @NotBlank(message = "Room name is required")
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column(name = "geo_location")
+    @Column(name = "GeoLocation")
     private String geoLocation;
 
     @Column(nullable = false, length = 100)

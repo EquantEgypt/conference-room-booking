@@ -1,4 +1,3 @@
-
 CREATE TABLE jobs (
     job_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL UNIQUE
@@ -7,7 +6,8 @@ CREATE TABLE jobs (
 
 CREATE TABLE departments (
     department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(100) NOT NULL UNIQUE
+    name VARCHAR(100) NOT NULL UNIQUE,
+    manager_id BIGINT
 );
 
 
@@ -25,8 +25,17 @@ CREATE TABLE users (
     CONSTRAINT fk_user_job FOREIGN KEY (job_id) REFERENCES jobs(job_id)
 );
 
-CREATE TABLE meeting_rooms (
+ALTER TABLE departments ADD CONSTRAINT fk_department_manager FOREIGN KEY (manager_id) REFERENCES users(user_id);
+
+
+CREATE TABLE equipment (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    type VARCHAR(100) NOT NULL UNIQUE
+);
+
+
+CREATE TABLE meeting_rooms (
+    room_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL UNIQUE,
     capacity INT NOT NULL,
     building VARCHAR(100) NOT NULL,
@@ -42,7 +51,7 @@ CREATE TABLE meeting_rooms (
 );
 
 CREATE TABLE reservations (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    reservation_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     description VARCHAR(255) NOT NULL,
     start_time DATETIME NOT NULL,
     end_time DATETIME NOT NULL,
@@ -54,5 +63,13 @@ CREATE TABLE reservations (
     room_id BIGINT NOT NULL,
 
     CONSTRAINT fk_reservation_user FOREIGN KEY (user_id) REFERENCES users(user_id),
-    CONSTRAINT fk_reservation_room FOREIGN KEY (room_id) REFERENCES meeting_rooms(id)
+    CONSTRAINT fk_reservation_room FOREIGN KEY (room_id) REFERENCES meeting_rooms(room_id)
+);
+
+CREATE TABLE meetingroom_equipment (
+    meetingroom_id BIGINT NOT NULL,
+    equipment_id BIGINT NOT NULL,
+    PRIMARY KEY (meetingroom_id, equipment_id),
+    CONSTRAINT fk_meetingroom_equipment_room FOREIGN KEY (meetingroom_id) REFERENCES meeting_rooms(room_id),
+    CONSTRAINT fk_meetingroom_equipment_equipment FOREIGN KEY (equipment_id) REFERENCES equipment(id)
 );

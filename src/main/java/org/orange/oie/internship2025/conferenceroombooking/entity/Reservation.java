@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
@@ -13,13 +14,14 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "reservations")
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reservationId;
+    private Long reservation_id;
 
 
     @Enumerated(EnumType.STRING)
@@ -49,3 +51,4 @@ public class Reservation {
 
 
 }
+

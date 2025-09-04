@@ -5,11 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.orange.oie.internship2025.conferenceroombooking.enums.UserRole;
 
 import java.util.List;
 
 @Entity
+@Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,9 +20,8 @@ public class User {
 
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "user_id")
-    private Long userId;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long user_id;
 
     @Enumerated(EnumType.STRING)
     @NotBlank(message = "Role is required")

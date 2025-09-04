@@ -1,8 +1,8 @@
 SET foreign_key_checks = 0;
 
 UPDATE users SET role = UPPER(TRIM(role)) WHERE role IS NOT NULL;
-UPDATE meeting_rooms SET room_type = UPPER(TRIM(room_type)), status = UPPER(TRIM(status)) WHERE id IS NOT NULL;
-UPDATE reservations SET reservation_type = UPPER(TRIM(reservation_type)), recurrence_option = UPPER(TRIM(recurrence_option)) WHERE id IS NOT NULL;
+UPDATE meeting_rooms SET room_type = UPPER(TRIM(room_type)), status = UPPER(TRIM(status)) WHERE room_id IS NOT NULL;
+UPDATE reservations SET reservation_type = UPPER(TRIM(reservation_type)), recurrence_option = UPPER(TRIM(recurrence_option)) WHERE reservation_id IS NOT NULL;
 
 
 ALTER TABLE users
