@@ -18,7 +18,7 @@ INSERT IGNORE INTO departments (name) VALUES
 
 
 INSERT IGNORE INTO users (role, first_name, last_name, phone, business_email, password, department_id, job_id) VALUES
-('EMPLOYEE', 'Seif', 'Ehab', '01002756766', 'seif.ehab@orange.com', '$2y$10$zH3b1gAG/hOPSJn2HcYIiuWltjzwtY8.q3DyELOHF19xWy7sJAoTS',
+('EMPLOYEE', 'Seif', 'Ehab', '01002756766', 'seif.ehab@orange.com', '$2a$12$9R1xTuq1LAuRJwPXqxtQYOCGMlEXPEXnNhPRH3vsR6mgdHzXw3/z.',
     (SELECT department_id FROM departments WHERE name = 'Software'),
     (SELECT job_id FROM jobs WHERE title = 'Software Developer')
 ),
