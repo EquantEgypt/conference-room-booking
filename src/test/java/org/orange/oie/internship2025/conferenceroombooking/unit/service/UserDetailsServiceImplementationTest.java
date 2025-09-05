@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.unit;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
