@@ -28,7 +28,7 @@ public class SecurityConfiguration {
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         authorizationManagerRequestMatcherRegistry ->
-                                authorizationManagerRequestMatcherRegistry.requestMatchers("/login").permitAll()
+                                authorizationManagerRequestMatcherRegistry.requestMatchers("/login", "/images/**").permitAll()
                                         .anyRequest().authenticated()
                 ).httpBasic(Customizer.withDefaults())
                 .cors(Customizer.withDefaults())
