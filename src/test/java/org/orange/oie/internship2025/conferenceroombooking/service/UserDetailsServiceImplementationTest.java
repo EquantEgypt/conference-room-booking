@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.unit.service;
+package org.orange.oie.internship2025.conferenceroombooking.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
-import org.orange.oie.internship2025.conferenceroombooking.service.UserDetailsServiceImplementation;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 

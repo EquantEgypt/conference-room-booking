@@ -1,9 +1,8 @@
-package org.orange.oie.internship2025.conferenceroombooking.unit.controller;
+package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.configuration.SecurityConfiguration;
-import org.orange.oie.internship2025.conferenceroombooking.controller.UserController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.UserDetailsServiceImplementation;
@@ -81,11 +80,11 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    void loginShouldReturnUnauthorizedWhenUsernameIsCorrectButPasswordIsIncorrect() throws Exception{
+    void loginShouldReturnUnauthorizedWhenUsernameIsCorrectButPasswordIsIncorrect() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenThrow(new BadCredentialsException("Bad credentials"));
 
-        LoginRequest loginRequest = new LoginRequest("semaziz2004@yahoo.com","Incorrect password");
+        LoginRequest loginRequest = new LoginRequest("semaziz2004@yahoo.com", "Incorrect password");
         Map<String, String> errorMessageMap = new HashMap<>();
         errorMessageMap.put("error", "invalid username or password");
 
@@ -98,12 +97,12 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    void loginShouldReturnUnauthorizedWhenUsernameIsIncorrectButPasswordIsCorrect() throws Exception{
+    void loginShouldReturnUnauthorizedWhenUsernameIsIncorrectButPasswordIsCorrect() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                  .thenThrow(new BadCredentialsException("Bad credentials"));
+                .thenThrow(new BadCredentialsException("Bad credentials"));
 
 
-        LoginRequest loginRequest = new LoginRequest("incorrectEmail@example.com","password123");
+        LoginRequest loginRequest = new LoginRequest("incorrectEmail@example.com", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
         errorMessageMap.put("error", "invalid username or password");
 
@@ -116,9 +115,9 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    void loginShouldReturnBadRequestWhenUsernameIsEmpty() throws Exception{
+    void loginShouldReturnBadRequestWhenUsernameIsEmpty() throws Exception {
 
-        LoginRequest loginRequest = new LoginRequest("","password123");
+        LoginRequest loginRequest = new LoginRequest("", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
         errorMessageMap.put("error", "Username and password must be provided");
 
@@ -132,9 +131,9 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    void loginShouldReturnUnAuthorizedWhenPasswordIsEmpty() throws Exception{
+    void loginShouldReturnUnAuthorizedWhenPasswordIsEmpty() throws Exception {
 
-        LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com","");
+        LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com", "");
         Map<String, String> errorMessageMap = new HashMap<>();
         errorMessageMap.put("error", "Username and password must be provided");
 
@@ -146,7 +145,6 @@ public class UserControllerUnitTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
     }
-
 
 
 }
