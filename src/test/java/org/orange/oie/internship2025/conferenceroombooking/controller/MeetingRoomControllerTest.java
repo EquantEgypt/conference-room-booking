@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
+import org.orange.oie.internship2025.conferenceroombooking.dto.TempRoomDataDto;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
@@ -44,6 +45,7 @@ public class MeetingRoomControllerTest {
 
     private List<MeetingRoomDTO> meetingRoomDTOList;
     private List<Set<Equipment>> equipmentSetList;
+    private List<TempRoomDataDto> tempRoomDataDtoList;
 
     @BeforeEach
     void init() {
@@ -129,6 +131,14 @@ public class MeetingRoomControllerTest {
         meetingRoomDTOList.add(dto2);
         meetingRoomDTOList.add(dto3);
         meetingRoomDTOList.add(dto4);
+
+        tempRoomDataDtoList = new ArrayList<>();
+        tempRoomDataDtoList.add(new TempRoomDataDto(meetingRoomDTOList.get(0), "/images/room1.png"));
+        tempRoomDataDtoList.add(new TempRoomDataDto(meetingRoomDTOList.get(1), "/images/room2.png"));
+        tempRoomDataDtoList.add(new TempRoomDataDto(meetingRoomDTOList.get(2), "/images/room3.png"));
+        tempRoomDataDtoList.add(new TempRoomDataDto(meetingRoomDTOList.get(3), "/images/room4.png"));
+
+
     }
 
     @Test
@@ -139,7 +149,7 @@ public class MeetingRoomControllerTest {
         //When & Then
         this.mockMvc.perform(get("/rooms")).andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(meetingRoomDTOList)));
+                .andExpect(content().json(objectMapper.writeValueAsString(tempRoomDataDtoList)));
     }
 
     @Test
