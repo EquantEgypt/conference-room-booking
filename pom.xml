@@ -130,6 +130,7 @@
                         <exclude>org/orange/oie/internship2025/conferenceroombooking/App.class</exclude>
                         <exclude>**/entity/**</exclude>
                         <exclude>**/enums/**</exclude>
+                        <exclude>**/dto/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

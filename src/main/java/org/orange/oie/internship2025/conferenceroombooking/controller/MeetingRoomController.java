@@ -29,7 +29,6 @@ public class MeetingRoomController {
             List<MeetingRoomDTO> meetingRooms = meetingRoomService.getAllMeetingRooms();
             return ResponseEntity.ok(meetingRooms);
         } catch (Exception e) {
-            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error: " + e.getMessage());
         }
     }
