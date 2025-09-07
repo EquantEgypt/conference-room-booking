@@ -1,0 +1,3 @@
+ALTER TABLE meeting_rooms
+    MODIFY COLUMN room_type ENUM('VIP', 'NORMAL')
+        GENERATED ALWAYS AS (CASE WHEN capacity >= 25 THEN 'VIP' ELSE 'NORMAL' END) STORED;

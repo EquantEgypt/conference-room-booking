@@ -59,10 +59,16 @@ INSERT IGNORE INTO users (role, first_name, last_name, phone, business_email, pa
 );
 
 INSERT IGNORE INTO meeting_rooms (name, capacity, building, floor, geo_location, equipment, operating_hours_start, operating_hours_end, room_type, status) VALUES
-('Cleopatra', 10, 'Smart Village - Cairo', 4,'31.2001,29.9187', 'Projector, Whiteboard', '09:00', '18:00', 'NORMAL', 'AVAILABLE'),
-('Philae', 35, 'Galleria 40 - Sheikh Zayed', 2,'30.0187,31.0011', 'LED Screen, Microphone, Projector, Scanner', '09:00', '18:00', 'VIP', 'AVAILABLE'),
-('Sphinx', 15, 'Galleria 40 - Sheikh Zayed', 3,'36.8144,30.0444', 'Smart Board, HDMI Cables' , '09:00', '18:00', 'NORMAL', 'UNDER_MAINTENANCE'),
-('Nefertiti', 25, 'Nasr City Branch', 3 , '36.8143,10.1751', 'Smart Board, Conference Phone', '09:00', '18:00', 'VIP', 'BOOKED');
+('Nefertiti', 30, 'Nasr City Branch', 4, '30.0561,31.3300', 'Podium, Video Conferencing Unit, Microphone, Wi-Fi Access Point, Air Conditioner, Whiteboard, Speaker System, Printer, LED Screen, Projector, HDMI Cables, Lighting Control', '09:00', '18:00', 'VIP', 'AVAILABLE'),
+('Ramses', 25, 'Alexandria Office', 1, '31.2001,29.9187', 'Scanner, Conference Phone, Whiteboard, Video Conferencing Unit, HDMI Cables, Printer, Speaker System, Lighting Control', '09:00', '18:00', 'NORMAL', 'UNDER_MAINTENANCE'),
+('Tutankhamun', 9, 'Galleria 40 - Sheikh Zayed', 5, '30.0187,31.0011', 'LED Screen, Scanner, Conference Phone, Video Conferencing Unit, Wi-Fi Access Point, HDMI Cables, Podium, Whiteboard, Speaker System, Smart Board, Printer, Projector, Microphone, Lighting Control, Air Conditioner', '09:00', '18:00', 'NORMAL', 'UNDER_MAINTENANCE'),
+('Cleopatra', 11, 'Nasr City Branch', 1, '30.0561,31.3300', 'HDMI Cables, Printer, LED Screen, Microphone, Wi-Fi Access Point, Scanner, Projector', '09:00', '18:00', 'NORMAL', 'AVAILABLE'),
+('Karnak', 21, 'Downtown Cairo HQ', 2, '30.0444,31.2357', 'Air Conditioner, Projector, Printer, HDMI Cables, Speaker System, Microphone, Smart Board, Video Conferencing Unit, Lighting Control, Scanner', '09:00', '18:00', 'VIP', 'UNDER_MAINTENANCE'),
+('Luxor', 4, 'Downtown Cairo HQ', 4, '30.0444,31.2357', 'Podium, Printer, Smart Board, Microphone, Whiteboard, LED Screen, Scanner, Air Conditioner, Projector, Video Conferencing Unit, Speaker System, Wi-Fi Access Point, Conference Phone', '09:00', '18:00', 'NORMAL', 'UNDER_MAINTENANCE'),
+('Aswan', 17, 'Downtown Cairo HQ', 1, '30.0444,31.2357', 'Lighting Control, Microphone, Air Conditioner, LED Screen, Printer, Projector, Conference Phone, HDMI Cables, Wi-Fi Access Point', '09:00', '18:00', 'NORMAL', 'AVAILABLE'),
+('Memphis', 29, 'Smart Village - Cairo', 2, '30.0725,31.0135', 'Lighting Control, Podium, Wi-Fi Access Point, Video Conferencing Unit, Printer, HDMI Cables, Smart Board, Speaker System, Conference Phone, Air Conditioner, Microphone, LED Screen, Whiteboard, Projector, Scanner', '09:00', '18:00', 'VIP', 'UNDER_MAINTENANCE'),
+('Sphinx', 27, 'Downtown Cairo HQ', 2, '30.0444,31.2357', 'Microphone, Projector, Podium, Wi-Fi Access Point, Conference Phone, HDMI Cables, Video Conferencing Unit, LED Screen, Speaker System, Air Conditioner, Lighting Control, Scanner, Smart Board, Printer, Whiteboard', '09:00', '18:00', 'VIP', 'UNDER_MAINTENANCE'),
+('Philae', 18, 'Galleria 40 - Sheikh Zayed', 3, '30.0187,31.0011', 'Scanner, Lighting Control, Printer, Video Conferencing Unit, Projector, Wi-Fi Access Point, Microphone, HDMI Cables, Smart Board, Podium', '09:00', '18:00', 'NORMAL', 'AVAILABLE');
 
 
 INSERT IGNORE INTO reservations (description, start_time, end_time, reservation_type, recurrence_option, user_id, room_id) VALUES

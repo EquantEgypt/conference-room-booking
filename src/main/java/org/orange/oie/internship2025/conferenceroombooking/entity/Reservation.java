@@ -29,6 +29,9 @@ public class Reservation {
     @Column(name = "reservation_type", nullable = false, length = 20)
     private ReservationType type;
 
+    @NotNull(message = "Description is required")
+    @Column(nullable = false)
+    private String description;
 
     @NotNull(message = "Start time is required")
     @Column(name = "start_time", nullable = false)
