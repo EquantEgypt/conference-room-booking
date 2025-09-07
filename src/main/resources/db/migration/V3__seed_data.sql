@@ -62,7 +62,7 @@ INSERT IGNORE INTO meeting_rooms (name, capacity, building, floor, geo_location,
 ('Cleopatra', 10, 'Smart Village - Cairo', 4,'31.2001,29.9187', 'Projector, Whiteboard', '09:00', '18:00', 'NORMAL', 'AVAILABLE'),
 ('Philae', 35, 'Galleria 40 - Sheikh Zayed', 2,'30.0187,31.0011', 'LED Screen, Microphone, Projector, Scanner', '09:00', '18:00', 'VIP', 'AVAILABLE'),
 ('Sphinx', 15, 'Galleria 40 - Sheikh Zayed', 3,'36.8144,30.0444', 'Smart Board, HDMI Cables' , '09:00', '18:00', 'NORMAL', 'UNDER_MAINTENANCE'),
-('Nefertiti', 25, 'Nasr City Branch', 3 , '36.8143,10.1751', 'Smart Board, Conference Phone', '09:00', '18:00', 'NORMAL', 'BOOKED');
+('Nefertiti', 25, 'Nasr City Branch', 3 , '36.8143,10.1751', 'Smart Board, Conference Phone', '09:00', '18:00', 'VIP', 'BOOKED');
 
 
 INSERT IGNORE INTO reservations (description, start_time, end_time, reservation_type, recurrence_option, user_id, room_id) VALUES
