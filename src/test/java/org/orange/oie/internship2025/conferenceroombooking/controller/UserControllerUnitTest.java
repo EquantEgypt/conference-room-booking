@@ -4,8 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.configuration.SecurityConfiguration;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
-import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
-import org.orange.oie.internship2025.conferenceroombooking.service.UserDetailsServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -39,11 +37,6 @@ public class UserControllerUnitTest {
     @MockBean
     private AuthenticationManager authenticationManager;
 
-    @MockBean
-    private UserRepository userRepository;
-
-    @MockBean
-    private UserDetailsServiceImplementation userDetailsServiceImplementation;
 
     @Test
     void loginShouldReturnOkAndTokenWhenUsernameAndPasswordAreFound() throws Exception {

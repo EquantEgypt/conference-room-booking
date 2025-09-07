@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
@@ -39,9 +38,6 @@ public class MeetingRoomControllerTest {
 
     @MockBean
     private MeetingRoomServiceImplementation roomServiceImplementation;
-
-    @MockBean
-    private AuthenticationManager authenticationManager;
 
     private List<MeetingRoomDTO> meetingRoomDTOList;
     private List<Set<Equipment>> equipmentSetList;
