@@ -11,6 +11,8 @@ import org.orange.oie.internship2025.conferenceroombooking.repository.UserReposi
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -40,7 +42,8 @@ public class UserDetailsServiceImplementationTest {
     @Test
     void whenLoadUserByUsernameFoundThenReturnUserDetailsNotNull() {
         // Given
-        when(userRepository.getUsersByEmail(anyString())).thenReturn(testUser);
+        Optional<User> userOptional = Optional.of(testUser);
+        when(userRepository.findByEmail(anyString())).thenReturn(userOptional);
 
         // When
         UserDetails userDetails = userDetailsServiceImplementation.loadUserByUsername("laila.mohamed@orange.com");
@@ -58,7 +61,7 @@ public class UserDetailsServiceImplementationTest {
 
     @Test
     void whenLoadUserByUsernameNotFoundThenThrowUsernameNotFoundException() {
-        when(userRepository.getUsersByEmail(anyString())).thenReturn(null);
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userDetailsServiceImplementation.loadUserByUsername("nonexistent@orange.com"))
                 .isInstanceOf(UsernameNotFoundException.class);
