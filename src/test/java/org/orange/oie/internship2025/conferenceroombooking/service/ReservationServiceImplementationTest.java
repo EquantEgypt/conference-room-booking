@@ -57,7 +57,7 @@ public class ReservationServiceImplementationTest {
     @BeforeEach
     void init() {
         user = new User();
-        user.setUser_id(1L);
+        user.setUserId(1L);
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setEmail("john.doe@orange.com");
@@ -65,7 +65,7 @@ public class ReservationServiceImplementationTest {
         user.setPassword("$2y$10$hashedpassword");
 
         meetingRoom = new MeetingRoom();
-        meetingRoom.setRoom_id(1L);
+        meetingRoom.setRoomId(1L);
         meetingRoom.setName("Conference Room A");
         meetingRoom.setCapacity(10);
         meetingRoom.setStatus(MeetingRoomStatus.AVAILABLE);
@@ -77,10 +77,10 @@ public class ReservationServiceImplementationTest {
         reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
         reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservationRequest.setRoom_id(1L);
+        reservationRequest.setRoomId(1L);
 
         reservation = new Reservation();
-        reservation.setReservation_id(1L);
+        reservation.setReservationId(1L);
         reservation.setType(ReservationType.EXTERNAL);
         reservation.setDescription("Weekly team standup meeting");
         reservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
@@ -90,7 +90,7 @@ public class ReservationServiceImplementationTest {
         reservation.setRoom(meetingRoom);
 
         reservationResponse = new ReservationResponse();
-        reservationResponse.setReservation_id(1L);
+        reservationResponse.setReservationId(1L);
         reservationResponse.setType(ReservationType.EXTERNAL);
         reservationResponse.setDescription("Weekly team standup meeting");
         reservationResponse.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
@@ -116,7 +116,7 @@ public class ReservationServiceImplementationTest {
         //When
         ReservationResponse response = reservationServiceImplementation.createBooking(reservationRequest);
         //Then
-        assertEquals(response.getReservation_id(), reservationResponse.getReservation_id());
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());
         assertEquals(response.getEndTime(), reservationResponse.getEndTime());
         assertEquals(response.getType(), reservationResponse.getType());

@@ -23,7 +23,8 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long user_id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Enumerated(EnumType.STRING)
     @NotBlank(message = "Role is required")

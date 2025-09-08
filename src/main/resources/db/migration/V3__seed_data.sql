@@ -118,9 +118,4 @@ SELECT mr.room_id, e.id
 FROM meeting_rooms mr, equipment e
 WHERE mr.name = 'Nefertiti' AND e.type IN ('Smart Board', 'Conference Phone');
 
-
-
-
-
-
 SET foreign_key_checks = 1;

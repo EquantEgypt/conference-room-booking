@@ -22,7 +22,8 @@ public class Reservation {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long reservation_id;
+    @Column(name = "reservation_id")
+    private Long reservationId;
 
 
     @Enumerated(EnumType.STRING)
@@ -57,4 +58,3 @@ public class Reservation {
 
 
 }
-

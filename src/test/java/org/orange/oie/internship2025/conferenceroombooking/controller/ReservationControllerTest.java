@@ -1,6 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
@@ -45,17 +46,17 @@ public class ReservationControllerTest {
     void init() {
         objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
-        objectMapper.disable(com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        objectMapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
         reservationRequest = new ReservationRequest();
         reservationRequest.setType(ReservationType.EXTERNAL);
         reservationRequest.setDescription("Weekly team standup meeting");
         reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
         reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservationRequest.setRoom_id(1L);
+        reservationRequest.setRoomId(1L);
 
         reservationResponse = new ReservationResponse();
-        reservationResponse.setReservation_id(1L);
+        reservationResponse.setReservationId(1L);
         reservationResponse.setType(ReservationType.EXTERNAL);
         reservationResponse.setDescription("Weekly team standup meeting");
         reservationResponse.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));

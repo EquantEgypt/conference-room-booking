@@ -12,11 +12,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ReservationResponse {
-    private Long reservation_id;
+    private Long reservationId;
     private ReservationType type;
     private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private RecurrenceOption recurrenceOption;
-    private Long room_id;
+    private Long roomId;
 }

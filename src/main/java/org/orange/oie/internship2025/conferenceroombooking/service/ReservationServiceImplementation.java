@@ -44,7 +44,7 @@ public class ReservationServiceImplementation implements ReservationService {
         User user = userDetailsServiceImplementation.getCurrentUser();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoom_id()).orElseThrow(() -> new BadRequestException("MeetingRoom is not Found"));
+                reservationRequest.getRoomId()).orElseThrow(() -> new BadRequestException("MeetingRoom is not Found"));
 
         if (meetingRoom.getStatus() == MeetingRoomStatus.UNDER_MAINTENANCE) {
             throw new BadRequestException("Room is UNDER_MAINTENANCE");

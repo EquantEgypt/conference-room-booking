@@ -31,7 +31,7 @@ public class ReservationMapperTest {
     void init() {
         reservationMapper = new ReservationMapper();
         user = new User();
-        user.setUser_id(1L);
+        user.setUserId(1L);
         user.setFirstName("John");
         user.setLastName("Doe");
         user.setEmail("john.doe@orange.com");
@@ -39,7 +39,7 @@ public class ReservationMapperTest {
         user.setPassword("$2y$10$hashedpassword");
 
         meetingRoom = new MeetingRoom();
-        meetingRoom.setRoom_id(1L);
+        meetingRoom.setRoomId(1L);
         meetingRoom.setName("Conference Room A");
         meetingRoom.setCapacity(10);
         meetingRoom.setStatus(MeetingRoomStatus.AVAILABLE);
@@ -51,10 +51,10 @@ public class ReservationMapperTest {
         reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
         reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservationRequest.setRoom_id(1L);
+        reservationRequest.setRoomId(1L);
 
         reservation = new Reservation();
-        reservation.setReservation_id(1L);
+        reservation.setReservationId(1L);
         reservation.setType(ReservationType.EXTERNAL);
         reservation.setDescription("Weekly team standup meeting");
         reservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
@@ -64,7 +64,7 @@ public class ReservationMapperTest {
         reservation.setRoom(meetingRoom);
 
         reservationResponse = new ReservationResponse();
-        reservationResponse.setReservation_id(1L);
+        reservationResponse.setReservationId(1L);
         reservationResponse.setType(ReservationType.EXTERNAL);
         reservationResponse.setDescription("Weekly team standup meeting");
         reservationResponse.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
@@ -78,13 +78,13 @@ public class ReservationMapperTest {
         //When
         ReservationResponse reservationResponse1 = reservationMapper.toResponse(reservation);
         //Then
-        assertEquals(reservationResponse.getReservation_id(), reservationResponse1.getReservation_id());
+        assertEquals(reservationResponse.getReservationId(), reservationResponse1.getReservationId());
         assertEquals(reservationResponse.getType(), reservationResponse1.getType());
         assertEquals(reservationResponse.getDescription(), reservationResponse1.getDescription());
         assertEquals(reservationResponse.getStartTime(), reservationResponse1.getStartTime());
         assertEquals(reservationResponse.getEndTime(), reservationResponse1.getEndTime());
         assertEquals(reservationResponse.getRecurrenceOption(), reservationResponse1.getRecurrenceOption());
-        assertEquals(meetingRoom.getRoom_id(), reservationResponse1.getRoom_id());
+        assertEquals(meetingRoom.getRoomId(), reservationResponse1.getRoomId());
     }
 
     @Test

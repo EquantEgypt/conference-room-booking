@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component;
 public class ReservationMapper {
     public ReservationResponse toResponse(Reservation reservation) {
         return new ReservationResponse(
-                reservation.getReservation_id(),
+                reservation.getReservationId(),
                 reservation.getType(),
                 reservation.getDescription(),
                 reservation.getStartTime(),
                 reservation.getEndTime(),
                 reservation.getRecurrenceOption(),
-                reservation.getRoom().getRoom_id()
+                reservation.getRoom().getRoomId()
         );
     }
 

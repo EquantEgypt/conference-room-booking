@@ -23,13 +23,14 @@ import java.util.Set;
 public class MeetingRoom {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long room_id;
+    @Column(name = "room_id")
+    private Long roomId;
 
     @NotBlank(message = "Room name is required")
     @Column(nullable = false, unique = true, length = 100)
     private String name;
 
-    @Column(name = "GeoLocation")
+    @Column(name = "geo_location")
     private String geoLocation;
 
     @Column(nullable = false, length = 100)

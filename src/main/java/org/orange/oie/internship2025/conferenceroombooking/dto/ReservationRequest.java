@@ -17,5 +17,5 @@ public class ReservationRequest {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private RecurrenceOption recurrenceOption;
-    private Long room_id;
+    private Long roomId;
 }

@@ -20,7 +20,7 @@ public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "department_id")
-    private Long dept_id;
+    private Long departmentId;
 
     @NotBlank(message = "Department name is required")
     @Column(name = "name", nullable = false, unique = true)
