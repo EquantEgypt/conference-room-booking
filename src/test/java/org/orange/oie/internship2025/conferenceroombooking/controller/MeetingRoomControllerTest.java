@@ -71,7 +71,7 @@ public class MeetingRoomControllerTest {
 
         // Initialize meeting room DTOs
         MeetingRoomDTO dto1 = new MeetingRoomDTO();
-        dto1.setRoom_id(1L);
+        dto1.setRoomId(1L);
         dto1.setName("Conference Room A");
         dto1.setBuilding("Building A");
         dto1.setFloor(0);
@@ -84,7 +84,7 @@ public class MeetingRoomControllerTest {
         dto1.setEquipmentTypes(standardEquipmentTypes);
 
         MeetingRoomDTO dto2 = new MeetingRoomDTO();
-        dto2.setRoom_id(2L);
+        dto2.setRoomId(2L);
         dto2.setName("VIP Meeting Room");
         dto2.setBuilding("Building B");
         dto2.setFloor(5);
@@ -99,7 +99,7 @@ public class MeetingRoomControllerTest {
         dto2.setEquipmentTypes(vipEquipmentTypes);
 
         MeetingRoomDTO dto3 = new MeetingRoomDTO();
-        dto3.setRoom_id(3L);
+        dto3.setRoomId(3L);
         dto3.setName("Small Meeting Room");
         dto3.setBuilding("Building A");
         dto3.setFloor(2);
@@ -111,7 +111,7 @@ public class MeetingRoomControllerTest {
         dto3.setEquipmentTypes(basicEquipmentTypes);
 
         MeetingRoomDTO dto4 = new MeetingRoomDTO();
-        dto4.setRoom_id(4L);
+        dto4.setRoomId(4L);
         dto4.setName("Basic Room");
         dto4.setBuilding("Building C");
         dto4.setFloor(1);

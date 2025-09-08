@@ -20,7 +20,8 @@ public class Job {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long job_id;
+    @Column(name = "job_id")
+    private Long jobId;
 
     @Column(nullable = false, unique = true, length = 100)
     private String title;
@@ -29,5 +30,3 @@ public class Job {
     @JsonManagedReference
     private List<User> users;
 }
-
-

@@ -71,7 +71,7 @@ class MeetingRoomServiceImplementationTest {
 
         // Initialize meeting rooms
         MeetingRoom room1 = new MeetingRoom();
-        room1.setRoom_id(1L);
+        room1.setRoomId(1L);
         room1.setName("Conference Room A");
         room1.setGeoLocation("Building A - Ground Floor");
         room1.setBuilding("Building A");
@@ -84,7 +84,7 @@ class MeetingRoomServiceImplementationTest {
         room1.setEquipmentList(standardEquipment);
 
         MeetingRoom room2 = new MeetingRoom();
-        room2.setRoom_id(2L);
+        room2.setRoomId(2L);
         room2.setName("VIP Meeting Room");
         room2.setGeoLocation("Building B - 5th Floor");
         room2.setBuilding("Building B");
@@ -97,7 +97,7 @@ class MeetingRoomServiceImplementationTest {
         room2.setEquipmentList(vipEquipment);
 
         MeetingRoom room3 = new MeetingRoom();
-        room3.setRoom_id(3L);
+        room3.setRoomId(3L);
         room3.setName("Small Meeting Room");
         room3.setGeoLocation("Building A - 2nd Floor");
         room3.setBuilding("Building A");
@@ -110,7 +110,7 @@ class MeetingRoomServiceImplementationTest {
         room3.setEquipmentList(basicEquipment);
 
         MeetingRoom room4 = new MeetingRoom();
-        room4.setRoom_id(4L);
+        room4.setRoomId(4L);
         room4.setName("Basic Room");
         room4.setGeoLocation("Building C - 1st Floor");
         room4.setBuilding("Building C");
@@ -130,7 +130,7 @@ class MeetingRoomServiceImplementationTest {
 
         // Initialize meeting room DTOs
         MeetingRoomDTO dto1 = new MeetingRoomDTO();
-        dto1.setRoom_id(1L);
+        dto1.setRoomId(1L);
         dto1.setName("Conference Room A");
         dto1.setBuilding("Building A");
         dto1.setFloor(0);
@@ -143,7 +143,7 @@ class MeetingRoomServiceImplementationTest {
         dto1.setEquipmentTypes(standardEquipmentTypes);
 
         MeetingRoomDTO dto2 = new MeetingRoomDTO();
-        dto2.setRoom_id(2L);
+        dto2.setRoomId(2L);
         dto2.setName("VIP Meeting Room");
         dto2.setBuilding("Building B");
         dto2.setFloor(5);
@@ -158,7 +158,7 @@ class MeetingRoomServiceImplementationTest {
         dto2.setEquipmentTypes(vipEquipmentTypes);
 
         MeetingRoomDTO dto3 = new MeetingRoomDTO();
-        dto3.setRoom_id(3L);
+        dto3.setRoomId(3L);
         dto3.setName("Small Meeting Room");
         dto3.setBuilding("Building A");
         dto3.setFloor(2);
@@ -170,7 +170,7 @@ class MeetingRoomServiceImplementationTest {
         dto3.setEquipmentTypes(basicEquipmentTypes);
 
         MeetingRoomDTO dto4 = new MeetingRoomDTO();
-        dto4.setRoom_id(4L);
+        dto4.setRoomId(4L);
         dto4.setName("Basic Room");
         dto4.setBuilding("Building C");
         dto4.setFloor(1);
@@ -204,7 +204,7 @@ class MeetingRoomServiceImplementationTest {
         assertNotNull(meetingRoomDTOList);
 
         for (int i = 0; i < meetingRoomDTOList.size(); i++) {
-            assertEquals(meetingRoomDTOList.get(i).getRoom_id(), meetingRoomList.get(i).getRoom_id());
+            assertEquals(meetingRoomDTOList.get(i).getRoomId(), meetingRoomList.get(i).getRoomId());
             assertEquals(meetingRoomDTOList.get(i).getName(), meetingRoomList.get(i).getName());
             assertEquals(meetingRoomDTOList.get(i).getRoomType(), meetingRoomList.get(i).getRoomType());
             assertEquals(meetingRoomDTOList.get(i).getFloor(), meetingRoomList.get(i).getFloor());

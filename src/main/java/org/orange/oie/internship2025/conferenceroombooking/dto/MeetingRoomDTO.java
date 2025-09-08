@@ -12,7 +12,7 @@ import java.util.Set;
 @AllArgsConstructor
 @NoArgsConstructor
 public class MeetingRoomDTO {
-    private Long room_id;
+    private Long roomId;
     private String name;
     private String building;
     private Integer floor;
