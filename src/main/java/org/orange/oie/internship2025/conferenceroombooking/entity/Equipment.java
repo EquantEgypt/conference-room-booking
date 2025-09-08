@@ -1,14 +1,12 @@
 package org.orange.oie.internship2025.conferenceroombooking.entity;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -28,6 +26,6 @@ public class Equipment {
 
 
     @ManyToMany(mappedBy = "equipmentList")
-    @JsonBackReference
-    private Set<MeetingRoom> meetingRooms ;
+    @JsonIgnore
+    private Set<MeetingRoom> meetingRooms;
 }

@@ -47,12 +47,12 @@ public class Reservation {
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "user-movement")
     private User user;
 
     @ManyToOne
     @JoinColumn(name = "room_id", nullable = false)
-    @JsonBackReference
+    @JsonBackReference(value = "meeting-room-movement")
     private MeetingRoom room;
 
 

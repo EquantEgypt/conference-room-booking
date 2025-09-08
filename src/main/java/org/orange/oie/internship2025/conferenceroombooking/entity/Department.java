@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -32,6 +31,6 @@ public class Department {
     private User manager;
 
     @OneToMany(mappedBy = "department")
-    @JsonManagedReference
-    private List<User> employees ;
+    @JsonManagedReference(value = "employee-movement")
+    private List<User> employees;
 }
