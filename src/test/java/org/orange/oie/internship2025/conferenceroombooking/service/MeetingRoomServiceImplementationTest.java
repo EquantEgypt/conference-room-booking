@@ -13,6 +13,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.MeetingRoomServiceImplementation;
 
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -79,7 +80,7 @@ class MeetingRoomServiceImplementationTest {
         room1.setCapacity(10);
         room1.setOperatingHoursStart(LocalTime.of(8, 0));
         room1.setOperatingHoursEnd(LocalTime.of(18, 0));
-        room1.setRoomType(RoomType.NORMAL);
+        room1.setRoomType(RoomType.REGULAR);
         room1.setStatus(MeetingRoomStatus.AVAILABLE);
         room1.setEquipmentList(standardEquipment);
 
@@ -105,8 +106,8 @@ class MeetingRoomServiceImplementationTest {
         room3.setCapacity(5);
         room3.setOperatingHoursStart(LocalTime.of(9, 0));
         room3.setOperatingHoursEnd(LocalTime.of(17, 0));
-        room3.setRoomType(RoomType.NORMAL);
-        room3.setStatus(MeetingRoomStatus.UNDER_MAINTENANCE);
+        room3.setRoomType(RoomType.REGULAR);
+        room3.setStatus(MeetingRoomStatus.AVAILABLE);
         room3.setEquipmentList(basicEquipment);
 
         MeetingRoom room4 = new MeetingRoom();
@@ -118,8 +119,8 @@ class MeetingRoomServiceImplementationTest {
         room4.setCapacity(8);
         room4.setOperatingHoursStart(LocalTime.of(8, 30));
         room4.setOperatingHoursEnd(LocalTime.of(17, 30));
-        room4.setRoomType(RoomType.NORMAL);
-        room4.setStatus(MeetingRoomStatus.BOOKED);
+        room4.setRoomType(RoomType.REGULAR);
+        room4.setStatus(MeetingRoomStatus.AVAILABLE);
         room4.setEquipmentList(emptyEquipment);
 
         meetingRoomList = new ArrayList<>();
@@ -135,7 +136,7 @@ class MeetingRoomServiceImplementationTest {
         dto1.setBuilding("Building A");
         dto1.setFloor(0);
         dto1.setCapacity(10);
-        dto1.setRoomType(RoomType.NORMAL);
+        dto1.setRoomType(RoomType.REGULAR);
         dto1.setStatus(MeetingRoomStatus.AVAILABLE);
         Set<String> standardEquipmentTypes = new HashSet<>();
         standardEquipmentTypes.add("Projector");
@@ -163,8 +164,8 @@ class MeetingRoomServiceImplementationTest {
         dto3.setBuilding("Building A");
         dto3.setFloor(2);
         dto3.setCapacity(5);
-        dto3.setRoomType(RoomType.NORMAL);
-        dto3.setStatus(MeetingRoomStatus.UNDER_MAINTENANCE);
+        dto3.setRoomType(RoomType.REGULAR);
+        dto3.setStatus(MeetingRoomStatus.AVAILABLE);
         Set<String> basicEquipmentTypes = new HashSet<>();
         basicEquipmentTypes.add("Whiteboard");
         dto3.setEquipmentTypes(basicEquipmentTypes);
@@ -175,8 +176,8 @@ class MeetingRoomServiceImplementationTest {
         dto4.setBuilding("Building C");
         dto4.setFloor(1);
         dto4.setCapacity(8);
-        dto4.setRoomType(RoomType.NORMAL);
-        dto4.setStatus(MeetingRoomStatus.BOOKED);
+        dto4.setRoomType(RoomType.REGULAR);
+        dto4.setStatus(MeetingRoomStatus.AVAILABLE);
         dto4.setEquipmentTypes(new HashSet<>()); // Empty equipment set
 
         meetingRoomDTOList = new ArrayList<>();

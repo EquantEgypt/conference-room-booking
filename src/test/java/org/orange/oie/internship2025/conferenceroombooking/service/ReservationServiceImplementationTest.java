@@ -19,6 +19,8 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -139,7 +141,7 @@ public class ReservationServiceImplementationTest {
     @Test
     void createBookingShouldThrowBadRequestExceptionWhenRoomTypeIsRegularAndReservationTypeIsExternal() {
         //Given
-        meetingRoom.setRoomType(RoomType.NORMAL);
+        meetingRoom.setRoomType(RoomType.REGULAR);
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 

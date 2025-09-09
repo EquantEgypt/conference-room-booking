@@ -29,7 +29,7 @@ ALTER TABLE departments ADD CONSTRAINT fk_department_manager FOREIGN KEY (manage
 
 
 CREATE TABLE equipment (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    equipment_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     type VARCHAR(100) NOT NULL UNIQUE
 );
 
@@ -41,14 +41,20 @@ CREATE TABLE meeting_rooms (
     building VARCHAR(100) NOT NULL,
     floor INT NOT NULL,
     geo_location VARCHAR(255),
-    equipment TEXT,
     operating_hours_start TIME NOT NULL,
     operating_hours_end TIME NOT NULL,
-    room_type VARCHAR(20) NOT NULL CHECK (room_type IN ('VIP', 'NORMAL')),
+    room_type VARCHAR(20) NOT NULL CHECK (room_type IN ('VIP', 'REGULAR')),
     status VARCHAR(20) NOT NULL DEFAULT 'AVAILABLE'
-        CHECK (status IN ('AVAILABLE', 'UNDER_MAINTENANCE', 'BOOKED'))
+        CHECK (status IN ('AVAILABLE', 'UNDER_MAINTENANCE'))
 );
 
+CREATE TABLE meetingroom_equipment (
+    meetingroom_id BIGINT NOT NULL,
+    equipment_id BIGINT NOT NULL,
+    PRIMARY KEY (meetingroom_id, equipment_id),
+    CONSTRAINT fk_meetingroom_equipment_room FOREIGN KEY (meetingroom_id) REFERENCES meeting_rooms(room_id),
+    CONSTRAINT fk_meetingroom_equipment_equipment FOREIGN KEY (equipment_id) REFERENCES equipment(equipment_id)
+);
 
 CREATE TABLE reservations (
     reservation_id BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -57,7 +63,7 @@ CREATE TABLE reservations (
     end_time DATETIME NOT NULL,
     reservation_type VARCHAR(20) NOT NULL,
     recurrence_option VARCHAR(20) NOT NULL DEFAULT 'ONE_TIME'
-            CHECK (recurrence_option IN ('ONE_TIME', 'DAILY', 'WEEKLY', 'MONTHLY')),
+            CHECK (recurrence_option IN ('ONE_TIME', 'DAILY', 'WEEKLY')),
 
     user_id BIGINT NOT NULL,
     room_id BIGINT NOT NULL,
@@ -66,10 +72,3 @@ CREATE TABLE reservations (
     CONSTRAINT fk_reservation_room FOREIGN KEY (room_id) REFERENCES meeting_rooms(room_id)
 );
 
-CREATE TABLE meetingroom_equipment (
-    meetingroom_id BIGINT NOT NULL,
-    equipment_id BIGINT NOT NULL,
-    PRIMARY KEY (meetingroom_id, equipment_id),
-    CONSTRAINT fk_meetingroom_equipment_room FOREIGN KEY (meetingroom_id) REFERENCES meeting_rooms(room_id),
-    CONSTRAINT fk_meetingroom_equipment_equipment FOREIGN KEY (equipment_id) REFERENCES equipment(id)
-);

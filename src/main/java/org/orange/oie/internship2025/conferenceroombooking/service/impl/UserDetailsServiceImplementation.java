@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
@@ -27,7 +27,7 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
                 .roles("USER").build();
     }
 
-    User getCurrentUser() {
+    public User getCurrentUser() {
         return userRepository.findByEmail(
                 SecurityContextHolder.getContext().getAuthentication().getName()
         ).orElseThrow(() -> new UsernameNotFoundException("UserName is not found"));
