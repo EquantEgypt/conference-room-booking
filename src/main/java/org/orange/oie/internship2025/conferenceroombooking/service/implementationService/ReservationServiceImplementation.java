@@ -23,6 +23,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.beans.Transient;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -96,6 +97,11 @@ public class ReservationServiceImplementation implements ReservationService {
                 }
             }
 
+            if (reservationRequest.getRoomId() == null || reservationRequest.getType() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reservation data");
+            }
+
+
             List<Reservation> saved = reservationRepository.saveAll(reservations);
             return saved.stream().map(reservationMapper::toResponse).toList();
         }
@@ -113,56 +119,48 @@ public class ReservationServiceImplementation implements ReservationService {
         List<Reservation> conflictingReservations = reservationRepository.findConflicts(room, startTime, endTime);
         return conflictingReservations.isEmpty();
     }
-
     private List<Reservation> generateRecurringReservations(ReservationRequest request, User user, MeetingRoom room) {
-        List<Reservation> reservations = new java.util.ArrayList<>();
+        List<Reservation> reservations = new ArrayList<>();
         LocalDateTime currentStart = request.getStartTime();
         LocalDateTime currentEnd = request.getEndTime();
         LocalDateTime recurrenceEnd = request.getRecurrenceEndDate();
         RecurrenceOption option = request.getRecurrenceOption();
 
-
         while (currentStart.isBefore(recurrenceEnd)) {
             if (!isRoomAvailable(room, currentStart, currentEnd)) {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conflict found for time: " + currentStart);
             }
-            ReservationRequest occurrence = new ReservationRequest(
-                    request.getType(),
-                    request.getDescription(),
-                    currentStart,
-                    currentEnd,
-                    option,
-                    recurrenceEnd,
-                    request.getRoomId()
-            );
 
-
-
+            ReservationRequest occurrence = createOccurrenceRequest(request, currentStart, currentEnd);
             Reservation reservation = reservationMapper.toEntity(occurrence, user, room);
+
             if (reservation != null) {
                 reservations.add(reservation);
             }
 
-
             switch (option) {
-                case DAILY -> {
-                    currentStart = currentStart.plusDays(1);
-                    currentEnd = currentEnd.plusDays(1);
-                }
-                case WEEKLY -> {
-                    currentStart = currentStart.plusWeeks(1);
-                    currentEnd = currentEnd.plusWeeks(1);
-                }
-                case MONTHLY -> {
-                    currentStart = currentStart.plusMonths(1);
-                    currentEnd = currentEnd.plusMonths(1);
-                }
+                case DAILY -> { currentStart = currentStart.plusDays(1); currentEnd = currentEnd.plusDays(1); }
+                case WEEKLY -> { currentStart = currentStart.plusWeeks(1); currentEnd = currentEnd.plusWeeks(1); }
+                case MONTHLY -> { currentStart = currentStart.plusMonths(1); currentEnd = currentEnd.plusMonths(1); }
                 default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown Recurrence Option");
             }
         }
 
         return reservations;
     }
+
+    private ReservationRequest createOccurrenceRequest(ReservationRequest request, LocalDateTime currentStart, LocalDateTime currentEnd) {
+        return new ReservationRequest(
+                request.getType(),
+                request.getDescription(),
+                currentStart,
+                currentEnd,
+                request.getRecurrenceOption(),
+                request.getRecurrenceEndDate(),
+                request.getRoomId()
+        );
+    }
+
 
 }
 
