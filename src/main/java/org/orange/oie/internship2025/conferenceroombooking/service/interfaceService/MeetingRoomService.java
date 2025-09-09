@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.service.interfaceService;
 
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 

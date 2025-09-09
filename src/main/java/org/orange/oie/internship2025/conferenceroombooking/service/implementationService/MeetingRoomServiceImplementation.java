@@ -1,10 +1,11 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.service.implementationService;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
+import org.orange.oie.internship2025.conferenceroombooking.service.interfaceService.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

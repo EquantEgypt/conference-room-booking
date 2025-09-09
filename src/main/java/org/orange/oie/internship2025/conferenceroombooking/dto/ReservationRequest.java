@@ -16,6 +16,7 @@ public class ReservationRequest {
     private String description;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
-    private RecurrenceOption recurrenceOption;
+    private RecurrenceOption recurrenceOption = RecurrenceOption.ONE_TIME;
+    private LocalDateTime recurrenceEndDate;
     private Long roomId;
 }

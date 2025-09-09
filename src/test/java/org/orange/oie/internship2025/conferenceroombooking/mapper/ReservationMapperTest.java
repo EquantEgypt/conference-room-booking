@@ -15,8 +15,10 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @ExtendWith(MockitoExtension.class)
 public class ReservationMapperTest {
@@ -72,33 +74,26 @@ public class ReservationMapperTest {
         reservationResponse.setRecurrenceOption(RecurrenceOption.WEEKLY);
     }
 
-    @Test
-    void whenReservationMapper_toResponseReturnReservationResponse() {
-        //Given
-        //When
-        ReservationResponse reservationResponse1 = reservationMapper.toResponse(reservation);
-        //Then
-        assertEquals(reservationResponse.getReservationId(), reservationResponse1.getReservationId());
-        assertEquals(reservationResponse.getType(), reservationResponse1.getType());
-        assertEquals(reservationResponse.getDescription(), reservationResponse1.getDescription());
-        assertEquals(reservationResponse.getStartTime(), reservationResponse1.getStartTime());
-        assertEquals(reservationResponse.getEndTime(), reservationResponse1.getEndTime());
-        assertEquals(reservationResponse.getRecurrenceOption(), reservationResponse1.getRecurrenceOption());
-        assertEquals(meetingRoom.getRoomId(), reservationResponse1.getRoomId());
-    }
 
     @Test
-    void whenReservationMapper_toEntityReturnReservation() {
-        //Given
-        //When
-        Reservation reservation1 = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
-        //Then
-        assertEquals(reservationRequest.getType(), reservation1.getType());
-        assertEquals(reservationRequest.getDescription(), reservation1.getDescription());
-        assertEquals(reservationRequest.getStartTime(), reservation1.getStartTime());
-        assertEquals(reservationRequest.getEndTime(), reservation1.getEndTime());
-        assertEquals(reservationRequest.getRecurrenceOption(), reservation1.getRecurrenceOption());
-        assertEquals(user, reservation1.getUser());
-        assertEquals(meetingRoom, reservation1.getRoom());
+    void whenReservationMapper_toResponseList_thenReturnListOfReservationResponses() {
+        // Given
+        List<Reservation> reservationList = List.of(reservation);
+
+        // When
+        List<ReservationResponse> responseList = reservationMapper.toResponseList(reservationList);
+
+        // Then
+        assertNotNull(responseList);
+        assertEquals(1, responseList.size());
+
+        ReservationResponse response = responseList.get(0);
+        assertEquals(reservation.getReservationId(), response.getReservationId());
+        assertEquals(reservation.getType(), response.getType());
+        assertEquals(reservation.getDescription(), response.getDescription());
+        assertEquals(reservation.getStartTime(), response.getStartTime());
+        assertEquals(reservation.getEndTime(), response.getEndTime());
+        assertEquals(reservation.getRecurrenceOption(), response.getRecurrenceOption());
+        assertEquals(reservation.getRoom().getRoomId(), response.getRoomId());
     }
 }

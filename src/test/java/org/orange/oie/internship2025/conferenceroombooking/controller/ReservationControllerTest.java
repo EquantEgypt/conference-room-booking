@@ -10,7 +10,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationReques
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.service.ReservationServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -20,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -68,14 +69,14 @@ public class ReservationControllerTest {
     void createShouldReturnOkAndReservationResponseWhenSuccess() throws Exception {
         //Given
         when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
-                .thenReturn(reservationResponse);
+                .thenReturn(List.of(reservationResponse));
         //When & Then
         this.mockMvc.perform(post("/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(content().json(objectMapper.writeValueAsString(reservationResponse)));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(reservationResponse))));
     }
 
     @Test

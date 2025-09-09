@@ -1,6 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
-import org.orange.oie.internship2025.conferenceroombooking.service.MeetingRoomService;
+import org.orange.oie.internship2025.conferenceroombooking.service.interfaceService.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

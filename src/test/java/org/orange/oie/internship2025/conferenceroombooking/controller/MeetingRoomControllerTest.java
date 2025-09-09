@@ -7,7 +7,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
-import org.orange.oie.internship2025.conferenceroombooking.service.MeetingRoomServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.MeetingRoomServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

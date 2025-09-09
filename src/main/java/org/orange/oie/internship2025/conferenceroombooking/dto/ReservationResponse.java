@@ -18,5 +18,6 @@ public class ReservationResponse {
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private RecurrenceOption recurrenceOption;
+    private LocalDateTime recurrenceEndDate;
     private Long roomId;
 }

@@ -19,6 +19,9 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
+import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.ReservationServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.UserDetailsServiceImplementation;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -76,7 +79,7 @@ public class ReservationServiceImplementationTest {
         reservationRequest.setDescription("Weekly team standup meeting");
         reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        reservationRequest.setRecurrenceOption(RecurrenceOption.ONE_TIME);
         reservationRequest.setRoomId(1L);
 
         reservation = new Reservation();
@@ -85,7 +88,7 @@ public class ReservationServiceImplementationTest {
         reservation.setDescription("Weekly team standup meeting");
         reservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservation.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        reservation.setRecurrenceOption(RecurrenceOption.ONE_TIME);
         reservation.setUser(user);
         reservation.setRoom(meetingRoom);
 
@@ -95,7 +98,7 @@ public class ReservationServiceImplementationTest {
         reservationResponse.setDescription("Weekly team standup meeting");
         reservationResponse.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
         reservationResponse.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservationResponse.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        reservationResponse.setRecurrenceOption(RecurrenceOption.ONE_TIME);
     }
 
     @Test
@@ -105,17 +108,18 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
         when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
                 .thenReturn(reservation);
-        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(new ArrayList<>());
-        when(reservationRepository.findAllByRoomAndEndTimeBetween(any(MeetingRoom.class)
+        when(reservationRepository.findConflicts(any(MeetingRoom.class)
                 , any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(new ArrayList<>());
         when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+
         //When
-        ReservationResponse response = reservationServiceImplementation.createBooking(reservationRequest);
+        List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
+
         //Then
+        assertEquals(1, responses.size());
+        ReservationResponse response = responses.get(0);
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());
         assertEquals(response.getEndTime(), reservationResponse.getEndTime());
@@ -130,7 +134,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ResponseStatusException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -144,7 +148,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ResponseStatusException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -152,22 +156,26 @@ public class ReservationServiceImplementationTest {
 
     @Test
     void createBookingShouldThrowBadRequestExceptionWhenRoomIsBookedInTimeRange() {
-        //Given
+        // Given
         Reservation reservation = new Reservation();
+        reservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        reservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+
         List<Reservation> reservationList = new ArrayList<>();
         reservationList.add(reservation);
+
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(reservationRepository.findConflicts(any(MeetingRoom.class),
+                any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(reservationList);
 
-        //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        // When & Then
+        assertThrows(ResponseStatusException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
-
     }
+
 
     @Test
     void createBookingShouldThrowBadRequestExceptionWhenRoomIsNotFound() {
@@ -177,6 +185,233 @@ public class ReservationServiceImplementationTest {
 
         //When & Then
         assertThrows(BadRequestException.class, () -> {
+            reservationServiceImplementation.createBooking(reservationRequest);
+        });
+
+    }
+
+    @Test
+    void createBookingShouldThrowBadRequestWhenStartTimeIsAfterEndTime() {
+        reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 11, 0));
+        reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+
+        assertThrows(ResponseStatusException.class, () -> {
+            reservationServiceImplementation.createBooking(reservationRequest);
+        });
+    }
+
+    @Test
+    void createBookingShouldThrowBadRequestWhenStartOrEndTimeIsNull() {
+        reservationRequest.setStartTime(null);
+        reservationRequest.setEndTime(null);
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+
+        assertThrows(ResponseStatusException.class, () -> {
+            reservationServiceImplementation.createBooking(reservationRequest);
+        });
+    }
+
+
+    @Test
+    void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_Weekly() throws Exception {
+        // Given
+        reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 2, 15, 9, 0));
+
+
+        Reservation recurringReservation = new Reservation();
+        recurringReservation.setReservationId(2L);
+        recurringReservation.setType(ReservationType.EXTERNAL);
+        recurringReservation.setDescription("Weekly team standup meeting ");
+        recurringReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        recurringReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        recurringReservation.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        recurringReservation.setUser(user);
+        recurringReservation.setRoom(meetingRoom);
+
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(recurringReservation);
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+                .thenReturn(recurringReservation);
+        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+
+        // When
+        List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
+
+        // Then
+        assertEquals(1, responses.size());
+        ReservationResponse response = responses.get(0);
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), recurringReservation.getStartTime());
+        assertEquals(response.getEndTime(), recurringReservation.getEndTime());
+        assertEquals(response.getType(), recurringReservation.getType());
+    }
+
+
+
+    @Test
+    void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_Monthly() throws Exception {
+        // Given
+        reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY);
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 2, 15, 9, 0));
+
+
+        Reservation recurringReservation = new Reservation();
+        recurringReservation.setReservationId(2L);
+        recurringReservation.setType(ReservationType.EXTERNAL);
+        recurringReservation.setDescription("Weekly team standup meeting ");
+        recurringReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        recurringReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        recurringReservation.setRecurrenceOption(RecurrenceOption.MONTHLY);
+        recurringReservation.setUser(user);
+        recurringReservation.setRoom(meetingRoom);
+
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(recurringReservation);
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+                .thenReturn(recurringReservation);
+        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+
+        // When
+        List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
+
+        // Then
+        assertEquals(1, responses.size());
+        ReservationResponse response = responses.get(0);
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), recurringReservation.getStartTime());
+        assertEquals(response.getEndTime(), recurringReservation.getEndTime());
+        assertEquals(response.getType(), recurringReservation.getType());
+    }
+
+
+    @Test
+    void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingFailuer_Weekly() throws Exception {
+
+        reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 1, 15, 9, 0));
+
+
+        Reservation recurringReservation = new Reservation();
+        recurringReservation.setReservationId(2L);
+        recurringReservation.setType(ReservationType.EXTERNAL);
+        recurringReservation.setDescription("Weekly team standup meeting ");
+        recurringReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        recurringReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        recurringReservation.setRecurrenceOption(RecurrenceOption.MONTHLY);
+        recurringReservation.setUser(user);
+        recurringReservation.setRoom(meetingRoom);
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(recurringReservation);
+
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        .thenReturn(new ArrayList<>());
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        .thenReturn(recurringReservation);
+        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+
+
+        List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
+
+
+        assertEquals(1, responses.size());
+        ReservationResponse response = responses.get(0);
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), recurringReservation.getStartTime());
+        assertEquals(response.getEndTime(), recurringReservation.getEndTime());
+        assertEquals(response.getType(), recurringReservation.getType());
+
+    }
+
+    @Test
+    void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingFailuer_Monthly() throws Exception {
+
+        reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY);
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 1, 15, 9, 0));
+
+
+        Reservation recurringReservation = new Reservation();
+        recurringReservation.setReservationId(2L);
+        recurringReservation.setType(ReservationType.EXTERNAL);
+        recurringReservation.setDescription("Weekly team standup meeting ");
+        recurringReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        recurringReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        recurringReservation.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        recurringReservation.setUser(user);
+        recurringReservation.setRoom(meetingRoom);
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(recurringReservation);
+
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+                .thenReturn(recurringReservation);
+        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+
+
+        List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
+
+
+        assertEquals(1, responses.size());
+        ReservationResponse response = responses.get(0);
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), recurringReservation.getStartTime());
+        assertEquals(response.getEndTime(), recurringReservation.getEndTime());
+        assertEquals(response.getType(), recurringReservation.getType());
+
+    }
+
+
+
+
+    @Test
+    void createRecurringReservationShouldThrowBadRequestExceptionWhenRoomIsNotFound() {
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.empty());
+        assertThrows(BadRequestException.class, () -> {
+            reservationServiceImplementation.createBooking(reservationRequest);
+        });
+    }
+
+    @Test
+    void createRecurringReservationShouldThrowBadRequestExceptionWhenStartOrEndTimeIsNull() {
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        assertThrows(ResponseStatusException.class, () -> {
+            reservationServiceImplementation.createBooking(reservationRequest);
+        });
+    }
+
+    @Test
+    void createRecurringReservationShouldThrowBadRequestExceptionWhenStartOrEndTimeIsEmpty() {
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        assertThrows(ResponseStatusException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
