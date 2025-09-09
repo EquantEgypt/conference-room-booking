@@ -26,56 +26,28 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
         this.objectMapper = objectMapper;
     }
 
+
+
     @Override
     public List<MeetingRoomDTO> getAllMeetingRooms() {
         List<MeetingRoom> rooms = meetingRoomRepository.findAll();
-
-        if (rooms == null) {
-            return Collections.emptyList(); // Defensive: avoid NPE
-        }
 
         return rooms.stream()
                 .map(room -> {
                     MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
 
-                    // Null-safe equipment handling
-                    if (room.getEquipmentList() != null) {
-                        meetingRoomDTO.setEquipmentTypes(
-                                room.getEquipmentList().stream()
-                                        .filter(e -> e != null && e.getType() != null)
-                                        .map(Equipment::getType)
-                                        .collect(Collectors.toSet())
-                        );
-                    } else {
-                        meetingRoomDTO.setEquipmentTypes(Collections.emptySet());
-                    }
+                    meetingRoomDTO.setEquipmentTypes(
+                            room.getEquipmentList() == null
+                                    ? Collections.emptySet()
+                                    : room.getEquipmentList().stream()
+                                    .map(Equipment::getType)
+                                    .collect(Collectors.toSet())
+                    );
 
                     return meetingRoomDTO;
                 })
                 .collect(Collectors.toList());
     }
-
-//
-//    @Override
-//    public List<MeetingRoomDTO> getAllMeetingRooms() {
-//        List<MeetingRoom> rooms = meetingRoomRepository.findAll();
-//
-//        return rooms.stream()
-//                .map(room -> {
-//                    MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
-//
-//                    meetingRoomDTO.setEquipmentTypes(
-//                            room.getEquipmentList() == null
-//                                    ? Collections.emptySet()
-//                                    : room.getEquipmentList().stream()
-//                                    .map(Equipment::getType)
-//                                    .collect(Collectors.toSet())
-//                    );
-//
-//                    return meetingRoomDTO;
-//                })
-//                .collect(Collectors.toList());
-//    }
 
 
 }

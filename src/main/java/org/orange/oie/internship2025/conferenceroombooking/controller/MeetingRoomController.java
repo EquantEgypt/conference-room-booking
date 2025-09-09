@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
+
 import org.orange.oie.internship2025.conferenceroombooking.service.interfaceService.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,7 +31,6 @@ public class MeetingRoomController {
     }
 
 }
-
 
 
 
