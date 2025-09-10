@@ -62,7 +62,7 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
                     startTime,
                     endTime,
                     (equipmentTypes == null) ? Collections.emptySet() : equipmentTypes,
-                    equipmentTypes.size()
+                    (equipmentTypes == null) ? 0L : equipmentTypes.size()
             );
 
             return rooms.stream()

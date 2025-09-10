@@ -15,14 +15,15 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.MeetingRoomServiceImplementation;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -213,5 +214,58 @@ class MeetingRoomServiceImplementationTest {
             assertEquals(meetingRoomDTOList.get(i).getStatus(), meetingRoomList.get(i).getStatus());
             assertEquals(meetingRoomDTOList.get(i).getBuilding(), meetingRoomList.get(i).getBuilding());
         }
+    }
+
+    @Test
+    void testGetAvailableRooms_WithStandardEquipment(){
+        // define parameters
+        int capacity = 5;
+        LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 10, 10, 11, 0);
+        Set<String> requiredEquipments = Set.of("Projector", "Whiteboard");
+
+        // Mock repository -> return rooms that satisfy the query
+        when(meetingRoomRepository.findAvailableRooms
+                (eq(capacity),eq(startTime),eq(endTime),argThat(set -> set.equals(requiredEquipments)),eq((long)requiredEquipments.size())))
+                .thenReturn(List.of(meetingRoomList.get(0)));
+
+        // Mock objectMapper -> map entity to DTO
+        when(objectMapper.convertValue(meetingRoomList.get(0), MeetingRoomDTO.class))
+                .thenReturn(meetingRoomDTOList.get(0));
+
+        // Act
+        List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
+                startTime, endTime, capacity, requiredEquipments);
+
+        assertThat(result).hasSize(1);
+        MeetingRoomDTO dto = result.getFirst();
+        assertThat(dto.getName()).isEqualTo("Conference Room A");
+        assertThat(dto.getEquipmentTypes()).containsExactlyInAnyOrder("Projector", "Whiteboard");
+    }
+
+    @Test
+    void testGetAvailableRooms_WhenEquipmentTypesNull(){
+        // define parameters
+        int capacity = 8;
+        LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
+        LocalDateTime endTime = LocalDateTime.of(2025, 10, 10, 15, 0);
+
+        // Mock repository -> return rooms that satisfy the query
+        when(meetingRoomRepository.findAvailableRooms
+                (eq(capacity),eq(startTime),eq(endTime),eq(Collections.emptySet()),eq(0L)))
+                .thenReturn(List.of(meetingRoomList.get(3)));
+
+        // Mock objectMapper -> map entity to DTO
+        when(objectMapper.convertValue(meetingRoomList.get(3), MeetingRoomDTO.class))
+                .thenReturn(meetingRoomDTOList.get(3));
+
+        // Act
+        List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
+                startTime, endTime, capacity, null);
+
+        assertThat(result).hasSize(1);
+        MeetingRoomDTO dto = result.getFirst();
+        assertThat(dto.getName()).isEqualTo("Basic Room");
+        assertThat(dto.getEquipmentTypes()).isEmpty();
     }
 }
