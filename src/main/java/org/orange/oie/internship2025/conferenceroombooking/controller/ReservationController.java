@@ -36,8 +36,7 @@ public class ReservationController {
     public ResponseEntity<?> deleteBooking(@PathVariable Long reservation_id) {
         try {
             reservationService.deleteBooking(reservation_id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("reservation: "
-                    + reservation_id + " is successfully deleted");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
         } catch (UsernameNotFoundException usernameNotFoundException) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(usernameNotFoundException.getMessage());
         } catch (ResourceNotFoundException resourceNotFoundException) {
