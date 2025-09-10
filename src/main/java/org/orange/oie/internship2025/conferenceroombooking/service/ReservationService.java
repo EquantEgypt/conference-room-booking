@@ -10,4 +10,6 @@ public interface ReservationService {
     ReservationResponse createBooking(ReservationRequest reservationRequest) throws BadRequestException, UsernameNotFoundException;
 
     void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException;
+
+    ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id) throws BadRequestException, UsernameNotFoundException;
 }

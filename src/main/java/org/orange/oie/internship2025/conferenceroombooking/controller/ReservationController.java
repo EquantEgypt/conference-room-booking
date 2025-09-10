@@ -44,4 +44,17 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("reservation not found");
         }
     }
+
+    @PutMapping("/{reservation_id}")
+    public ResponseEntity<?> updateBooking(@RequestBody ReservationRequest reservationRequest, @PathVariable Long reservation_id) {
+        try {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(reservationService.updateBooking(reservationRequest, reservation_id));
+        } catch (ResourceNotFoundException | BadRequestException resourceNotFoundException) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(resourceNotFoundException.getMessage());
+        } catch (UsernameNotFoundException usernameNotFoundException) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(usernameNotFoundException.getMessage());
+        }
+    }
+
 }

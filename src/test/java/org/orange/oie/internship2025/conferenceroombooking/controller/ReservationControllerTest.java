@@ -26,8 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -69,7 +68,7 @@ public class ReservationControllerTest {
     }
 
     @Test
-    void createShouldReturnOkAndReservationResponseWhenSuccess() throws Exception {
+    void createShouldReturnCreatedAndReservationResponseWhenSuccess() throws Exception {
         //Given
         when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
                 .thenReturn(reservationResponse);
@@ -126,6 +125,46 @@ public class ReservationControllerTest {
         this.mockMvc.perform(delete("/reserve/1"))
                 .andDo(print())
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateShouldReturnCreatedAndReservationResponseWhenSuccess() throws Exception {
+        //Given
+        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+                .thenReturn(reservationResponse);
+        //When & Then
+        this.mockMvc.perform(put("/reserve/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(content().json(objectMapper.writeValueAsString(reservationResponse)));
+    }
+
+    @Test
+    void updateShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
+        //Given
+        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+                .thenThrow(new UsernameNotFoundException("username not found"));
+        //When & Then
+        this.mockMvc.perform(put("/reserve/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void updateShouldReturnBadRequestWhenAnyErrorInRequestBodyOrResourceNotFound() throws Exception {
+        //Given
+        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+                .thenThrow(new ResourceNotFoundException("reservation not found"));
+        //When & Then
+        this.mockMvc.perform(put("/reserve/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
     }
 
 }

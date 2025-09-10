@@ -204,4 +204,100 @@ public class ReservationServiceImplementationTest {
             reservationServiceImplementation.deleteBooking(1L);
         });
     }
+
+    @Test
+    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccess() throws Exception {
+        //Given
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(true);
+        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(reservation);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+                .thenReturn(reservation);
+        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
+                , any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+        when(reservationRepository.findAllByRoomAndEndTimeBetween(any(MeetingRoom.class)
+                , any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        //When
+        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        //Then
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), reservationResponse.getStartTime());
+        assertEquals(response.getEndTime(), reservationResponse.getEndTime());
+        assertEquals(response.getType(), reservationResponse.getType());
+    }
+
+    @Test
+    void updateBookingShouldThrowResourceNotFoundWhenReservationIsNotFound() {
+        //Given
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(false);
+
+        //When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        });
+
+    }
+
+    @Test
+    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccessAndNoTimeConflictInCanUpdateDateTime() throws Exception {
+        //Given
+        List<Reservation> reservationList = new ArrayList<>();
+        reservationList.add(reservation);
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(true);
+        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(reservation);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
+                , any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(reservationList);
+        when(reservationRepository.findAllByRoomAndEndTimeBetween(any(MeetingRoom.class)
+                , any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(reservationList);
+        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+                .thenReturn(reservation);
+        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+
+        //When
+        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        //Then
+        assertEquals(response.getReservationId(), reservationResponse.getReservationId());
+        assertEquals(response.getStartTime(), reservationResponse.getStartTime());
+        assertEquals(response.getEndTime(), reservationResponse.getEndTime());
+        assertEquals(response.getType(), reservationResponse.getType());
+    }
+
+    @Test
+    void updateBookingShouldReturnBadRequestWhenUpdateBookingHasDateTimeConflict() {
+        //Given
+        List<Reservation> reservationList = new ArrayList<>();
+        reservationList.add(reservation);
+        reservationList.add(reservation);
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(true);
+        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(reservation);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
+                , any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(reservationList);
+
+        //When & Then
+        assertThrows(BadRequestException.class, () -> {
+            reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        });
+    }
+
 }

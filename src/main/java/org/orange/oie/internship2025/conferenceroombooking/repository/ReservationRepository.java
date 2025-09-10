@@ -18,4 +18,6 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
     void deleteByReservationIdAndUser(Long reservationId, User user);
 
     boolean existsByReservationIdAndUser(Long reservationId, User user);
+
+    Reservation findByReservationIdAndUser(Long reservationId, User user);
 }
