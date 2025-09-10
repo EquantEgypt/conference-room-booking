@@ -5,9 +5,13 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -15,14 +19,20 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserDetailsServiceImplementationTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private Authentication authentication;
 
     @InjectMocks
     private UserDetailsServiceImplementation userDetailsServiceImplementation;
@@ -65,5 +75,37 @@ public class UserDetailsServiceImplementationTest {
 
         assertThatThrownBy(() -> userDetailsServiceImplementation.loadUserByUsername("nonexistent@orange.com"))
                 .isInstanceOf(UsernameNotFoundException.class);
+    }
+
+    @Test
+    void whenGetCurrentUserReturnUserWhenSuccess() throws Exception {
+        //Given
+        when(userRepository.findByEmail(any())).thenReturn(Optional.of(testUser));
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMockedStatic
+                     = mockStatic(SecurityContextHolder.class)) {
+            SecurityContext securityContext = mock(SecurityContext.class);
+            securityContextHolderMockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            //When
+            User user = userDetailsServiceImplementation.getCurrentUser();
+            //Then
+            assertEquals(testUser.getUserId(), user.getUserId());
+        }
+    }
+
+    @Test
+    void whenGetCurrentUserShouldThrowUsernameNotFoundExceptionWhenUserNotFound() {
+        //Given
+        when(userRepository.findByEmail(any())).thenReturn(Optional.empty());
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMockedStatic
+                     = mockStatic(SecurityContextHolder.class)) {
+            SecurityContext securityContext = mock(SecurityContext.class);
+            securityContextHolderMockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(authentication);
+            //When & Then
+            assertThrows(UsernameNotFoundException.class, () -> {
+                userDetailsServiceImplementation.getCurrentUser();
+            });
+        }
     }
 }

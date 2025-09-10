@@ -16,6 +16,7 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
@@ -182,4 +183,25 @@ public class ReservationServiceImplementationTest {
 
     }
 
+    @Test
+    void shouldReturnVoidWhenSuccessfulDelete() {
+        //Given
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(true);
+        //When & Then
+        reservationServiceImplementation.deleteBooking(1L);
+    }
+
+    @Test
+    void shouldThrowResourceNotFoundExceptionWhenReservationNotFound() {
+        //Given
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+                .thenReturn(false);
+        //When & Then
+        assertThrows(ResourceNotFoundException.class, () -> {
+            reservationServiceImplementation.deleteBooking(1L);
+        });
+    }
 }

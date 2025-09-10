@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.service;
 
+import jakarta.transaction.Transactional;
 import org.apache.coyote.BadRequestException;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
@@ -9,6 +10,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
@@ -59,6 +61,16 @@ public class ReservationServiceImplementation implements ReservationService {
         }
         Reservation reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
         return reservationMapper.toResponse(reservationRepository.save(reservation));
+    }
+
+    @Override
+    @Transactional
+    public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
+        User user = userDetailsServiceImplementation.getCurrentUser();
+        if (!reservationRepository.existsByReservationIdAndUser(reservationId, user)) {
+            throw new ResourceNotFoundException("reservation is not found");
+        }
+        reservationRepository.deleteByReservationIdAndUser(reservationId, user);
     }
 
     private boolean isAvailable(MeetingRoom room, LocalDateTime startTime, LocalDateTime endTime) {

@@ -10,6 +10,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationReques
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.service.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -22,7 +23,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -103,4 +107,25 @@ public class ReservationControllerTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void deleteShouldReturnNoContentWhenSuccessDelete() throws Exception {
+        //Given
+        //When & Then
+        this.mockMvc.perform(delete("/reserve/1"))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deleteShouldReturnResourceNotFoundWhenReservationNotFound() throws Exception {
+        //Given
+        doThrow(new ResourceNotFoundException("reservation not found"))
+                .when(reservationServiceImplementation).deleteBooking(anyLong());
+        //When & Then
+        this.mockMvc.perform(delete("/reserve/1"))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
 }
