@@ -1,0 +1,26 @@
+package org.orange.oie.internship2025.conferenceroombooking.controller;
+
+import org.orange.oie.internship2025.conferenceroombooking.dto.EquipmentDTO;
+import org.orange.oie.internship2025.conferenceroombooking.service.interfac.EquipmentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/equipment")
+public class EquipmentController {
+
+    private final EquipmentService equipmentService;
+
+    public EquipmentController(EquipmentService equipmentService) {
+        this.equipmentService = equipmentService;
+    }
+
+    @GetMapping
+    public ResponseEntity<List<EquipmentDTO>> getEquipment() {
+        return ResponseEntity.ok(equipmentService.getEquipment());
+    }
+}
