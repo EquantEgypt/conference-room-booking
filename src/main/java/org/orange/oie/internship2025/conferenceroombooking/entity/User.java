@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,7 +28,7 @@ public class User {
     private Long userId;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Role is required")
+    @NotNull(message = "Role is required")
     @Column(nullable = false)
     private UserRole role;
 

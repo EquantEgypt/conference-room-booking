@@ -28,3 +28,6 @@ target/
 
 # intellij idea
 .idea/
+
+#removing .DS_store
+src/main/java/org/orange/oie/internship2025/conferenceroombooking/.DS_Store
