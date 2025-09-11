@@ -12,7 +12,6 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 
 import java.time.LocalTime;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -60,9 +59,8 @@ public class MeetingRoom {
 
 
     @OneToMany(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference(value = "meeting-room-movement")
     private Set<Reservation> reservations;
-
 
 
     @ManyToMany(fetch = FetchType.EAGER)
@@ -71,6 +69,5 @@ public class MeetingRoom {
             joinColumns = @JoinColumn(name = "meetingroom_id"),
             inverseJoinColumns = @JoinColumn(name = "equipment_id")
     )
-    @JsonManagedReference
-    private Set<Equipment> equipmentList ;
+    private Set<Equipment> equipmentList;
 }

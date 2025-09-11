@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -27,6 +26,6 @@ public class Job {
     private String title;
 
     @OneToMany(mappedBy = "job")
-    @JsonManagedReference
+    @JsonManagedReference(value = "job-movement")
     private List<User> users;
 }

@@ -55,16 +55,16 @@ public class User {
 
     @ManyToOne
     @JoinColumn(name = "department_id")
-    @JsonBackReference
+    @JsonBackReference(value = "employee-movement")
     private Department department;
 
     @ManyToOne
     @JoinColumn(name = "job_id")
-    @JsonBackReference
+    @JsonBackReference(value = "job-movement")
     private Job job;
 
     @OneToMany(mappedBy = "user")
-    @JsonManagedReference
+    @JsonManagedReference(value = "user-movement")
     private List<Reservation> reservations;
 
 
