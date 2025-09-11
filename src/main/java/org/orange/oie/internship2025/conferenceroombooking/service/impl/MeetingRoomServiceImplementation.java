@@ -31,10 +31,15 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
         this.objectMapper = objectMapper;
     }
 
-
     @Override
-    public List<MeetingRoomDTO> getAllMeetingRooms() {
-        List<MeetingRoom> rooms = meetingRoomRepository.findAll();
+    public List<MeetingRoomDTO> getAvailableRooms(LocalDateTime startTime, LocalDateTime endTime, int capacity, Set<String> equipmentTypes) {
+        List<MeetingRoom> rooms = meetingRoomRepository.findAvailableRooms(
+                capacity,
+                startTime,
+                endTime,
+                (equipmentTypes == null) ? Collections.emptySet() : equipmentTypes,
+                (equipmentTypes == null) ? 0L : equipmentTypes.size()
+        );
 
         return rooms.stream()
                 .map(room -> {
@@ -52,33 +57,4 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
                 })
                 .collect(Collectors.toList());
     }
-
-
-
-        @Override
-        public List<MeetingRoomDTO> getAvailableRooms(LocalDateTime startTime, LocalDateTime endTime, int capacity, Set<String> equipmentTypes) {
-            List<MeetingRoom> rooms = meetingRoomRepository.findAvailableRooms(
-                    capacity,
-                    startTime,
-                    endTime,
-                    (equipmentTypes == null) ? Collections.emptySet() : equipmentTypes,
-                    (equipmentTypes == null) ? 0L : equipmentTypes.size()
-            );
-
-            return rooms.stream()
-                    .map(room -> {
-                        MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
-
-                        meetingRoomDTO.setEquipmentTypes(
-                                room.getEquipmentList() == null
-                                        ? Collections.emptySet()
-                                        : room.getEquipmentList().stream()
-                                        .map(Equipment::getType)
-                                        .collect(Collectors.toSet())
-                        );
-
-                        return meetingRoomDTO;
-                    })
-                    .collect(Collectors.toList());
-        }
 }

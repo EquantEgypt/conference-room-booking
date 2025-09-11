@@ -22,8 +22,7 @@ import java.util.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -189,34 +188,6 @@ class MeetingRoomServiceImplementationTest {
     }
 
     @Test
-    void shouldReturnListOfMeetingRoomDTOWhenGetAllMeetingRoomsIsCalled() {
-        //Given
-        when(meetingRoomRepository.findAll()).thenReturn(meetingRoomList);
-        when(objectMapper.convertValue(meetingRoomList.get(0), MeetingRoomDTO.class))
-                .thenReturn(meetingRoomDTOList.get(0));
-        when(objectMapper.convertValue(meetingRoomList.get(1), MeetingRoomDTO.class))
-                .thenReturn(meetingRoomDTOList.get(1));
-        when(objectMapper.convertValue(meetingRoomList.get(2), MeetingRoomDTO.class))
-                .thenReturn(meetingRoomDTOList.get(2));
-        when(objectMapper.convertValue(meetingRoomList.get(3), MeetingRoomDTO.class))
-                .thenReturn(meetingRoomDTOList.get(3));
-        //When
-        List<MeetingRoomDTO> meetingRoomDTOList = roomServiceImplementation.getAllMeetingRooms();
-        //Then
-        assertNotNull(meetingRoomDTOList);
-
-        for (int i = 0; i < meetingRoomDTOList.size(); i++) {
-            assertEquals(meetingRoomDTOList.get(i).getRoomId(), meetingRoomList.get(i).getRoomId());
-            assertEquals(meetingRoomDTOList.get(i).getName(), meetingRoomList.get(i).getName());
-            assertEquals(meetingRoomDTOList.get(i).getRoomType(), meetingRoomList.get(i).getRoomType());
-            assertEquals(meetingRoomDTOList.get(i).getFloor(), meetingRoomList.get(i).getFloor());
-            assertEquals(meetingRoomDTOList.get(i).getCapacity(), meetingRoomList.get(i).getCapacity());
-            assertEquals(meetingRoomDTOList.get(i).getStatus(), meetingRoomList.get(i).getStatus());
-            assertEquals(meetingRoomDTOList.get(i).getBuilding(), meetingRoomList.get(i).getBuilding());
-        }
-    }
-
-    @Test
     void testGetAvailableRooms_WithStandardEquipment(){
         // define parameters
         int capacity = 5;
@@ -267,5 +238,34 @@ class MeetingRoomServiceImplementationTest {
         MeetingRoomDTO dto = result.getFirst();
         assertThat(dto.getName()).isEqualTo("Basic Room");
         assertThat(dto.getEquipmentTypes()).isEmpty();
+    }
+
+    @Test
+    void getAvailableRoomsShouldReturnEmptyEquipmentTypesWhenEquipmentListIsNull() {
+
+        // Given
+        List<MeetingRoom> rooms = meetingRoomList;
+        MeetingRoom roomWithoutEquipment = rooms.get(2);
+        MeetingRoomDTO dto = new MeetingRoomDTO();
+        dto.setRoomId(2L);
+        dto.setName("Conference B");
+
+        when(meetingRoomRepository.findAvailableRooms(anyInt(), any(), any(), anySet(), anyLong()))
+                .thenReturn(List.of(meetingRoomList.get(2)));
+        when(objectMapper.convertValue(roomWithoutEquipment, MeetingRoomDTO.class))
+                .thenReturn(meetingRoomDTOList.get(2));
+
+        // When
+        List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(1),
+                0,
+                Collections.emptySet()
+        );
+
+        // Then
+        assertThat(result).hasSize(1);
+        MeetingRoomDTO returned = result.get(0);
+        assertThat(returned.getEquipmentTypes()).isEmpty();
     }
 }

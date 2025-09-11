@@ -6,9 +6,6 @@ import java.util.Set;
 
 
 public interface MeetingRoomService {
-
-    List<MeetingRoomDTO> getAllMeetingRooms();
-
     List<MeetingRoomDTO> getAvailableRooms(
             LocalDateTime startTime,
             LocalDateTime endTime,
