@@ -46,6 +46,9 @@ public class Reservation {
     @Column(name = "recurrence_option", nullable = false, length = 20)
     private RecurrenceOption recurrenceOption = RecurrenceOption.ONE_TIME;
 
+    @Column(name = "recurrence_end_date")
+    private LocalDateTime recurrenceEndDate;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference(value = "user-movement")

@@ -2,103 +2,116 @@ package org.orange.oie.internship2025.conferenceroombooking.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
-import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
-@ExtendWith(MockitoExtension.class)
-public class ReservationMapperTest {
+class ReservationMapperTest {
+
     private ReservationMapper reservationMapper;
-    private Reservation reservation;
-    private User user;
-    private MeetingRoom meetingRoom;
-    private ReservationRequest reservationRequest;
-    private ReservationResponse reservationResponse;
 
     @BeforeEach
-    void init() {
+    void setUp() {
         reservationMapper = new ReservationMapper();
-        user = new User();
-        user.setUserId(1L);
-        user.setFirstName("John");
-        user.setLastName("Doe");
-        user.setEmail("john.doe@orange.com");
-        user.setPhone("01234567890");
-        user.setPassword("$2y$10$hashedpassword");
+    }
 
-        meetingRoom = new MeetingRoom();
-        meetingRoom.setRoomId(1L);
-        meetingRoom.setName("Conference Room A");
-        meetingRoom.setCapacity(10);
-        meetingRoom.setStatus(MeetingRoomStatus.AVAILABLE);
-        meetingRoom.setRoomType(RoomType.VIP);
+    @Test
+    void testToResponse() {
+        MeetingRoom room = new MeetingRoom();
+        room.setRoomId(10L);
 
-        reservationRequest = new ReservationRequest();
-        reservationRequest.setType(ReservationType.EXTERNAL);
-        reservationRequest.setDescription("Weekly team standup meeting");
-        reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
-        reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservationRequest.setRoomId(1L);
-
-        reservation = new Reservation();
+        Reservation reservation = new Reservation();
         reservation.setReservationId(1L);
         reservation.setType(ReservationType.EXTERNAL);
-        reservation.setDescription("Weekly team standup meeting");
-        reservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
-        reservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservation.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservation.setUser(user);
-        reservation.setRoom(meetingRoom);
+        reservation.setDescription("Team sync");
+        reservation.setStartTime(LocalDateTime.of(2025, 9, 10, 9, 0));
+        reservation.setEndTime(LocalDateTime.of(2025, 9, 10, 10, 0));
+        reservation.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation.setRecurrenceEndDate(null);
+        reservation.setRoom(room);
 
-        reservationResponse = new ReservationResponse();
-        reservationResponse.setReservationId(1L);
-        reservationResponse.setType(ReservationType.EXTERNAL);
-        reservationResponse.setDescription("Weekly team standup meeting");
-        reservationResponse.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
-        reservationResponse.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
-        reservationResponse.setRecurrenceOption(RecurrenceOption.WEEKLY);
+        ReservationResponse response = reservationMapper.toResponse(reservation);
+
+        assertEquals(1L, response.getReservationId());
+        assertEquals(ReservationType.EXTERNAL, response.getType());
+        assertEquals("Team sync", response.getDescription());
+        assertEquals(LocalDateTime.of(2025, 9, 10, 9, 0), response.getStartTime());
+        assertEquals(LocalDateTime.of(2025, 9, 10, 10, 0), response.getEndTime());
+        assertEquals(RecurrenceOption.ONE_TIME, response.getRecurrenceOption());
+        assertNull(response.getRecurrenceEndDate());
+        assertEquals(10L, response.getRoomId());
     }
 
     @Test
-    void whenReservationMapper_toResponseReturnReservationResponse() {
-        //Given
-        //When
-        ReservationResponse reservationResponse1 = reservationMapper.toResponse(reservation);
-        //Then
-        assertEquals(reservationResponse.getReservationId(), reservationResponse1.getReservationId());
-        assertEquals(reservationResponse.getType(), reservationResponse1.getType());
-        assertEquals(reservationResponse.getDescription(), reservationResponse1.getDescription());
-        assertEquals(reservationResponse.getStartTime(), reservationResponse1.getStartTime());
-        assertEquals(reservationResponse.getEndTime(), reservationResponse1.getEndTime());
-        assertEquals(reservationResponse.getRecurrenceOption(), reservationResponse1.getRecurrenceOption());
-        assertEquals(meetingRoom.getRoomId(), reservationResponse1.getRoomId());
+    void testToEntity() {
+        ReservationRequest request = new ReservationRequest();
+        request.setType(ReservationType.INTERNAL);  // Use enum name
+        request.setDescription("Spring Boot training");
+        request.setStartTime(LocalDateTime.of(2025, 9, 15, 14, 0));
+        request.setEndTime(LocalDateTime.of(2025, 9, 15, 16, 0));
+        request.setRecurrenceOption(RecurrenceOption.WEEKLY);  // Use enum name
+        request.setRecurrenceEndDate(LocalDateTime.of(2025, 12, 15, 0, 0));
+
+        User user = new User();
+        user.setUserId(5L);
+
+        MeetingRoom meetingRoom = new MeetingRoom();
+        meetingRoom.setRoomId(20L);
+
+        Reservation reservation = reservationMapper.toEntity(request, user, meetingRoom);
+
+        assertEquals(ReservationType.INTERNAL, reservation.getType());
+        assertEquals("Spring Boot training", reservation.getDescription());
+        assertEquals(LocalDateTime.of(2025, 9, 15, 14, 0), reservation.getStartTime());
+        assertEquals(LocalDateTime.of(2025, 9, 15, 16, 0), reservation.getEndTime());
+        assertEquals(RecurrenceOption.WEEKLY, reservation.getRecurrenceOption());
+        assertEquals(LocalDateTime.of(2025, 12, 15, 0, 0), reservation.getRecurrenceEndDate());
+        assertEquals(user, reservation.getUser ());
+        assertEquals(meetingRoom, reservation.getRoom());
     }
 
     @Test
-    void whenReservationMapper_toEntityReturnReservation() {
-        //Given
-        //When
-        Reservation reservation1 = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
-        //Then
-        assertEquals(reservationRequest.getType(), reservation1.getType());
-        assertEquals(reservationRequest.getDescription(), reservation1.getDescription());
-        assertEquals(reservationRequest.getStartTime(), reservation1.getStartTime());
-        assertEquals(reservationRequest.getEndTime(), reservation1.getEndTime());
-        assertEquals(reservationRequest.getRecurrenceOption(), reservation1.getRecurrenceOption());
-        assertEquals(user, reservation1.getUser());
-        assertEquals(meetingRoom, reservation1.getRoom());
+    void testToResponseList() {
+        MeetingRoom room1 = new MeetingRoom();
+        room1.setRoomId(1L);
+        Reservation res1 = new Reservation();
+        res1.setReservationId(101L);
+        res1.setType(ReservationType.EXTERNAL);
+        res1.setDescription("Desc1");
+        res1.setStartTime(LocalDateTime.now());
+        res1.setEndTime(LocalDateTime.now().plusHours(1));
+        res1.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        res1.setRecurrenceEndDate(null);
+        res1.setRoom(room1);
+
+        MeetingRoom room2 = new MeetingRoom();
+        room2.setRoomId(2L);
+        Reservation res2 = new Reservation();
+        res2.setReservationId(102L);
+        res2.setType(ReservationType.INTERNAL);
+        res2.setDescription("Desc2");
+        res2.setStartTime(LocalDateTime.now());
+        res2.setEndTime(LocalDateTime.now().plusHours(2));
+        res2.setRecurrenceOption(RecurrenceOption.DAILY);
+        res2.setRecurrenceEndDate(LocalDateTime.now().plusDays(10));
+        res2.setRoom(room2);
+
+        List<Reservation> reservations = Arrays.asList(res1, res2);
+
+        List<ReservationResponse> responses = reservationMapper.toResponseList(reservations);
+
+        assertEquals(2, responses.size());
+        assertEquals(101L, responses.get(0).getReservationId());
+        assertEquals(102L, responses.get(1).getReservationId());
     }
 }
