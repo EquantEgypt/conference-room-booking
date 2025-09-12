@@ -11,7 +11,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRespon
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
-import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.ReservationServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

@@ -21,3 +21,4 @@ public class MeetingRoomDTO {
     private MeetingRoomStatus status;
     private Set<String> equipmentTypes;
 }
+

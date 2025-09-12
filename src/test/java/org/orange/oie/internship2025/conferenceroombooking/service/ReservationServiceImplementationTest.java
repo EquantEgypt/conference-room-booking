@@ -20,8 +20,8 @@ import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNo
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
-import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.ReservationServiceImplementation;
-import org.orange.oie.internship2025.conferenceroombooking.service.implementationService.UserDetailsServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
@@ -135,7 +135,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -144,12 +144,12 @@ public class ReservationServiceImplementationTest {
     @Test
     void createBookingShouldThrowBadRequestExceptionWhenRoomTypeIsRegularAndReservationTypeIsExternal() {
         //Given
-        meetingRoom.setRoomType(RoomType.NORMAL);
+        meetingRoom.setRoomType(RoomType.REGULAR);
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -172,7 +172,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(reservationList);
 
         // When & Then
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(BadRequestException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -191,7 +191,6 @@ public class ReservationServiceImplementationTest {
         });
 
     }
-
 
 
     @Test
@@ -219,6 +218,7 @@ public class ReservationServiceImplementationTest {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
+
     @Test
     void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_Daily() throws Exception {
         // Given
@@ -258,7 +258,6 @@ public class ReservationServiceImplementationTest {
         assertEquals(response.getEndTime(), recurringReservation.getEndTime());
         assertEquals(response.getType(), recurringReservation.getType());
     }
-
 
 
     @Test
@@ -301,7 +300,6 @@ public class ReservationServiceImplementationTest {
         assertEquals(response.getEndTime(), recurringReservation.getEndTime());
         assertEquals(response.getType(), recurringReservation.getType());
     }
-
 
 
     @Test
@@ -369,9 +367,9 @@ public class ReservationServiceImplementationTest {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
         when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
-        .thenReturn(new ArrayList<>());
+                .thenReturn(new ArrayList<>());
         when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
-        .thenReturn(recurringReservation);
+                .thenReturn(recurringReservation);
         when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
         when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
 
@@ -431,8 +429,6 @@ public class ReservationServiceImplementationTest {
     }
 
 
-
-
     @Test
     void createRecurringReservationShouldThrowBadRequestExceptionWhenRoomIsNotFound() {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
@@ -465,7 +461,7 @@ public class ReservationServiceImplementationTest {
     @Test
     void createBookingShouldThrowBadRequestExceptionWhenRoomIsBooked() {
         // Given
-        meetingRoom.setStatus(MeetingRoomStatus.BOOKED);
+        meetingRoom.setStatus(MeetingRoomStatus.AVAILABLE);
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
@@ -502,21 +498,17 @@ public class ReservationServiceImplementationTest {
     void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccess() throws Exception {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
         when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(true);
         when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(reservation);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
         when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
                 .thenReturn(reservation);
-        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(new ArrayList<>());
-        when(reservationRepository.findAllByRoomAndEndTimeBetween(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(new ArrayList<>());
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
         when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
         //When
         ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         //Then
@@ -530,6 +522,7 @@ public class ReservationServiceImplementationTest {
     void updateBookingShouldThrowResourceNotFoundWhenReservationIsNotFound() {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
         when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(false);
 
@@ -551,10 +544,7 @@ public class ReservationServiceImplementationTest {
         when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(reservation);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
-                .thenReturn(reservationList);
-        when(reservationRepository.findAllByRoomAndEndTimeBetween(any(MeetingRoom.class)
+        when(reservationRepository.findConflicts(any(MeetingRoom.class)
                 , any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(reservationList);
         when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
@@ -583,12 +573,12 @@ public class ReservationServiceImplementationTest {
         when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(reservation);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findAllByRoomAndStartTimeBetween(any(MeetingRoom.class)
+        when(reservationRepository.findConflicts(any(MeetingRoom.class)
                 , any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(reservationList);
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ResponseStatusException.class, () -> {
             reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         });
     }

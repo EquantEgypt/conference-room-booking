@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service.implementationService;
+package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;

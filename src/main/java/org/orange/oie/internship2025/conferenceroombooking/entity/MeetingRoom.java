@@ -12,6 +12,7 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
 
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity

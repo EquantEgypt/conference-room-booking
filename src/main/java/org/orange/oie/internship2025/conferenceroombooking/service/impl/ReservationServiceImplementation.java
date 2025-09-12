@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service.implementationService;
+package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
 import org.apache.coyote.BadRequestException;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
@@ -14,7 +14,7 @@ import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNo
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
-import org.orange.oie.internship2025.conferenceroombooking.service.interfaceService.ReservationService;
+import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -143,7 +143,7 @@ public class ReservationServiceImplementation implements ReservationService {
             throw new BadRequestException("Room is UNDER_MAINTENANCE");
         }
 
-        if ((meetingRoom.getRoomType() == RoomType.NORMAL) && (reservationRequest.getType() == ReservationType.EXTERNAL)) {
+        if ((meetingRoom.getRoomType() == RoomType.REGULAR) && (reservationRequest.getType() == ReservationType.EXTERNAL)) {
             throw new BadRequestException("External meeting can not be normal rooms");
         }
 

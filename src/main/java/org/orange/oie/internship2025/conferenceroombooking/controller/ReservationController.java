@@ -5,7 +5,7 @@ import org.apache.coyote.BadRequestException;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
-import org.orange.oie.internship2025.conferenceroombooking.service.interfaceService.ReservationService;
+import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
