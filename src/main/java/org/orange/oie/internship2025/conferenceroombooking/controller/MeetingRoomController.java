@@ -60,4 +60,9 @@ public class MeetingRoomController {
 
         return ResponseEntity.ok(rooms);
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<MeetingRoomDTO> getRoomById(@PathVariable Long id) {
+        return ResponseEntity.ok(meetingRoomService.getMeetingRoomById(id));
+    }
+
 }

@@ -8,7 +8,9 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -57,4 +59,24 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
                 })
                 .collect(Collectors.toList());
     }
+    @Override
+    public MeetingRoomDTO getMeetingRoomById(Long id) {
+        MeetingRoom room = meetingRoomRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "Meeting room not found with id: " + id));
+
+
+        MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
+
+        meetingRoomDTO.setEquipmentTypes(
+                room.getEquipmentList() == null
+                        ? Collections.emptySet()
+                        : room.getEquipmentList().stream()
+                        .map(Equipment::getType)
+                        .collect(Collectors.toSet())
+        );
+
+        return meetingRoomDTO;
+    }
+
 }
