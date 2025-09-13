@@ -1,6 +1,5 @@
 package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
-import org.apache.coyote.BadRequestException;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
@@ -10,17 +9,18 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -49,17 +49,15 @@ public class ReservationServiceImplementation implements ReservationService {
 
     @Transactional // All operations within this method will be part of a single transaction
     @Override
-    public List<ReservationResponse> createBooking(ReservationRequest reservationRequest)
-            throws BadRequestException, UsernameNotFoundException {
+    public List<ReservationResponse> createBooking(ReservationRequest reservationRequest) {
 
         User user = userDetailsServiceImplementation.getCurrentUser();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new BadRequestException("MeetingRoom is not Found"));
+                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
 
         handleReservationForUser(reservationRequest, null);
         reservationRequest.setRecurrenceEndDate(null);
-/// ///////////////////////////////////////////////////////////////////////////////////////////////////
         RecurrenceOption recurrenceOption = reservationRequest.getRecurrenceOption();
         if (recurrenceOption != null && recurrenceOption != RecurrenceOption.ONE_TIME) {
             LocalDateTime recurrenceEnd = reservationRequest.getStartTime().plusMonths(3);
@@ -69,12 +67,12 @@ public class ReservationServiceImplementation implements ReservationService {
 
             for (Reservation reservation : reservations) {
                 if (isRoomAvailable(meetingRoom, reservation.getStartTime(), reservation.getEndTime())) {
-                    throw new BadRequestException("Conflict found for time: " + reservation.getStartTime());
+                    throw new DateTimeConflictException("Conflict found for time: " + reservation.getStartTime());
                 }
             }
 
             if (reservationRequest.getRoomId() == null || reservationRequest.getType() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid reservation data");
+                throw new DateTimeConflictException("Invalid reservation data");
             }
 
 
@@ -86,7 +84,7 @@ public class ReservationServiceImplementation implements ReservationService {
 
         Reservation reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
         if (reservation == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create reservation");
+            throw new ReservationRequestConflict("Failed to create reservation");
         }
         Reservation saved = reservationRepository.save(reservation);
         return List.of(reservationMapper.toResponse(saved));
@@ -97,25 +95,23 @@ public class ReservationServiceImplementation implements ReservationService {
     public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();
         if (!reservationRepository.existsByReservationIdAndUser(reservationId, user)) {
-            throw new ResourceNotFoundException("reservation is not found");
+            throw new ReservationNotFoundException("reservation is not found");
         }
         reservationRepository.deleteByReservationIdAndUser(reservationId, user);
     }
 
     @Override
-    public ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id) throws ResourceNotFoundException
-            , BadRequestException
-            , UsernameNotFoundException {
+    public ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id) throws ResourceNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new BadRequestException("MeetingRoom is not Found"));
+                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
         if (!reservationRepository.existsByReservationIdAndUser(reservation_id, user))
-            throw new ResourceNotFoundException("reservation not found");
+            throw new ReservationNotFoundException("reservation not found");
         Reservation reservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
         handleReservationForUser(reservationRequest, reservation);
         reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
         if (reservation == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Failed to create reservation");
+            throw new ReservationRequestConflict("Failed to create reservation");
         }
         reservation.setReservationId(reservation_id);
         Reservation saved = reservationRepository.save(reservation);
@@ -134,27 +130,27 @@ public class ReservationServiceImplementation implements ReservationService {
                 || reservationList.size() != 1L);
     }
 
-    private void handleReservationForUser(ReservationRequest reservationRequest, Reservation reservation) throws BadRequestException, UsernameNotFoundException {
+    private void handleReservationForUser(ReservationRequest reservationRequest, Reservation reservation) {
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new BadRequestException("MeetingRoom is not Found"));
+                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
 
         if (meetingRoom.getStatus() == MeetingRoomStatus.UNDER_MAINTENANCE) {
-            throw new BadRequestException("Room is UNDER_MAINTENANCE");
+            throw new ReservationRequestConflict("Room is UNDER_MAINTENANCE");
         }
 
         if ((meetingRoom.getRoomType() == RoomType.REGULAR) && (reservationRequest.getType() == ReservationType.EXTERNAL)) {
-            throw new BadRequestException("External meeting can not be normal rooms");
+            throw new ReservationRequestConflict("External meeting can not be normal rooms");
         }
 
         if (reservationRequest.getStartTime() == null || reservationRequest.getEndTime() == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Start and end time are required");
+            throw new DateTimeConflictException("Start and end time are required");
         }
 
         if ((reservation == null && isRoomAvailable(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))) {
-            throw new BadRequestException("meeting room is booked in these range");
+            throw new DateTimeConflictException("meeting room is booked in these range");
         } else if ((reservation != null && !canUpdateDateTime(Objects.requireNonNull(reservation), meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))) {
-            throw new BadRequestException("meeting room is booked in these range can't update");
+            throw new DateTimeConflictException("meeting room is booked in these range can't update");
         }
 
     }
@@ -168,7 +164,7 @@ public class ReservationServiceImplementation implements ReservationService {
 
         while (currentStart.isBefore(recurrenceEnd)) {
             if (isRoomAvailable(room, currentStart, currentEnd)) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Conflict found for time: " + currentStart);
+                throw new DateTimeConflictException("Conflict found for time: " + currentStart);
             }
 
             ReservationRequest occurrence = createOccurrenceRequest(request, currentStart, currentEnd);
@@ -191,7 +187,7 @@ public class ReservationServiceImplementation implements ReservationService {
                     currentStart = currentStart.plusMonths(1);
                     currentEnd = currentEnd.plusMonths(1);
                 }
-                default -> throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown Recurrence Option");
+                default -> throw new ReservationRequestConflict("Unknown Recurrence Option");
             }
         }
 
