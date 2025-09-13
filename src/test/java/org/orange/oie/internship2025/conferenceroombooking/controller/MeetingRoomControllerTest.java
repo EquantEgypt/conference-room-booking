@@ -3,7 +3,6 @@ package org.orange.oie.internship2025.conferenceroombooking.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
@@ -18,15 +17,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static javax.management.Query.eq;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = MeetingRoomController.class,
         excludeAutoConfiguration = SecurityAutoConfiguration.class)
@@ -212,7 +206,7 @@ public class MeetingRoomControllerTest {
         this.mockMvc.perform(get("/rooms")
                         .param("startTime", "2025-01-01T10:00:00"))
                 .andExpect(status().isBadRequest())
-                .andExpect(status().reason("You must provide both startTime and endTime, or leave both empty."));
+                .andExpect(jsonPath("$.errorMessage").value("You must provide both startTime and endTime, or leave both empty."));
     }
 
     @Test
@@ -220,7 +214,7 @@ public class MeetingRoomControllerTest {
         mockMvc.perform(get("/rooms")
                         .param("endTime", "2025-01-01T12:00:00"))
                 .andExpect(status().isBadRequest())
-                .andExpect(status().reason("You must provide both startTime and endTime, or leave both empty."));
+                .andExpect(jsonPath("$.errorMessage").value("You must provide both startTime and endTime, or leave both empty."));
     }
 
 }

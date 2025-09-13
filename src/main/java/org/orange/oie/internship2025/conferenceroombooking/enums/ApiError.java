@@ -10,7 +10,7 @@ public enum ApiError {
     DATE_TIME_CONFLICT(HttpStatus.BAD_REQUEST, "the date or time had conflict in other reservation or were inputted incorrectly"),
     RESERVATION_NOT_FOUND(HttpStatus.BAD_REQUEST, "reservation is not found"),
     RESERVATION_REQUEST_EXIST(HttpStatus.BAD_REQUEST, "reservation request has conflict between its attributes"),
-    USER_NOT_FOUND(HttpStatus.NOT_FOUND, "user is not found");
+    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "user is not found");
     private final HttpStatus status;
     private final String message;
 }

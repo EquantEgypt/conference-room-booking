@@ -1,6 +1,5 @@
 package org.orange.oie.internship2025.conferenceroombooking.service;
 
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,13 +15,14 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -135,7 +135,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -149,7 +149,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -172,7 +172,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(reservationList);
 
         // When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(DateTimeConflictException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -186,7 +186,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -201,7 +201,7 @@ public class ReservationServiceImplementationTest {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
@@ -214,7 +214,7 @@ public class ReservationServiceImplementationTest {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(DateTimeConflictException.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
@@ -433,7 +433,7 @@ public class ReservationServiceImplementationTest {
     void createRecurringReservationShouldThrowBadRequestExceptionWhenRoomIsNotFound() {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
@@ -442,7 +442,7 @@ public class ReservationServiceImplementationTest {
     void createRecurringReservationShouldThrowBadRequestExceptionWhenStartOrEndTimeIsNull() {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
@@ -451,7 +451,7 @@ public class ReservationServiceImplementationTest {
     void createRecurringReservationShouldThrowBadRequestExceptionWhenStartOrEndTimeIsEmpty() {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
 
@@ -466,7 +466,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         // When & Then
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.createBooking(reservationRequest);
         });
     }
@@ -489,7 +489,7 @@ public class ReservationServiceImplementationTest {
         when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
                 .thenReturn(false);
         //When & Then
-        assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(ReservationNotFoundException.class, () -> {
             reservationServiceImplementation.deleteBooking(1L);
         });
     }
@@ -527,7 +527,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(false);
 
         //When & Then
-        assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(ReservationNotFoundException.class, () -> {
             reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         });
 
@@ -578,7 +578,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(reservationList);
 
         //When & Then
-        assertThrows(ResponseStatusException.class, () -> {
+        assertThrows(ReservationRequestConflict.class, () -> {
             reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         });
     }

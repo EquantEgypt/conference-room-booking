@@ -3,14 +3,14 @@ package org.orange.oie.internship2025.conferenceroombooking.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -92,14 +92,14 @@ public class ReservationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void createShouldReturnBadRequestWhenAnyErrorInRequestBody() throws Exception {
         //Given
         when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
-                .thenThrow(new BadRequestException("bad request"));
+                .thenThrow(new ReservationRequestConflict("bad request"));
         //When & Then
         this.mockMvc.perform(post("/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -120,12 +120,12 @@ public class ReservationControllerTest {
     @Test
     void deleteShouldReturnResourceNotFoundWhenReservationNotFound() throws Exception {
         //Given
-        doThrow(new ResourceNotFoundException("reservation not found"))
+        doThrow(new ReservationNotFoundException("reservation not found"))
                 .when(reservationServiceImplementation).deleteBooking(anyLong());
         //When & Then
         this.mockMvc.perform(delete("/reserve/1"))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -152,14 +152,14 @@ public class ReservationControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
-                .andExpect(status().isNotFound());
+                .andExpect(status().isUnauthorized());
     }
 
     @Test
     void updateShouldReturnBadRequestWhenAnyErrorInRequestBodyOrResourceNotFound() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
-                .thenThrow(new ResourceNotFoundException("reservation not found"));
+                .thenThrow(new ReservationNotFoundException("reservation not found"));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)
