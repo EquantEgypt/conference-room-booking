@@ -106,14 +106,13 @@ public class ReservationServiceImplementationTest {
     void createBookingShouldReturnReservationResponseWhenCreateBookingSuccess() throws Exception {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(reservation);
-        when(reservationRepository.findConflicts(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
-        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        when(reservationRepository.save(reservation)).thenReturn(reservation);
+        when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
 
         //When
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -239,13 +238,13 @@ public class ReservationServiceImplementationTest {
         reservations.add(recurringReservation);
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(recurringReservation);
-        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.saveAll(reservations)).thenReturn(reservations);
+        when(reservationMapper.toResponse(recurringReservation)).thenReturn(reservationResponse);
 
         // When
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -281,13 +280,13 @@ public class ReservationServiceImplementationTest {
         reservations.add(recurringReservation);
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(recurringReservation);
-        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.saveAll(reservations)).thenReturn(reservations);
+        when(reservationMapper.toResponse(recurringReservation)).thenReturn(reservationResponse);
 
         // When
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -323,13 +322,13 @@ public class ReservationServiceImplementationTest {
         reservations.add(recurringReservation);
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(recurringReservation);
-        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.saveAll(reservations)).thenReturn(reservations);
+        when(reservationMapper.toResponse(recurringReservation)).thenReturn(reservationResponse);
 
         // When
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -365,13 +364,13 @@ public class ReservationServiceImplementationTest {
 
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(recurringReservation);
-        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.saveAll(reservations)).thenReturn(reservations);
+        when(reservationMapper.toResponse(recurringReservation)).thenReturn(reservationResponse);
 
 
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -407,13 +406,13 @@ public class ReservationServiceImplementationTest {
 
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(recurringReservation);
-        when(reservationRepository.saveAll(any(List.class))).thenReturn(reservations);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.saveAll(reservations)).thenReturn(reservations);
+        when(reservationMapper.toResponse(recurringReservation)).thenReturn(reservationResponse);
 
 
         List<ReservationResponse> responses = reservationServiceImplementation.createBooking(reservationRequest);
@@ -476,7 +475,7 @@ public class ReservationServiceImplementationTest {
     void shouldReturnVoidWhenSuccessfulDelete() {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.existsByReservationIdAndUser(1L, user))
                 .thenReturn(true);
         //When & Then
         reservationServiceImplementation.deleteBooking(1L);
@@ -486,7 +485,7 @@ public class ReservationServiceImplementationTest {
     void shouldThrowResourceNotFoundExceptionWhenReservationNotFound() {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.existsByReservationIdAndUser(1L, user))
                 .thenReturn(false);
         //When & Then
         assertThrows(ReservationNotFoundException.class, () -> {
@@ -498,17 +497,17 @@ public class ReservationServiceImplementationTest {
     void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccess() throws Exception {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.existsByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(true);
-        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(reservation);
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(reservation);
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
-        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.save(reservation)).thenReturn(reservation);
+        when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
         //When
         ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         //Then
@@ -522,8 +521,8 @@ public class ReservationServiceImplementationTest {
     void updateBookingShouldThrowResourceNotFoundWhenReservationIsNotFound() {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.existsByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(false);
 
         //When & Then
@@ -539,18 +538,17 @@ public class ReservationServiceImplementationTest {
         List<Reservation> reservationList = new ArrayList<>();
         reservationList.add(reservation);
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.existsByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(true);
-        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(reservation);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(reservationList);
-        when(reservationMapper.toEntity(any(ReservationRequest.class), any(User.class), any(MeetingRoom.class)))
+        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom))
                 .thenReturn(reservation);
-        when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
-        when(reservationMapper.toResponse(any(Reservation.class))).thenReturn(reservationResponse);
+        when(reservationRepository.save(reservation)).thenReturn(reservation);
+        when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
 
         //When
         ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
@@ -568,13 +566,12 @@ public class ReservationServiceImplementationTest {
         reservationList.add(reservation);
         reservationList.add(reservation);
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.existsByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(true);
-        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class)))
+        when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(reservation);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class)
-                , any(LocalDateTime.class), any(LocalDateTime.class)))
+        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(reservationList);
 
         //When & Then

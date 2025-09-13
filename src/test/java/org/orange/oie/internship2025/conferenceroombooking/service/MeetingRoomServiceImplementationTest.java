@@ -20,9 +20,8 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.argThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -188,7 +187,7 @@ class MeetingRoomServiceImplementationTest {
     }
 
     @Test
-    void testGetAvailableRooms_WithStandardEquipment(){
+    void testGetAvailableRooms_WithStandardEquipment() {
         // define parameters
         int capacity = 5;
         LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
@@ -197,7 +196,7 @@ class MeetingRoomServiceImplementationTest {
 
         // Mock repository -> return rooms that satisfy the query
         when(meetingRoomRepository.findAvailableRooms
-                (eq(capacity),eq(startTime),eq(endTime),argThat(set -> set.equals(requiredEquipments)),eq((long)requiredEquipments.size())))
+                (eq(capacity), eq(startTime), eq(endTime), argThat(set -> set.equals(requiredEquipments)), eq((long) requiredEquipments.size())))
                 .thenReturn(List.of(meetingRoomList.get(0)));
 
         // Mock objectMapper -> map entity to DTO
@@ -215,7 +214,7 @@ class MeetingRoomServiceImplementationTest {
     }
 
     @Test
-    void testGetAvailableRooms_WhenEquipmentTypesNull(){
+    void testGetAvailableRooms_WhenEquipmentTypesNull() {
         // define parameters
         int capacity = 8;
         LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
@@ -223,7 +222,7 @@ class MeetingRoomServiceImplementationTest {
 
         // Mock repository -> return rooms that satisfy the query
         when(meetingRoomRepository.findAvailableRooms
-                (eq(capacity),eq(startTime),eq(endTime),eq(Collections.emptySet()),eq(0L)))
+                (eq(capacity), eq(startTime), eq(endTime), eq(Collections.emptySet()), eq(0L)))
                 .thenReturn(List.of(meetingRoomList.get(3)));
 
         // Mock objectMapper -> map entity to DTO
@@ -250,15 +249,18 @@ class MeetingRoomServiceImplementationTest {
         dto.setRoomId(2L);
         dto.setName("Conference B");
 
-        when(meetingRoomRepository.findAvailableRooms(anyInt(), any(), any(), anySet(), anyLong()))
+        LocalDateTime startTime = LocalDateTime.now();
+        LocalDateTime endTime = startTime.plusHours(1);
+
+        when(meetingRoomRepository.findAvailableRooms(0, startTime, endTime, Collections.emptySet(), 0L))
                 .thenReturn(List.of(meetingRoomList.get(2)));
         when(objectMapper.convertValue(roomWithoutEquipment, MeetingRoomDTO.class))
                 .thenReturn(meetingRoomDTOList.get(2));
 
         // When
         List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(1),
+                startTime,
+                endTime,
                 0,
                 Collections.emptySet()
         );

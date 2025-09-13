@@ -24,7 +24,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -121,7 +120,7 @@ public class ReservationControllerTest {
     void deleteShouldReturnResourceNotFoundWhenReservationNotFound() throws Exception {
         //Given
         doThrow(new ReservationNotFoundException("reservation not found"))
-                .when(reservationServiceImplementation).deleteBooking(anyLong());
+                .when(reservationServiceImplementation).deleteBooking(1L);
         //When & Then
         this.mockMvc.perform(delete("/reserve/1"))
                 .andDo(print())
@@ -131,7 +130,7 @@ public class ReservationControllerTest {
     @Test
     void updateShouldReturnCreatedAndReservationResponseWhenSuccess() throws Exception {
         //Given
-        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+        when(reservationServiceImplementation.updateBooking(reservationRequest, 1L))
                 .thenReturn(reservationResponse);
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
@@ -145,7 +144,7 @@ public class ReservationControllerTest {
     @Test
     void updateShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
         //Given
-        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+        when(reservationServiceImplementation.updateBooking(reservationRequest, 1L))
                 .thenThrow(new UsernameNotFoundException("username not found"));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
@@ -158,7 +157,7 @@ public class ReservationControllerTest {
     @Test
     void updateShouldReturnBadRequestWhenAnyErrorInRequestBodyOrResourceNotFound() throws Exception {
         //Given
-        when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), anyLong()))
+        when(reservationServiceImplementation.updateBooking(reservationRequest, 1L))
                 .thenThrow(new ReservationNotFoundException("reservation not found"));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
