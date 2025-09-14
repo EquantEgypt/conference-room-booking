@@ -12,6 +12,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.MeetingRoomServiceImplementation;
 
@@ -20,6 +21,7 @@ import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -269,5 +271,30 @@ class MeetingRoomServiceImplementationTest {
         assertThat(result).hasSize(1);
         MeetingRoomDTO returned = result.get(0);
         assertThat(returned.getEquipmentTypes()).isEmpty();
+    }
+
+    @Test
+    void whenGetMeetingRoomByIdShouldReturnMeetingRoomDtoWhenSuccess() {
+        //Given
+        when(meetingRoomRepository.findById(meetingRoomList.getFirst().getRoomId()))
+                .thenReturn(Optional.of(meetingRoomList.getFirst()));
+
+        when(objectMapper.convertValue(meetingRoomList.getFirst(), MeetingRoomDTO.class))
+                .thenReturn(meetingRoomDTOList.getFirst());
+
+        //When
+        MeetingRoomDTO response = roomServiceImplementation.getMeetingRoomById(meetingRoomList.getFirst().getRoomId());
+
+        //Then
+        assertThat(response.getName()).isEqualTo("Conference Room A");
+        assertThat(response.getEquipmentTypes()).isNotEmpty();
+    }
+
+    @Test
+    void whenGetMeetingRoomByIdShouldThrowResourceNotFoundWhenRoomIsNotFound() {
+        when(meetingRoomRepository.findById(1L)).thenReturn(Optional.empty());
+        assertThrows(ResourceNotFoundException.class, () -> {
+            roomServiceImplementation.getMeetingRoomById(1L);
+        });
     }
 }

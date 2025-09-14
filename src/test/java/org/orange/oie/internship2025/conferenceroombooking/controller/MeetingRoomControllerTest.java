@@ -217,4 +217,14 @@ public class MeetingRoomControllerTest {
                 .andExpect(jsonPath("$.errorMessage").value("You must provide both startTime and endTime, or leave both empty."));
     }
 
+    @Test
+    void whenMeetingRoomByIdShouldReturnOkAndMeetingRoom() throws Exception {
+        when(roomServiceImplementation.getMeetingRoomById(1L)).thenReturn(meetingRoomDTOList.getFirst());
+
+        mockMvc.perform(get("/rooms/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(meetingRoomDTOList.getFirst())));
+    }
+
+
 }

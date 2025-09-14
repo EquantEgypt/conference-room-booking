@@ -47,4 +47,10 @@ public class GlobalExceptionHandler {
         errorCode = new ErrorCode(HttpStatus.UNAUTHORIZED, "invalid username or password");
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorCode);
     }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorCode> handleResourceNotFound(ResourceNotFoundException ex) {
+        errorCode = new ErrorCode(HttpStatus.BAD_REQUEST, ex.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorCode);
+    }
 }

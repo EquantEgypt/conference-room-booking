@@ -12,4 +12,6 @@ public interface MeetingRoomService {
             int capacity,
             Set<String> equipmentTypes
     );
+    MeetingRoomDTO getMeetingRoomById(Long id);
+
 }
