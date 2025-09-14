@@ -34,5 +34,5 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
                                     @Param("startTime") LocalDateTime startTime,
                                     @Param("endTime") LocalDateTime endTime);
 
-
+    List<Reservation> findAllByUser(User user);
 }

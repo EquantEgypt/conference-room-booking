@@ -11,4 +11,6 @@ public interface ReservationService {
     ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id);
 
     List<ReservationResponse> createBooking(ReservationRequest reservationRequest);
+
+    List<ReservationResponse> getAllReservations();
 }

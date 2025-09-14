@@ -91,6 +91,12 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
+    public List<ReservationResponse> getAllReservations() {
+        User user = userDetailsServiceImplementation.getCurrentUser();
+        return reservationRepository.findAllByUser(user).stream().map(reservationMapper::toResponse).toList();
+    }
+
+    @Override
     @jakarta.transaction.Transactional
     public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();
@@ -155,7 +161,7 @@ public class ReservationServiceImplementation implements ReservationService {
 
     }
 
-    private List<Reservation> generateRecurringReservations(ReservationRequest request, User user, MeetingRoom room) {
+    public List<Reservation> generateRecurringReservations(ReservationRequest request, User user, MeetingRoom room) {
         List<Reservation> reservations = new ArrayList<>();
         LocalDateTime currentStart = request.getStartTime();
         LocalDateTime currentEnd = request.getEndTime();

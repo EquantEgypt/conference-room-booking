@@ -167,4 +167,16 @@ public class ReservationControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void getAllReservationsShouldReturnOkAndListOfReservationResponseWhenSuccess() throws Exception {
+        //Given
+        when(reservationServiceImplementation.getAllReservations()).thenReturn(List.of(reservationResponse));
+        //When & Then
+        this.mockMvc.perform(get("/reserve"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(reservationResponse))));
+
+    }
+
 }

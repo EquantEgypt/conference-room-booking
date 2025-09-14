@@ -560,24 +560,85 @@ public class ReservationServiceImplementationTest {
     }
 
     @Test
-    void updateBookingShouldReturnBadRequestWhenUpdateBookingHasDateTimeConflict() {
-        //Given
-        List<Reservation> reservationList = new ArrayList<>();
-        reservationList.add(reservation);
-        reservationList.add(reservation);
-        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(reservation.getReservationId(), user))
-                .thenReturn(true);
-        when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
-                .thenReturn(reservation);
-        when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getStartTime(), reservationRequest.getEndTime()))
-                .thenReturn(reservationList);
+    void updateBookingShouldThrowDateTimeConflictExceptionWhenRoomIsBookedAndCannotUpdate() {
+        // Given
+        Reservation existingReservation = new Reservation();
+        existingReservation.setReservationId(1L);
+        existingReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        existingReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        existingReservation.setRoom(meetingRoom);
+        existingReservation.setUser(user);
 
-        //When & Then
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
-        });
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.existsByReservationIdAndUser(anyLong(), any(User.class))).thenReturn(true);
+        when(reservationRepository.findByReservationIdAndUser(anyLong(), any(User.class))).thenReturn(existingReservation);
+
+        // Create a different reservation that conflicts with the update
+        Reservation conflictingReservation = new Reservation();
+        conflictingReservation.setReservationId(2L); // Different ID to simulate a real conflict
+        conflictingReservation.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        conflictingReservation.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+
+        reservationRequest.setStartTime(LocalDateTime.of(2024, 1, 15, 9, 0));
+        reservationRequest.setEndTime(LocalDateTime.of(2024, 1, 15, 10, 0));
+        List<Reservation> conflicts = new ArrayList<>();
+        conflicts.add(conflictingReservation); // Different reservation causing conflict
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(conflicts);
+
+        // When & Then
+        assertThrows(DateTimeConflictException.class, () -> reservationServiceImplementation.updateBooking(reservationRequest, 1L));
     }
 
+    @Test
+    void createRecurringBookingShouldThrowDateTimeConflictExceptionWhenConflictFound() {
+        // Given
+        reservationRequest.setRecurrenceOption(RecurrenceOption.DAILY);
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 1, 18, 9, 0));
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+
+        // Simulate a conflict for recurring reservations
+        List<Reservation> conflicts = new ArrayList<>();
+        conflicts.add(new Reservation());
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(conflicts);
+
+        // When & Then
+        assertThrows(DateTimeConflictException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
+    }
+
+    @Test
+    void createRecurringBookingShouldThrowReservationRequestConflictForUnknownRecurrenceOption() {
+        // Given
+        reservationRequest.setRecurrenceOption(null); // This will cause the issue
+        reservationRequest.setRecurrenceEndDate(LocalDateTime.of(2024, 1, 18, 9, 0));
+
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
+        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDateTime.class), any(LocalDateTime.class)))
+                .thenReturn(new ArrayList<>());
+
+        // When & Then
+        assertThrows(ReservationRequestConflict.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
+    }
+
+    @Test
+    void getAllReservationsShouldReturnReservationResponseListWhenSuccess() {
+        //Given
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(reservation);
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.findAllByUser(user)).thenReturn(reservations);
+        when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
+        //When
+        List<ReservationResponse> reservationResponseList = reservationServiceImplementation.getAllReservations();
+        //Then
+        assertEquals(reservationResponseList.getFirst().getReservationId(), reservationResponse.getReservationId());
+        assertEquals(reservationResponseList.getFirst().getStartTime(), reservationResponse.getStartTime());
+        assertEquals(reservationResponseList.getFirst().getEndTime(), reservationResponse.getEndTime());
+        assertEquals(reservationResponseList.getFirst().getType(), reservationResponse.getType());
+    }
 }
