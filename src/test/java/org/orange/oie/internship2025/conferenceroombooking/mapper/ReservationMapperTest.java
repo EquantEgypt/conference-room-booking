@@ -10,11 +10,13 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class ReservationMapperTest {
 
@@ -33,9 +35,11 @@ class ReservationMapperTest {
         Reservation reservation = new Reservation();
         reservation.setReservationId(1L);
         reservation.setType(ReservationType.EXTERNAL);
+        reservation.setTitle("Team Meeting");
         reservation.setDescription("Team sync");
-        reservation.setStartTime(LocalDateTime.of(2025, 9, 10, 9, 0));
-        reservation.setEndTime(LocalDateTime.of(2025, 9, 10, 10, 0));
+        reservation.setDate(LocalDate.of(2025, 9, 10));
+        reservation.setStartTime(LocalTime.of(9, 0));
+        reservation.setEndTime(LocalTime.of(10, 0));
         reservation.setRecurrenceOption(RecurrenceOption.ONE_TIME);
         reservation.setRecurrenceEndDate(null);
         reservation.setRoom(room);
@@ -45,8 +49,9 @@ class ReservationMapperTest {
         assertEquals(1L, response.getReservationId());
         assertEquals(ReservationType.EXTERNAL, response.getType());
         assertEquals("Team sync", response.getDescription());
-        assertEquals(LocalDateTime.of(2025, 9, 10, 9, 0), response.getStartTime());
-        assertEquals(LocalDateTime.of(2025, 9, 10, 10, 0), response.getEndTime());
+        assertEquals(LocalDate.of(2025, 9, 10), response.getDate());
+        assertEquals(LocalTime.of(9, 0), response.getStartTime());
+        assertEquals(LocalTime.of(10, 0), response.getEndTime());
         assertEquals(RecurrenceOption.ONE_TIME, response.getRecurrenceOption());
         assertNull(response.getRecurrenceEndDate());
         assertEquals(10L, response.getRoomId());
@@ -55,12 +60,13 @@ class ReservationMapperTest {
     @Test
     void testToEntity() {
         ReservationRequest request = new ReservationRequest();
-        request.setType(ReservationType.INTERNAL);  // Use enum name
+        request.setType(ReservationType.INTERNAL);
+        request.setTitle("Training Session");
         request.setDescription("Spring Boot training");
-        request.setStartTime(LocalDateTime.of(2025, 9, 15, 14, 0));
-        request.setEndTime(LocalDateTime.of(2025, 9, 15, 16, 0));
-        request.setRecurrenceOption(RecurrenceOption.WEEKLY);  // Use enum name
-        request.setRecurrenceEndDate(LocalDateTime.of(2025, 12, 15, 0, 0));
+        request.setDate(LocalDate.of(2025, 9, 15));
+        request.setStartTime(LocalTime.of(14, 0));
+        request.setEndTime(LocalTime.of(16, 0));
+        request.setRecurrenceOption(RecurrenceOption.WEEKLY);
 
         User user = new User();
         user.setUserId(5L);
@@ -68,15 +74,19 @@ class ReservationMapperTest {
         MeetingRoom meetingRoom = new MeetingRoom();
         meetingRoom.setRoomId(20L);
 
-        Reservation reservation = reservationMapper.toEntity(request, user, meetingRoom);
+        LocalDate recurrenceEndDate = LocalDate.of(2025, 12, 15);
+
+        Reservation reservation = reservationMapper.toEntity(request, user, meetingRoom, recurrenceEndDate, null);
 
         assertEquals(ReservationType.INTERNAL, reservation.getType());
+        assertEquals("Training Session", reservation.getTitle());
         assertEquals("Spring Boot training", reservation.getDescription());
-        assertEquals(LocalDateTime.of(2025, 9, 15, 14, 0), reservation.getStartTime());
-        assertEquals(LocalDateTime.of(2025, 9, 15, 16, 0), reservation.getEndTime());
+        assertEquals(LocalDate.of(2025, 9, 15), reservation.getDate());
+        assertEquals(LocalTime.of(14, 0), reservation.getStartTime());
+        assertEquals(LocalTime.of(16, 0), reservation.getEndTime());
         assertEquals(RecurrenceOption.WEEKLY, reservation.getRecurrenceOption());
-        assertEquals(LocalDateTime.of(2025, 12, 15, 0, 0), reservation.getRecurrenceEndDate());
-        assertEquals(user, reservation.getUser ());
+        assertEquals(LocalDate.of(2025, 12, 15), reservation.getRecurrenceEndDate());
+        assertEquals(user, reservation.getUser());
         assertEquals(meetingRoom, reservation.getRoom());
     }
 
@@ -87,9 +97,11 @@ class ReservationMapperTest {
         Reservation res1 = new Reservation();
         res1.setReservationId(101L);
         res1.setType(ReservationType.EXTERNAL);
+        res1.setTitle("Meeting 1");
         res1.setDescription("Desc1");
-        res1.setStartTime(LocalDateTime.now());
-        res1.setEndTime(LocalDateTime.now().plusHours(1));
+        res1.setDate(LocalDate.now());
+        res1.setStartTime(LocalTime.of(9, 0));
+        res1.setEndTime(LocalTime.of(10, 0));
         res1.setRecurrenceOption(RecurrenceOption.ONE_TIME);
         res1.setRecurrenceEndDate(null);
         res1.setRoom(room1);
@@ -99,11 +111,13 @@ class ReservationMapperTest {
         Reservation res2 = new Reservation();
         res2.setReservationId(102L);
         res2.setType(ReservationType.INTERNAL);
+        res2.setTitle("Meeting 2");
         res2.setDescription("Desc2");
-        res2.setStartTime(LocalDateTime.now());
-        res2.setEndTime(LocalDateTime.now().plusHours(2));
+        res2.setDate(LocalDate.now());
+        res2.setStartTime(LocalTime.of(14, 0));
+        res2.setEndTime(LocalTime.of(16, 0));
         res2.setRecurrenceOption(RecurrenceOption.DAILY);
-        res2.setRecurrenceEndDate(LocalDateTime.now().plusDays(10));
+        res2.setRecurrenceEndDate(LocalDate.now().plusDays(10));
         res2.setRoom(room2);
 
         List<Reservation> reservations = Arrays.asList(res1, res2);
