@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -112,12 +111,23 @@ public class ReservationServiceImplementation implements ReservationService {
         if (!reservationRepository.existsByReservationIdAndUser(reservation_id, user))
             throw new ReservationNotFoundException("reservation not found");
         Reservation reservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
-        validateReservation(reservationRequest, reservation);
-        reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom,
-                reservation.getRecurrenceEndDate(), reservation.getParentReservation());
-        if (reservation == null) {
-            throw new ReservationRequestConflict("Failed to create reservation");
+
+        if (reservation.getChildReservations() != null) {
+            reservation.getChildReservations().clear();
         }
+
+        validateReservation(reservationRequest, reservation);
+
+        // Update existing reservation instead of creating new one
+        reservation.setType(reservationRequest.getType());
+        reservation.setTitle(reservationRequest.getTitle());
+        reservation.setDescription(reservationRequest.getDescription());
+        reservation.setDate(reservationRequest.getDate());
+        reservation.setStartTime(reservationRequest.getStartTime());
+        reservation.setEndTime(reservationRequest.getEndTime());
+        reservation.setRecurrenceOption(reservationRequest.getRecurrenceOption());
+        reservation.setRoom(meetingRoom);
+
         reservation.setReservationId(reservation_id);
         Reservation saved = reservationRepository.save(reservation);
         return reservationMapper.toResponse(saved);
@@ -163,7 +173,7 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     public void generateRecurringReservations(ReservationRequest request, List<Reservation> reservations,
-                                                           Reservation parentReservation, User user, MeetingRoom room) {
+                                              Reservation parentReservation, User user, MeetingRoom room) {
         LocalTime startTime = request.getStartTime();
         LocalTime endTime = request.getEndTime();
         LocalDate start = parentReservation.getDate();
@@ -176,7 +186,7 @@ public class ReservationServiceImplementation implements ReservationService {
                 throw new DateTimeConflictException("Conflict found for time: " + startTime + " and " + endTime);
             }
 
-            reservations.add(createOccurrence(request, start,end, parentReservation, room, user));
+            reservations.add(createOccurrence(request, start, end, parentReservation, room, user));
         }
     }
 

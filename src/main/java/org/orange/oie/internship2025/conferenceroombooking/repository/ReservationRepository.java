@@ -30,4 +30,6 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
 
 
     List<Reservation> findAllByUser(User user);
+    
+    void deleteReservationsByParentReservation(Reservation parentReservation);
 }
