@@ -18,7 +18,6 @@ import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoo
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -47,79 +46,125 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
 
-    @Transactional // All operations within this method will be part of a single transaction
+//    @Transactional // All operations within this method will be part of a single transaction
+//    @Override
+//    public List<ReservationResponse> createBooking(ReservationRequest reservationRequest) {
+//
+//        User user = userDetailsServiceImplementation.getCurrentUser();
+//
+//        MeetingRoom meetingRoom = meetingRoomRepository.findById(
+//                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+//
+//        handleReservationForUser(reservationRequest, null);
+//        reservationRequest.setRecurrenceEndDate(null);
+//        RecurrenceOption recurrenceOption = reservationRequest.getRecurrenceOption();
+//        if (recurrenceOption != null && recurrenceOption != RecurrenceOption.ONE_TIME) {
+//            LocalDateTime recurrenceEnd = reservationRequest.getStartTime().plusMonths(3);
+//            reservationRequest.setRecurrenceEndDate(recurrenceEnd);
+//
+//            List<Reservation> reservations = generateRecurringReservations(reservationRequest, user, meetingRoom);
+//
+//            for (Reservation reservation : reservations) {
+//                if (isRoomAvailable(meetingRoom, reservation.getStartTime(), reservation.getEndTime())) {
+//                    throw new DateTimeConflictException("Conflict found for time: " + reservation.getStartTime());
+//                }
+//            }
+//
+//            if (reservationRequest.getRoomId() == null || reservationRequest.getType() == null) {
+//                throw new DateTimeConflictException("Invalid reservation data");
+//            }
+//
+//
+//            List<Reservation> saved = new ArrayList<>();
+//            reservationRepository.saveAll(reservations).forEach(saved::add);
+//
+//            return saved.stream().map(reservationMapper::toResponse).toList();
+//        }
+//
+//        Reservation reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
+//        if (reservation == null) {
+//            throw new ReservationRequestConflict("Failed to create reservation");
+//        }
+//        Reservation saved = reservationRepository.save(reservation);
+//        return List.of(reservationMapper.toResponse(saved));
+//
+//    }
+
+
+    @Transactional
     @Override
     public List<ReservationResponse> createBooking(ReservationRequest reservationRequest) {
 
         User user = userDetailsServiceImplementation.getCurrentUser();
-
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
                 reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
 
         handleReservationForUser(reservationRequest, null);
-        reservationRequest.setRecurrenceEndDate(null);
+
+
+        Reservation parentReservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
+        parentReservation = reservationRepository.save(parentReservation);
+
         RecurrenceOption recurrenceOption = reservationRequest.getRecurrenceOption();
-        if (recurrenceOption != null && recurrenceOption != RecurrenceOption.ONE_TIME) {
-            LocalDateTime recurrenceEnd = reservationRequest.getStartTime().plusMonths(3);
-            reservationRequest.setRecurrenceEndDate(recurrenceEnd);
 
-            List<Reservation> reservations = generateRecurringReservations(reservationRequest, user, meetingRoom);
-
-            for (Reservation reservation : reservations) {
-                if (isRoomAvailable(meetingRoom, reservation.getStartTime(), reservation.getEndTime())) {
-                    throw new DateTimeConflictException("Conflict found for time: " + reservation.getStartTime());
-                }
-            }
-
-            if (reservationRequest.getRoomId() == null || reservationRequest.getType() == null) {
-                throw new DateTimeConflictException("Invalid reservation data");
-            }
-
-
-            List<Reservation> saved = new ArrayList<>();
-            reservationRepository.saveAll(reservations).forEach(saved::add);
-
-            return saved.stream().map(reservationMapper::toResponse).toList();
+        if (recurrenceOption == null || recurrenceOption == RecurrenceOption.ONE_TIME) {
+            return List.of(reservationMapper.toResponse(parentReservation));
         }
 
-        Reservation reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
-        if (reservation == null) {
-            throw new ReservationRequestConflict("Failed to create reservation");
+        LocalDateTime recurrenceEnd = reservationRequest.getStartTime().plusMonths(3);
+        reservationRequest.setRecurrenceEndDate(recurrenceEnd);
+
+        List<Reservation> recurringReservations = generateRecurringReservations(reservationRequest, user, meetingRoom);
+
+        for (Reservation child : recurringReservations) {
+            child.setParentReservationId(parentReservation);
         }
-        Reservation saved = reservationRepository.save(reservation);
-        return List.of(reservationMapper.toResponse(saved));
+
+        reservationRepository.saveAll(recurringReservations);
+
+        List<Reservation> allReservations = new ArrayList<>();
+        allReservations.add(parentReservation);
+        allReservations.addAll(recurringReservations);
+
+        return allReservations.stream().map(reservationMapper::toResponse).toList();
     }
+
 
     @Override
     public List<ReservationResponse> getAllReservations() {
         User user = userDetailsServiceImplementation.getCurrentUser();
-        return reservationRepository.findAllByUser(user).stream().map(reservationMapper::toResponse).toList();
+        return reservationRepository.findAllByUser(user).stream().map(reservationMapper::toResponse).toList() ;
     }
 
     @Override
-    @jakarta.transaction.Transactional
-    public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
-        User user = userDetailsServiceImplementation.getCurrentUser();
-        if (!reservationRepository.existsByReservationIdAndUser(reservationId, user)) {
-            throw new ReservationNotFoundException("reservation is not found");
-        }
-        reservationRepository.deleteByReservationIdAndUser(reservationId, user);
+    @Transactional
+    public void deleteBooking(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
+
+        Reservation parent = (reservation.getParentReservationId() == null)
+                ? reservation
+                : reservation.getParentReservationId();
+
+        reservationRepository.delete(parent);
     }
 
+
+
     @Override
-    public ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id) throws ResourceNotFoundException {
+    public ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservationId) throws ResourceNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
                 reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
-        if (!reservationRepository.existsByReservationIdAndUser(reservation_id, user))
+        if (!reservationRepository.existsByReservationIdAndUser(reservationId, user))
             throw new ReservationNotFoundException("reservation not found");
-        Reservation reservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
+        Reservation reservation = reservationRepository.findByReservationIdAndUser(reservationId, user);
         handleReservationForUser(reservationRequest, reservation);
         reservation = reservationMapper.toEntity(reservationRequest, user, meetingRoom);
         if (reservation == null) {
             throw new ReservationRequestConflict("Failed to create reservation");
         }
-        reservation.setReservationId(reservation_id);
+        reservation.setReservationId(reservationId);
         Reservation saved = reservationRepository.save(reservation);
         return reservationMapper.toResponse(saved);
     }
@@ -161,6 +206,7 @@ public class ReservationServiceImplementation implements ReservationService {
 
     }
 
+
     public List<Reservation> generateRecurringReservations(ReservationRequest request, User user, MeetingRoom room) {
         List<Reservation> reservations = new ArrayList<>();
         LocalDateTime currentStart = request.getStartTime();
@@ -168,18 +214,7 @@ public class ReservationServiceImplementation implements ReservationService {
         LocalDateTime recurrenceEnd = request.getRecurrenceEndDate();
         RecurrenceOption option = request.getRecurrenceOption();
 
-        while (currentStart.isBefore(recurrenceEnd)) {
-            if (isRoomAvailable(room, currentStart, currentEnd)) {
-                throw new DateTimeConflictException("Conflict found for time: " + currentStart);
-            }
-
-            ReservationRequest occurrence = createOccurrenceRequest(request, currentStart, currentEnd);
-            Reservation reservation = reservationMapper.toEntity(occurrence, user, room);
-
-            if (reservation != null) {
-                reservations.add(reservation);
-            }
-
+        while (true) {
             switch (option) {
                 case DAILY -> {
                     currentStart = currentStart.plusDays(1);
@@ -193,12 +228,23 @@ public class ReservationServiceImplementation implements ReservationService {
                     currentStart = currentStart.plusMonths(1);
                     currentEnd = currentEnd.plusMonths(1);
                 }
-                default -> throw new ReservationRequestConflict("Unknown Recurrence Option");
             }
+
+            if (currentStart.isAfter(recurrenceEnd)) break;
+
+            if (isRoomAvailable(room, currentStart, currentEnd)) {
+                throw new DateTimeConflictException("Conflict found for time: " + currentStart);
+            }
+
+            ReservationRequest occurrence = createOccurrenceRequest(request, currentStart, currentEnd);
+            Reservation reservation = reservationMapper.toEntity(occurrence, user, room);
+            reservations.add(reservation);
         }
 
         return reservations;
     }
+
+
 
     private ReservationRequest createOccurrenceRequest(ReservationRequest request, LocalDateTime currentStart, LocalDateTime currentEnd) {
         return new ReservationRequest(
@@ -212,6 +258,7 @@ public class ReservationServiceImplementation implements ReservationService {
         );
     }
 
-
 }
+
+
 

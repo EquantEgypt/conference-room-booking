@@ -32,16 +32,15 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
 
-    @DeleteMapping("/{reservation_id}")
-    public ResponseEntity<HttpStatus> deleteBooking(@PathVariable Long reservation_id) {
-        reservationService.deleteBooking(reservation_id);
+    @DeleteMapping("/{reservationId}")
+    public ResponseEntity<HttpStatus> deleteBooking(@PathVariable Long reservationId) {
+        reservationService.deleteBooking(reservationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
-    @PutMapping("/{reservation_id}")
-    public ResponseEntity<ReservationResponse> updateBooking(@RequestBody ReservationRequest reservationRequest, @PathVariable Long reservation_id) {
+    @PutMapping("/{reservationId}")
+    public ResponseEntity<ReservationResponse> updateBooking(@RequestBody ReservationRequest reservationRequest, @PathVariable Long reservationId) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(reservationService.updateBooking(reservationRequest, reservation_id));
+                .body(reservationService.updateBooking(reservationRequest, reservationId));
     }
-
 }

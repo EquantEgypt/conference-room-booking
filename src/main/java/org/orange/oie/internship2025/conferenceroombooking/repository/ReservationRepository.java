@@ -35,4 +35,11 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
                                     @Param("endTime") LocalDateTime endTime);
 
     List<Reservation> findAllByUser(User user);
+
+//    @Query("SELECT r.parentReservation FROM Reservation r " +
+//            "WHERE r.reservation_id = :reservationId")
+//
+//    Reservation findParentReservation(@Param("reservationId") Long reservationId);
+//    List<Reservation> findByParentReservationId(Long parentReservationId);
+//}
 }

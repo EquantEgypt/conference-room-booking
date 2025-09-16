@@ -1,5 +1,4 @@
 package org.orange.oie.internship2025.conferenceroombooking.enums;
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

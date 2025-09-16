@@ -1,6 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.repository;
 
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -9,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
-public interface MeetingRoomRepository extends CrudRepository<MeetingRoom, Long> {
+public interface MeetingRoomRepository extends JpaRepository<MeetingRoom, Long> {
     List<MeetingRoom> findAll();
 
 

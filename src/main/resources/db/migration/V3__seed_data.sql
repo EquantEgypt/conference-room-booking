@@ -35,7 +35,7 @@ INSERT IGNORE INTO users (role, first_name, last_name, phone,  business_email, p
     (SELECT department_id FROM departments WHERE name = 'Product'),
     (SELECT job_id FROM jobs WHERE title = 'Product Manager')
 ),
-('EMPLOYEE', 'Omar', 'Ahmed', '01002756771', 'omar.ahmed@orange.com', '$2y$10$SWG/2l/Gv/Sf.yvj/thDdO.vtehr3UhwyKHrvN97vP7x6HjawlM2e',
+('EMPLOYEE', 'Omar', 'Nabil', '01002756771', 'omar.nabil@orange.com', '$2y$10$SWG/2l/Gv/Sf.yvj/thDdO.vtehr3UhwyKHrvN97vP7x6HjawlM2e',
     (SELECT department_id FROM departments WHERE name = 'Software'),
     (SELECT job_id FROM jobs WHERE title = 'DevOps Engineer')
 );
@@ -167,7 +167,7 @@ INSERT IGNORE INTO reservations (description, start_time, end_time, reservation_
     (SELECT room_id FROM meeting_rooms WHERE name = 'Nefertiti')
 ),
 ('Client Demo', '2025-09-09 15:00:00', '2025-09-09 16:00:00', 'EXTERNAL', 'ONE_TIME',
-    (SELECT user_id FROM users WHERE  business_email = 'omar.ahmed@orange.com'),
+    (SELECT user_id FROM users WHERE  business_email = 'omar.nabil@orange.com'),
     (SELECT room_id FROM meeting_rooms WHERE name = 'Nefertiti')
 );
 

@@ -27,7 +27,7 @@ public class Reservation {
     @Column(name = "reservation_id")
     private Long reservationId;
 
-
+    @NotNull(message = "Reservation type is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "reservation_type", nullable = false, length = 20)
     private ReservationType type;
@@ -51,18 +51,15 @@ public class Reservation {
     @Column(name = "recurrence_end_date")
     private LocalDateTime recurrenceEndDate;
 
-    @Column(name = "repeat_count")
-    private Long repeatCount;
-
     @Column(name = "number_of_occurrences")
     private Long numberOfOccurrences;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_reservation_id")
     @JsonBackReference(value = "parent-movement")
-    private Reservation parentId;
+    private Reservation parentReservationId;
 
-    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentReservationId", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "parent-movement")
     private List<Reservation> childReservations;
 
