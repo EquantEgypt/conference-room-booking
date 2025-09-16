@@ -11,7 +11,9 @@ import lombok.Setter;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 @Entity
@@ -32,37 +34,39 @@ public class Reservation {
     @Column(name = "reservation_type", nullable = false, length = 20)
     private ReservationType type;
 
+    @Column(nullable = false)
+    private String title;
+
     @NotNull(message = "Description is required")
     @Column(nullable = false)
     private String description;
 
+    @NotNull(message = "date is required")
+    @Column(nullable = false)
+    private LocalDate date;
+
+
     @NotNull(message = "Start time is required")
     @Column(name = "start_time", nullable = false)
-    private LocalDateTime startTime;
+    private LocalTime startTime;
 
     @NotNull(message = "End time is required")
     @Column(name = "end_time", nullable = false)
-    private LocalDateTime endTime;
+    private LocalTime endTime;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "recurrence_option", nullable = false, length = 20)
     private RecurrenceOption recurrenceOption = RecurrenceOption.ONE_TIME;
 
     @Column(name = "recurrence_end_date")
-    private LocalDateTime recurrenceEndDate;
-
-    @Column(name = "repeat_count")
-    private Long repeatCount;
-
-    @Column(name = "number_of_occurrences")
-    private Long numberOfOccurrences;
+    private LocalDate recurrenceEndDate;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "parent_id")
     @JsonBackReference(value = "parent-movement")
-    private Reservation parentId;
+    private Reservation parentReservation;
 
-    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentReservation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference(value = "parent-movement")
     private List<Reservation> childReservations;
 

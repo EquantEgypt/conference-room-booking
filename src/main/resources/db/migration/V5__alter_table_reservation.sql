@@ -1,6 +1,5 @@
 -- Add missing columns to reservations table
 ALTER TABLE reservations
-ADD COLUMN repeat_count BIGINT,
 ADD COLUMN number_of_occurrences BIGINT,
 ADD COLUMN parent_id BIGINT;
 

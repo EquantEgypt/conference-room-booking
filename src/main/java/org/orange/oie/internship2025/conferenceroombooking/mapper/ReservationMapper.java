@@ -7,6 +7,8 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +20,7 @@ public class ReservationMapper {
                 reservation.getReservationId(),
                 reservation.getType(),
                 reservation.getDescription(),
+                reservation.getDate(),
                 reservation.getStartTime(),
                 reservation.getEndTime(),
                 reservation.getRecurrenceOption(),
@@ -26,16 +29,20 @@ public class ReservationMapper {
         );
     }
 
-    public Reservation toEntity(ReservationRequest reservationRequest, User user, MeetingRoom meetingRoom) {
+    public Reservation toEntity(ReservationRequest reservationRequest, User user, MeetingRoom meetingRoom, LocalDate recurrenceEndDate
+            ,Reservation parentReservation) {
         Reservation reservation = new Reservation();
         reservation.setType(reservationRequest.getType());
+        reservation.setTitle(reservationRequest.getTitle());
         reservation.setDescription(reservationRequest.getDescription());
         reservation.setStartTime(reservationRequest.getStartTime());
         reservation.setEndTime(reservationRequest.getEndTime());
         reservation.setRecurrenceOption(reservationRequest.getRecurrenceOption());
-        reservation.setRecurrenceEndDate(reservationRequest.getRecurrenceEndDate());
+        reservation.setRecurrenceEndDate(recurrenceEndDate);
+        if(parentReservation != null) reservation.setParentReservation(parentReservation);
         reservation.setUser(user);
         reservation.setRoom(meetingRoom);
+        reservation.setDate(reservationRequest.getDate());
         return reservation;
     }
     public List<ReservationResponse> toResponseList(List<Reservation> reservations) {

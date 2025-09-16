@@ -6,7 +6,9 @@ import lombok.NoArgsConstructor;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Data
 @AllArgsConstructor
@@ -15,9 +17,10 @@ public class ReservationResponse {
     private Long reservationId;
     private ReservationType type;
     private String description;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDate date;
+    private LocalTime startTime;
+    private LocalTime endTime;
     private RecurrenceOption recurrenceOption;
-    private LocalDateTime recurrenceEndDate;
+    private LocalDate recurrenceEndDate;
     private Long roomId;
 }
