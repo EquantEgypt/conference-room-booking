@@ -30,7 +30,7 @@ class ReservationMapperTest {
     @Test
     void testToResponse() {
         MeetingRoom room = new MeetingRoom();
-        room.setRoomId(10L);
+        room.setName("Nefertiti");
 
         Reservation reservation = new Reservation();
         reservation.setReservationId(1L);
@@ -54,7 +54,7 @@ class ReservationMapperTest {
         assertEquals(LocalTime.of(10, 0), response.getEndTime());
         assertEquals(RecurrenceOption.ONE_TIME, response.getRecurrenceOption());
         assertNull(response.getRecurrenceEndDate());
-        assertEquals(10L, response.getRoomId());
+        assertEquals("Nefertiti", response.getRoomName());
     }
 
     @Test
