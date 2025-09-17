@@ -3,6 +3,7 @@ package org.orange.oie.internship2025.conferenceroombooking.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
@@ -23,5 +24,5 @@ public class ReservationResponse {
     private LocalTime endTime;
     private RecurrenceOption recurrenceOption;
     private LocalDate recurrenceEndDate;
-    private Long roomId;
+    private String roomName;
 }

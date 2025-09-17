@@ -26,7 +26,7 @@ public class ReservationMapper {
                 reservation.getEndTime(),
                 reservation.getRecurrenceOption(),
                 reservation.getRecurrenceEndDate(),
-                reservation.getRoom().getRoomId()
+                reservation.getRoom().getName()
         );
     }
 
