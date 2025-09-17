@@ -335,7 +335,7 @@ public class ReservationServiceImplementationTest {
     void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_WeeklyFailure() throws Exception {
         // This test seems to be testing a scenario that should succeed, renaming for clarity
         reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
-        reservationRequest.setNumberOfOccurrences(1L);
+        reservationRequest.setNumberOfOccurrences(2L);
 
         Reservation recurringReservation = new Reservation();
         recurringReservation.setReservationId(2L);
@@ -375,7 +375,7 @@ public class ReservationServiceImplementationTest {
     void createRecurringReservationShouldThrowReservationRequestConflictForMonthlyRecurrenceFailure() {
         // Given - Monthly recurrence is not supported
         reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY);
-        reservationRequest.setNumberOfOccurrences(1L);
+        reservationRequest.setNumberOfOccurrences(2L);
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
