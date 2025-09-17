@@ -452,9 +452,8 @@ public class ReservationServiceImplementationTest {
     @Test
     void shouldReturnVoidWhenSuccessfulDelete() {
         //Given
-        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(1L, user))
-                .thenReturn(true);
+        when(reservationRepository.findById(1L))
+                .thenReturn(Optional.of(reservation));
         //When & Then
         reservationServiceImplementation.deleteBooking(1L);
     }
@@ -462,9 +461,8 @@ public class ReservationServiceImplementationTest {
     @Test
     void shouldThrowResourceNotFoundExceptionWhenReservationNotFound() {
         //Given
-        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(reservationRepository.existsByReservationIdAndUser(1L, user))
-                .thenReturn(false);
+        when(reservationRepository.findById(1L))
+                .thenReturn(Optional.empty());
         //When & Then
         assertThrows(ReservationNotFoundException.class, () -> {
             reservationServiceImplementation.deleteBooking(1L);

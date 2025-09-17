@@ -266,8 +266,8 @@ class MeetingRoomServiceImplementationTest {
         MeetingRoom roomWithoutEquipment = rooms.get(2);
 
         LocalDate date = LocalDate.now();
-        LocalTime startTime = LocalTime.now();
-        LocalTime endTime = startTime.plusHours(1);
+        LocalTime startTime = LocalTime.of(9, 0);  // Fixed time: 09:00
+        LocalTime endTime = LocalTime.of(10, 0);   // Fixed time: 10:00
 
         when(meetingRoomRepository.findAvailableRooms(
                 0,

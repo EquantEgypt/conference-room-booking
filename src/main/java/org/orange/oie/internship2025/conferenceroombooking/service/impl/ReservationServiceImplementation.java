@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
+import jakarta.validation.constraints.NotNull;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
@@ -18,7 +19,6 @@ import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoo
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 
 @Service
 public class ReservationServiceImplementation implements ReservationService {
@@ -102,13 +103,16 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
-    @jakarta.transaction.Transactional
-    public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
-        User user = userDetailsServiceImplementation.getCurrentUser();
-        if (!reservationRepository.existsByReservationIdAndUser(reservationId, user)) {
-            throw new ReservationNotFoundException("reservation is not found");
-        }
-        reservationRepository.deleteByReservationIdAndUser(reservationId, user);
+    @Transactional
+    public void deleteBooking(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
+
+        Reservation parent = (reservation.getParentReservation() == null)
+                ? reservation
+                : reservation.getParentReservation();
+
+        reservationRepository.delete(parent);
     }
 
     @Override
@@ -170,7 +174,7 @@ public class ReservationServiceImplementation implements ReservationService {
             throw new DateTimeConflictException("start must be before end.");
         }
 
-        if(reservationRequest.getRecurrenceOption() != RecurrenceOption.ONE_TIME && reservationRequest.getNumberOfOccurrences() < 2){
+        if (reservationRequest.getRecurrenceOption() != RecurrenceOption.ONE_TIME && reservationRequest.getNumberOfOccurrences() < 2) {
             throw new ReservationRequestConflict("number of occurrences must be greater than or equal 2 in Daily or weekly occurrences.");
         }
 
@@ -227,7 +231,7 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
 
-    private LocalDate getEndDate(LocalDate date, RecurrenceOption option, Long numOfOccurrence) {
+    private LocalDate getEndDate(@NotNull LocalDate date, RecurrenceOption option, Long numOfOccurrence) {
         switch (option) {
             case DAILY -> {
                 return date.plusDays(numOfOccurrence - 1);
@@ -238,5 +242,6 @@ public class ReservationServiceImplementation implements ReservationService {
             default -> throw new ReservationRequestConflict("Unknown Recurrence Option");
         }
     }
+
 }
 

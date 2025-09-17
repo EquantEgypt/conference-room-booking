@@ -12,7 +12,6 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOptio
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -62,7 +61,7 @@ public class Reservation {
     private LocalDate recurrenceEndDate;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "parent_id")
+    @JoinColumn(name = "parent_reservation_id")
     @JsonBackReference(value = "parent-movement")
     private Reservation parentReservation;
 

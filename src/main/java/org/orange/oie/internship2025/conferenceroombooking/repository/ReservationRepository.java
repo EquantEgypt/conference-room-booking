@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.repository;
 
+import jakarta.validation.constraints.NotNull;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
@@ -12,6 +13,7 @@ import java.time.LocalTime;
 import java.util.List;
 
 public interface ReservationRepository extends CrudRepository<Reservation, Long> {
+
     void deleteByReservationIdAndUser(Long reservationId, User user);
 
     boolean existsByReservationIdAndUser(Long reservationId, User user);
@@ -30,6 +32,6 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
 
 
     List<Reservation> findAllByUser(User user);
-    
+
     void deleteReservationsByParentReservation(Reservation parentReservation);
 }
