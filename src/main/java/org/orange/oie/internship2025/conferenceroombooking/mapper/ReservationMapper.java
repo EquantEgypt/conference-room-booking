@@ -19,6 +19,7 @@ public class ReservationMapper {
         return new ReservationResponse(
                 reservation.getReservationId(),
                 reservation.getType(),
+                reservation.getTitle(),
                 reservation.getDescription(),
                 reservation.getDate(),
                 reservation.getStartTime(),

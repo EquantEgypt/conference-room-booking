@@ -61,7 +61,7 @@ public class ReservationServiceImplementation implements ReservationService {
         validateReservation(reservationRequest, null); // validation
 
         List<Reservation> reservations = new ArrayList<>();
-        List<ReservationResponse> reservationResponses = new ArrayList<>();
+        List<ReservationResponse> reservationResponses;
 
         Reservation parentReservation = reservationMapper.toEntity(reservationRequest, user,
                 meetingRoom, reservationRequest.getDate(), null);
@@ -160,6 +160,10 @@ public class ReservationServiceImplementation implements ReservationService {
 
         if (!reservationRequest.getStartTime().isBefore(reservationRequest.getEndTime())) {
             throw new DateTimeConflictException("start must be before end.");
+        }
+
+        if(reservationRequest.getRecurrenceOption() != RecurrenceOption.ONE_TIME && reservationRequest.getNumberOfOccurrences() < 2){
+            throw new ReservationRequestConflict("number of occurrences must be greater than or equal 2 in Daily or weekly occurrences.");
         }
 
         if ((reservation == null && isRoomAvailable(meetingRoom, reservationRequest.getDate(),

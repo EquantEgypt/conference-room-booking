@@ -16,6 +16,7 @@ import java.time.LocalTime;
 public class ReservationResponse {
     private Long reservationId;
     private ReservationType type;
+    private String title;
     private String description;
     private LocalDate date;
     private LocalTime startTime;
