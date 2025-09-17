@@ -13,4 +13,6 @@ public interface ReservationService {
     List<ReservationResponse> createBooking(ReservationRequest reservationRequest);
 
     List<ReservationResponse> getAllReservations();
+
+    ReservationResponse getReservationById(Long reservationId);
 }

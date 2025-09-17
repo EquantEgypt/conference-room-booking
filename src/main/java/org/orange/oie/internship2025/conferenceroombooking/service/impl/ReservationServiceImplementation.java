@@ -94,6 +94,14 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
+    public ReservationResponse getReservationById(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
+                () -> new ReservationNotFoundException("Reservation not found")
+        );
+        return reservationMapper.toResponse(reservation);
+    }
+
+    @Override
     @jakarta.transaction.Transactional
     public void deleteBooking(Long reservationId) throws ResourceNotFoundException, UsernameNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();

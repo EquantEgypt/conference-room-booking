@@ -26,6 +26,12 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
+    @GetMapping("{reservationId}")
+    public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long reservationId) {
+        ReservationResponse response = reservationService.getReservationById(reservationId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @PostMapping
     public ResponseEntity<List<ReservationResponse>> createBooking(@RequestBody ReservationRequest reservationRequest) {
         List<ReservationResponse> responses = reservationService.createBooking(reservationRequest);
