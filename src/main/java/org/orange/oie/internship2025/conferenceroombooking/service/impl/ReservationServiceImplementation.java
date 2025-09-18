@@ -115,34 +115,60 @@ public class ReservationServiceImplementation implements ReservationService {
         reservationRepository.delete(parent);
     }
 
+
     @Override
-    public ReservationResponse updateBooking(ReservationRequest reservationRequest, Long reservation_id) throws ResourceNotFoundException {
+    @Transactional
+    public List<ReservationResponse> updateBooking(ReservationRequest request, Long reservation_id) throws ResourceNotFoundException {
         User user = userDetailsServiceImplementation.getCurrentUser();
+
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+                request.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+
         if (!reservationRepository.existsByReservationIdAndUser(reservation_id, user))
             throw new ReservationNotFoundException("reservation not found");
-        Reservation reservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
 
-        if (reservation.getChildReservations() != null) {
-            reservation.getChildReservations().clear();
+        // reservation found
+        Reservation oldReservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
+
+
+        List<Reservation> reservations = new ArrayList<>();
+        List<ReservationResponse> responses;
+
+        // get the parent of reservation
+        Reservation parent = (oldReservation.getParentReservation() == null)
+                ? oldReservation
+                : oldReservation.getParentReservation();
+
+        // simple change
+        boolean simpleChange = checkSimpleChange(parent, request);
+
+        if (simpleChange) {
+
+            // set the parent of reservation values from request values
+            parent.setType(request.getType());
+            parent.setTitle(request.getTitle());
+            parent.setDescription(request.getDescription());
+
+            // adding parent to the list
+            reservations.add(parent);
+
+            // if parent has children set the children reservations values from request values
+            if (parent.getChildReservations() != null) {
+                for (Reservation child : parent.getChildReservations()) {
+                    child.setType(request.getType());
+                    child.setTitle(request.getTitle());
+                    child.setDescription(request.getDescription());
+                    reservations.add(child);
+                }
+            }
+            responses = reservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
+            return responses;
         }
-
-        validateReservation(reservationRequest, reservation);
-
-        // Update existing reservation instead of creating new one
-        reservation.setType(reservationRequest.getType());
-        reservation.setTitle(reservationRequest.getTitle());
-        reservation.setDescription(reservationRequest.getDescription());
-        reservation.setDate(reservationRequest.getDate());
-        reservation.setStartTime(reservationRequest.getStartTime());
-        reservation.setEndTime(reservationRequest.getEndTime());
-        reservation.setRecurrenceOption(reservationRequest.getRecurrenceOption());
-        reservation.setRoom(meetingRoom);
-
-        reservation.setReservationId(reservation_id);
-        Reservation saved = reservationRepository.save(reservation);
-        return reservationMapper.toResponse(saved);
+        else{ // complex change startTime, endTime, date, recurrence option, no of occurrence
+            deleteBooking(parent.getReservationId());
+            responses = createBooking(request);
+            return responses;
+        }
     }
 
     private boolean isRoomAvailable(MeetingRoom room, LocalDate date, LocalTime startTime, LocalTime endTime) {
@@ -241,6 +267,13 @@ public class ReservationServiceImplementation implements ReservationService {
             }
             default -> throw new ReservationRequestConflict("Unknown Recurrence Option");
         }
+    }
+
+    private boolean checkSimpleChange(Reservation oldReservation, ReservationRequest request) {
+        return request.getRecurrenceOption().equals(oldReservation.getRecurrenceOption())
+                && request.getDate().equals(oldReservation.getDate())
+                && request.getStartTime().equals(oldReservation.getStartTime())
+                && request.getEndTime().equals(oldReservation.getEndTime());
     }
 
 }
