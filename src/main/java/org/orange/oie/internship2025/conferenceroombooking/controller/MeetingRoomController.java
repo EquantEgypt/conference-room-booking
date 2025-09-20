@@ -50,4 +50,5 @@ public class MeetingRoomController {
     public ResponseEntity<MeetingRoomDTO> getRoomById(@PathVariable Long id) {
         return ResponseEntity.ok(meetingRoomService.getMeetingRoomById(id));
     }
+
 }

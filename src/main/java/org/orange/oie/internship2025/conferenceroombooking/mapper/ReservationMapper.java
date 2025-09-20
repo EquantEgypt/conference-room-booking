@@ -5,6 +5,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRespon
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
+import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
@@ -26,7 +27,9 @@ public class ReservationMapper {
                 reservation.getEndTime(),
                 reservation.getRecurrenceOption(),
                 reservation.getRecurrenceEndDate(),
-                reservation.getRoom().getName()
+                reservation.getRoom().getName(),
+                reservation.getRoom().getRoomId(),
+                calcNumberOfRecurrences(reservation)
         );
     }
 
@@ -46,9 +49,31 @@ public class ReservationMapper {
         reservation.setDate(reservationRequest.getDate());
         return reservation;
     }
+
     public List<ReservationResponse> toResponseList(List<Reservation> reservations) {
         return reservations.stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Long calcNumberOfRecurrences(Reservation reservation) {
+        if (reservation.getRecurrenceOption() == null || reservation.getRecurrenceOption() == RecurrenceOption.ONE_TIME) {
+            return 1L;
+        }
+
+        LocalDate startDate = reservation.getDate();
+        long count = 0;
+
+        switch (reservation.getRecurrenceOption()) {
+            case DAILY:
+                count = java.time.temporal.ChronoUnit.DAYS.between(startDate, reservation.getRecurrenceEndDate()) + 1;
+                break;
+            case WEEKLY:
+                count = java.time.temporal.ChronoUnit.WEEKS.between(startDate, reservation.getRecurrenceEndDate()) + 1;
+                break;
+            default: throw new IllegalArgumentException("Unsupported recurrence option: " + reservation.getRecurrenceOption());
+        }
+
+        return count;
     }
 }
