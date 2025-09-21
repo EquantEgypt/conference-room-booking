@@ -1,6 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 
+import org.orange.oie.internship2025.conferenceroombooking.dto.CalendarViewResponse;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
@@ -8,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -29,6 +31,12 @@ public class ReservationController {
     @GetMapping("{reservationId}")
     public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long reservationId) {
         ReservationResponse response = reservationService.getReservationById(reservationId);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @GetMapping("date/{reservationDate}")
+    public ResponseEntity<List<CalendarViewResponse>> getReservationByDate(@PathVariable LocalDate reservationDate) {
+        List<CalendarViewResponse> response = reservationService.getReservationByDate(reservationDate);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

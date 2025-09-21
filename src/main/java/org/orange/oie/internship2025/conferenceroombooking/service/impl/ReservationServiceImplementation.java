@@ -1,8 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
 import jakarta.validation.constraints.NotNull;
-import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
-import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
+import org.orange.oie.internship2025.conferenceroombooking.dto.*;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
@@ -24,9 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -100,6 +97,68 @@ public class ReservationServiceImplementation implements ReservationService {
                 () -> new ReservationNotFoundException("Reservation not found")
         );
         return reservationMapper.toResponse(reservation);
+    }
+
+    @Override
+    public List<CalendarViewResponse> getReservationByDate(LocalDate reservationDate) {
+        List<CalendarViewResponse> cvResponse = new ArrayList<>();
+        List<CalendarView> cvDB = reservationRepository.findRoomsWithReservationsByDate(reservationDate);
+        Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
+        Map<Long, List<CalendarView>> map = new TreeMap<>();
+
+        for(CalendarView item: cvDB) {
+
+            CalendarView reservation = new CalendarView(
+                    item.getRoomId(),
+                    item.getRoomName(),
+                    item.getRoomCapacity(),
+                    item.getReservationId(),
+                    item.getReservationType(),
+                    item.getReservationTitle(),
+                    item.getReservationDate(),
+                    item.getReservationStartTime(),
+                    item.getReservationEndTime(),
+                    item.getReservationRecurrenceOption(),
+                    item.getUserId()
+            );
+
+            if(map.containsKey(item.getRoomId())) {
+                map.get(item.getRoomId()).add(reservation);
+            }
+            else{
+                List<CalendarView> list = new ArrayList<>();
+                list.add(reservation);
+                map.put(item.getRoomId(), list);
+            }
+        }
+
+        for (Map.Entry<Long, List<CalendarView>> entry : map.entrySet()) {
+            CalendarViewResponse calenderViewResponse = new CalendarViewResponse();
+
+            calenderViewResponse.setRoomId(entry.getKey());
+            calenderViewResponse.setRoomName(entry.getValue().getFirst().getRoomName());
+            calenderViewResponse.setRoomCapacity(entry.getValue().getFirst().getRoomCapacity());
+            calenderViewResponse.setReservations(new ArrayList<>());
+
+            for(CalendarView row : entry.getValue()) {
+                if(row.getReservationId() != null){
+                    calenderViewResponse.getReservations().add(
+                            new CalendarViewReservation(
+                                    row.getReservationId(),
+                                    row.getReservationType(),
+                                    row.getReservationTitle(),
+                                    row.getReservationDate(),
+                                    row.getReservationStartTime(),
+                                    row.getReservationEndTime(),
+                                    row.getReservationRecurrenceOption(),
+                                    row.getUserId().equals(userId)
+                            )
+                    );
+                }
+            }
+            cvResponse.add(calenderViewResponse);
+        }
+        return cvResponse;
     }
 
     @Override

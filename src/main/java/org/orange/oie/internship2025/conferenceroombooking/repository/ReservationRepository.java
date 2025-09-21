@@ -1,6 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.repository;
 
-import jakarta.validation.constraints.NotNull;
+import org.orange.oie.internship2025.conferenceroombooking.dto.CalendarView;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
@@ -34,4 +34,20 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
     List<Reservation> findAllByUser(User user);
 
     void deleteReservationsByParentReservation(Reservation parentReservation);
+
+    @Query("""
+            SELECT new org.orange.oie.internship2025.conferenceroombooking.dto.CalendarView(
+                   mr.roomId, mr.name, CAST(mr.capacity AS long),
+                   r.reservationId, r.type, r.title, r.date,
+                   r.startTime, r.endTime, r.recurrenceOption,r.user.userId
+            )
+            FROM MeetingRoom AS mr
+            LEFT JOIN Reservation AS r
+              ON mr.roomId = r.room.roomId
+             AND r.date = :date
+            WHERE mr.status = org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus.AVAILABLE
+            """)
+    List<CalendarView> findRoomsWithReservationsByDate(@Param("date") LocalDate date);
+
+
 }
