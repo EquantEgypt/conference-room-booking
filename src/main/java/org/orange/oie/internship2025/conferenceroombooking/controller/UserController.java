@@ -24,7 +24,7 @@ public class UserController {
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of("error", "Username and password must be provided")
+                    Map.of("errorMessage", "Username and password must be provided")
             );
         }
 
