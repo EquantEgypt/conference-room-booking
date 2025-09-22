@@ -57,12 +57,17 @@ public class ReservationMapper {
     }
 
     public Long calcNumberOfRecurrences(Reservation reservation) {
-        if (reservation.getRecurrenceOption() == null || reservation.getRecurrenceOption() == RecurrenceOption.ONE_TIME) {
+
+        if (reservation.getRecurrenceOption() == null
+                || reservation.getRecurrenceOption() == RecurrenceOption.ONE_TIME) {
             return 1L;
         }
 
-        LocalDate startDate = reservation.getDate();
-        long count = 0;
+        LocalDate startDate = (reservation.getParentReservation() == null)
+                ? reservation.getDate()
+                : reservation.getParentReservation().getDate();
+
+        long count;
 
         switch (reservation.getRecurrenceOption()) {
             case DAILY:
