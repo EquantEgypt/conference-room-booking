@@ -2,29 +2,32 @@ package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.UserResponse;
-import org.orange.oie.internship2025.conferenceroombooking.entity.User;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.JwtService;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Base64;
 import java.util.Map;
 
 @RestController
 public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImplementation userDetailsServiceImplementation;
+    private final JwtService jwtService;
 
     public UserController(AuthenticationManager authenticationManager
-    , UserDetailsServiceImplementation userDetailsServiceImplementation) {
+            , UserDetailsServiceImplementation userDetailsServiceImplementation, JwtService jwtService) {
         this.authenticationManager = authenticationManager;
         this.userDetailsServiceImplementation = userDetailsServiceImplementation;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/login")
@@ -35,12 +38,15 @@ public class UserController {
             );
         }
 
-        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
-        authenticationManager.authenticate(authenticationToken);
-        String encodedBase64UsernamePassword = Base64.getEncoder().encodeToString(
-                ((loginRequest.getUsername()) + ":" + loginRequest.getPassword()).getBytes());
-        return ResponseEntity.ok(Map.of("token", encodedBase64UsernamePassword));
-
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
+                loginRequest.getPassword()));
+        if (authentication.isAuthenticated()) {
+            return ResponseEntity.status(HttpStatus.OK).body(
+                    Map.of("token", jwtService.generateToken(loginRequest.getUsername()))
+            );
+        } else {
+            throw new UsernameNotFoundException("Invalid user request!");
+        }
     }
 
     @GetMapping("username")

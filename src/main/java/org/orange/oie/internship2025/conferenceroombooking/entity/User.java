@@ -66,6 +66,4 @@ public class User {
     @OneToMany(mappedBy = "user")
     @JsonManagedReference(value = "user-movement")
     private List<Reservation> reservations;
-
-
 }
