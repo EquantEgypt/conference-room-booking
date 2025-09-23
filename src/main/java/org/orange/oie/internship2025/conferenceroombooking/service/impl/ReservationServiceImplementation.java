@@ -106,7 +106,7 @@ public class ReservationServiceImplementation implements ReservationService {
         Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
         Map<Long, List<CalendarView>> map = new TreeMap<>();
 
-        for(CalendarView item: cvDB) {
+        for (CalendarView item : cvDB) {
 
             CalendarView reservation = new CalendarView(
                     item.getRoomId(),
@@ -122,10 +122,9 @@ public class ReservationServiceImplementation implements ReservationService {
                     item.getUserId()
             );
 
-            if(map.containsKey(item.getRoomId())) {
+            if (map.containsKey(item.getRoomId())) {
                 map.get(item.getRoomId()).add(reservation);
-            }
-            else{
+            } else {
                 List<CalendarView> list = new ArrayList<>();
                 list.add(reservation);
                 map.put(item.getRoomId(), list);
@@ -140,8 +139,8 @@ public class ReservationServiceImplementation implements ReservationService {
             calenderViewResponse.setRoomCapacity(entry.getValue().getFirst().getRoomCapacity());
             calenderViewResponse.setReservations(new ArrayList<>());
 
-            for(CalendarView row : entry.getValue()) {
-                if(row.getReservationId() != null){
+            for (CalendarView row : entry.getValue()) {
+                if (row.getReservationId() != null) {
                     calenderViewResponse.getReservations().add(
                             new CalendarViewReservation(
                                     row.getReservationId(),
@@ -159,6 +158,14 @@ public class ReservationServiceImplementation implements ReservationService {
             cvResponse.add(calenderViewResponse);
         }
         return cvResponse;
+    }
+
+    @Override
+    public ReservationResponse getUpcomingReservation() {
+        Reservation reservation = reservationRepository.findUpcomingReservation(LocalDate.now(),
+                userDetailsServiceImplementation.getCurrentUser().getUserId());
+        if (reservation == null) throw new ReservationNotFoundException("No upcoming reservations");
+        return reservationMapper.toResponse(reservation);
     }
 
     @Override
@@ -222,8 +229,7 @@ public class ReservationServiceImplementation implements ReservationService {
             }
             responses = reservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
             return responses;
-        }
-        else{ // complex change startTime, endTime, date, recurrence option, no of occurrence
+        } else { // complex change startTime, endTime, date, recurrence option, no of occurrence
             deleteBooking(parent.getReservationId());
             responses = createBooking(request);
             return responses;

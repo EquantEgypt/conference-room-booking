@@ -28,6 +28,12 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 
+    @GetMapping("/up-coming")
+    public ResponseEntity<ReservationResponse> getUpcomingReservation() {
+        ReservationResponse reservationResponse = reservationService.getUpcomingReservation();
+        return ResponseEntity.status(HttpStatus.OK).body(reservationResponse);
+    }
+
     @GetMapping("{reservationId}")
     public ResponseEntity<ReservationResponse> getReservationById(@PathVariable Long reservationId) {
         ReservationResponse response = reservationService.getReservationById(reservationId);

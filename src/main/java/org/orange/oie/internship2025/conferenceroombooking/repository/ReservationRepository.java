@@ -21,10 +21,10 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
     Reservation findByReservationIdAndUser(Long reservationId, User user);
 
     @Query("SELECT r FROM Reservation r " +
-            "WHERE r.room = :room " +
-            "AND r.date = :date " +
-            "AND r.startTime < :endTime " +
-            "AND r.endTime > :startTime")
+           "WHERE r.room = :room " +
+           "AND r.date = :date " +
+           "AND r.startTime < :endTime " +
+           "AND r.endTime > :startTime")
     List<Reservation> findConflicts(@Param("room") MeetingRoom room,
                                     @Param("date") LocalDate date,
                                     @Param("startTime") LocalTime startTime,
@@ -49,5 +49,11 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
             """)
     List<CalendarView> findRoomsWithReservationsByDate(@Param("date") LocalDate date);
 
-
+    @Query(value = """
+             SELECT r FROM Reservation AS r
+                         WHERE r.date >= :date AND r.user.userId = :userId\s
+                         ORDER BY r.date ASC\s
+                         LIMIT 1
+            \s""")
+    Reservation findUpcomingReservation(@Param("date") LocalDate date, @Param("userId") Long userId);
 }
