@@ -47,6 +47,7 @@ public class ReservationMapper {
         reservation.setUser(user);
         reservation.setRoom(meetingRoom);
         reservation.setDate(reservationRequest.getDate());
+        reservation.setNumberOfOccurrences(reservationRequest.getNumberOfOccurrences());
         return reservation;
     }
 

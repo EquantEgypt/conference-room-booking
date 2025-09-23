@@ -3,6 +3,9 @@ package org.orange.oie.internship2025.conferenceroombooking.service.interfac;
 import org.orange.oie.internship2025.conferenceroombooking.dto.CalendarViewResponse;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
+import org.orange.oie.internship2025.conferenceroombooking.enums.DateScope;
+import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -15,6 +18,10 @@ public interface ReservationService {
     List<ReservationResponse> createBooking(ReservationRequest reservationRequest);
 
     List<ReservationResponse> getAllReservations();
+
+    List<ReservationResponse> getReservationWithFilter(DateScope dateScope,
+                                                       ReservationType reservationType,
+                                                       RecurrenceOption recurrenceOption);
 
     ReservationResponse getReservationById(Long reservationId);
 

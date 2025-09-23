@@ -60,6 +60,9 @@ public class Reservation {
     @Column(name = "recurrence_end_date")
     private LocalDate recurrenceEndDate;
 
+    @Column(name = "number_of_occurrences")
+    private Long numberOfOccurrences;
+
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "parent_reservation_id")
     @JsonBackReference(value = "parent-movement")

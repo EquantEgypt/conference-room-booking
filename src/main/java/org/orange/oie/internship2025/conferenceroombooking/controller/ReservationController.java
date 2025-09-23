@@ -4,6 +4,9 @@ package org.orange.oie.internship2025.conferenceroombooking.controller;
 import org.orange.oie.internship2025.conferenceroombooking.dto.CalendarViewResponse;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
+import org.orange.oie.internship2025.conferenceroombooking.enums.DateScope;
+import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +28,18 @@ public class ReservationController {
     @GetMapping()
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
         List<ReservationResponse> responses = reservationService.getAllReservations();
+        return ResponseEntity.status(HttpStatus.OK).body(responses);
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<List<ReservationResponse>> getReservationByFilter(
+            @RequestParam(required = false) DateScope dateScope,
+            @RequestParam(required = false) ReservationType reservationType,
+            @RequestParam(required = false) RecurrenceOption recurrenceOption) {
+
+        List<ReservationResponse> responses = reservationService
+                .getReservationWithFilter(dateScope,reservationType,recurrenceOption);
+
         return ResponseEntity.status(HttpStatus.OK).body(responses);
     }
 

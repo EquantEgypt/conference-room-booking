@@ -5,10 +5,7 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.*;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
-import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
-import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
-import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.enums.*;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
@@ -92,6 +89,31 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
+    public List<ReservationResponse> getReservationWithFilter(
+            DateScope dateScope,
+            ReservationType reservationType,
+            RecurrenceOption recurrenceOption
+    ) {
+        LocalDate start = null, end = null;
+        if (dateScope != null) {
+            if (dateScope == DateScope.TODAY) {
+                start = LocalDate.now();
+                end = LocalDate.now();
+            }
+            else if(dateScope == DateScope.NEXT_DAY){
+                start = LocalDate.now().plusDays(1);
+                end = LocalDate.now().plusDays(1);
+            }
+            else{
+                start = LocalDate.now();
+                end = LocalDate.now().plusDays(6);
+            }
+        }
+        return reservationRepository.getReservationWithFilter
+                (start,end,reservationType,recurrenceOption);
+    }
+
+    @Override
     public ReservationResponse getReservationById(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
                 () -> new ReservationNotFoundException("Reservation not found")
@@ -106,7 +128,7 @@ public class ReservationServiceImplementation implements ReservationService {
         Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
         Map<Long, List<CalendarView>> map = new TreeMap<>();
 
-        for(CalendarView item: cvDB) {
+        for (CalendarView item : cvDB) {
 
             CalendarView reservation = new CalendarView(
                     item.getRoomId(),
@@ -122,10 +144,9 @@ public class ReservationServiceImplementation implements ReservationService {
                     item.getUserId()
             );
 
-            if(map.containsKey(item.getRoomId())) {
+            if (map.containsKey(item.getRoomId())) {
                 map.get(item.getRoomId()).add(reservation);
-            }
-            else{
+            } else {
                 List<CalendarView> list = new ArrayList<>();
                 list.add(reservation);
                 map.put(item.getRoomId(), list);
@@ -140,8 +161,8 @@ public class ReservationServiceImplementation implements ReservationService {
             calenderViewResponse.setRoomCapacity(entry.getValue().getFirst().getRoomCapacity());
             calenderViewResponse.setReservations(new ArrayList<>());
 
-            for(CalendarView row : entry.getValue()) {
-                if(row.getReservationId() != null){
+            for (CalendarView row : entry.getValue()) {
+                if (row.getReservationId() != null) {
                     calenderViewResponse.getReservations().add(
                             new CalendarViewReservation(
                                     row.getReservationId(),
@@ -222,8 +243,7 @@ public class ReservationServiceImplementation implements ReservationService {
             }
             responses = reservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
             return responses;
-        }
-        else{ // complex change startTime, endTime, date, recurrence option, no of occurrence
+        } else { // complex change startTime, endTime, date, recurrence option, no of occurrence
             deleteBooking(parent.getReservationId());
             responses = createBooking(request);
             return responses;
@@ -311,6 +331,7 @@ public class ReservationServiceImplementation implements ReservationService {
         reservation.setRoom(room);
         reservation.setUser(user);
         reservation.setRecurrenceEndDate(recurrenceEndDate);
+        reservation.setNumberOfOccurrences(request.getNumberOfOccurrences());
 
         return reservation;
     }
