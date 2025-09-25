@@ -52,6 +52,12 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
             """)
     List<CalendarView> findRoomsWithReservationsByDate(@Param("date") LocalDate date);
 
+    @Query(value = """
+             SELECT r FROM Reservation AS r
+                         WHERE r.date = :date AND r.user.userId = :userId\s
+                         ORDER BY r.date ASC\s
+            \s""")
+    List<Reservation> findUpcomingReservation(@Param("date") LocalDate date, @Param("userId") Long userId);
 
     @Query("""
                SELECT new org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse(

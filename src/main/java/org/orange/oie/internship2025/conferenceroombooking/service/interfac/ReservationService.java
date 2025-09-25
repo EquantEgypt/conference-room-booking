@@ -26,6 +26,8 @@ public interface ReservationService {
     ReservationResponse getReservationById(Long reservationId);
 
     List<CalendarViewResponse> getReservationByDate(LocalDate reservationDate);
+
+    List<ReservationResponse> getUpcomingReservation();
 }
 
 

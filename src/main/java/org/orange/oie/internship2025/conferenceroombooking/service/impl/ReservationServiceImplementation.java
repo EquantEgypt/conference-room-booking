@@ -202,6 +202,14 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
+    public List<ReservationResponse> getUpcomingReservation() {
+        List<Reservation> reservations = reservationRepository.findUpcomingReservation(LocalDate.now(),
+                userDetailsServiceImplementation.getCurrentUser().getUserId());
+        if (reservations == null) throw new ReservationNotFoundException("No upcoming reservations");
+        return reservations.stream().map(reservationMapper::toResponse).toList();
+    }
+
+    @Override
     @Transactional
     public void deleteBooking(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
