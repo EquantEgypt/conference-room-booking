@@ -29,9 +29,9 @@ public class ReservationController {
     }
 
     @GetMapping("/up-coming")
-    public ResponseEntity<ReservationResponse> getUpcomingReservation() {
-        ReservationResponse reservationResponse = reservationService.getUpcomingReservation();
-        return ResponseEntity.status(HttpStatus.OK).body(reservationResponse);
+    public ResponseEntity<List<ReservationResponse>> getUpcomingReservation() {
+        List<ReservationResponse> response = reservationService.getUpcomingReservation();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping("{reservationId}")

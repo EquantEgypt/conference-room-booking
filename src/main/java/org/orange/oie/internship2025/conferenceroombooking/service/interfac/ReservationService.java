@@ -20,7 +20,7 @@ public interface ReservationService {
 
     List<CalendarViewResponse> getReservationByDate(LocalDate reservationDate);
 
-    ReservationResponse getUpcomingReservation();
+    List<ReservationResponse> getUpcomingReservation();
 }
 
 

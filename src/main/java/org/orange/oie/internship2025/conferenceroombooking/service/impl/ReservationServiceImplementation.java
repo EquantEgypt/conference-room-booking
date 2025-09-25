@@ -161,11 +161,11 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
-    public ReservationResponse getUpcomingReservation() {
-        Reservation reservation = reservationRepository.findUpcomingReservation(LocalDate.now(),
+    public List<ReservationResponse> getUpcomingReservation() {
+        List<Reservation> reservations = reservationRepository.findUpcomingReservation(LocalDate.now(),
                 userDetailsServiceImplementation.getCurrentUser().getUserId());
-        if (reservation == null) throw new ReservationNotFoundException("No upcoming reservations");
-        return reservationMapper.toResponse(reservation);
+        if (reservations == null) throw new ReservationNotFoundException("No upcoming reservations");
+        return reservations.stream().map(reservationMapper::toResponse).toList();
     }
 
     @Override
