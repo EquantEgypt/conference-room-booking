@@ -19,7 +19,7 @@ public interface ReservationService {
 
     List<ReservationResponse> getAllReservations();
 
-    List<ReservationResponse> getReservationWithFilter(DateScope dateScope,
+    List<List<ReservationResponse>> getReservationWithFilter(DateScope dateScope,
                                                        ReservationType reservationType,
                                                        RecurrenceOption recurrenceOption);
 

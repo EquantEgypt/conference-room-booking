@@ -32,12 +32,12 @@ public class ReservationController {
     }
 
     @GetMapping("/filter")
-    public ResponseEntity<List<ReservationResponse>> getReservationByFilter(
+    public ResponseEntity<List<List<ReservationResponse>>> getReservationByFilter(
             @RequestParam(required = false) DateScope dateScope,
             @RequestParam(required = false) ReservationType reservationType,
             @RequestParam(required = false) RecurrenceOption recurrenceOption) {
 
-        List<ReservationResponse> responses = reservationService
+        List<List<ReservationResponse>> responses = reservationService
                 .getReservationWithFilter(dateScope,reservationType,recurrenceOption);
 
         return ResponseEntity.status(HttpStatus.OK).body(responses);

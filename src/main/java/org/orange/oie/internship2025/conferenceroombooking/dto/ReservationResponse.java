@@ -25,4 +25,5 @@
         private String roomName;
         private Long roomId;
         private Long numberOfOccurrences;
+        private Long parentId;
     }

@@ -89,7 +89,7 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
-    public List<ReservationResponse> getReservationWithFilter(
+    public List<List<ReservationResponse>> getReservationWithFilter(
             DateScope dateScope,
             ReservationType reservationType,
             RecurrenceOption recurrenceOption
@@ -109,8 +109,27 @@ public class ReservationServiceImplementation implements ReservationService {
                 end = LocalDate.now().plusDays(6);
             }
         }
-        return reservationRepository.getReservationWithFilter
-                (start,end,reservationType,recurrenceOption);
+
+        Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
+
+        List<ReservationResponse> reservationResponse = reservationRepository
+                .getReservationWithFilter(start,end,reservationType,recurrenceOption,userId);
+
+        Map<Long,List<ReservationResponse>> map = new TreeMap<>();
+
+        for(ReservationResponse res : reservationResponse){
+            Long id = res.getParentId() != null ? res.getParentId() : res.getReservationId();
+
+            if(map.containsKey(id)){
+                map.get(id).add(res);
+            }
+            else{
+                List<ReservationResponse> list = new ArrayList<>();
+                list.add(res);
+                map.put(id,list);
+            }
+        }
+        return new ArrayList<>(map.values());
     }
 
     @Override

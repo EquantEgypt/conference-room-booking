@@ -29,7 +29,9 @@ public class ReservationMapper {
                 reservation.getRecurrenceEndDate(),
                 reservation.getRoom().getName(),
                 reservation.getRoom().getRoomId(),
-                calcNumberOfRecurrences(reservation)
+                calcNumberOfRecurrences(reservation),
+                reservation.getParentReservation() != null ?
+                        reservation.getParentReservation().getReservationId() : null
         );
     }
 
