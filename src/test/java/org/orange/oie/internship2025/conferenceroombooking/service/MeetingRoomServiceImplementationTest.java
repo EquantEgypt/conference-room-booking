@@ -71,11 +71,120 @@ class MeetingRoomServiceImplementationTest {
         equipmentSetList.add(emptyEquipment);
 
         // Initialize meeting rooms
+
         meetingRoomList = new ArrayList<>();
         meetingRoomList.add(createRoom(1L, "Conference Room A", RoomType.NORMAL, MeetingRoomStatus.AVAILABLE, standardEquipment));
         meetingRoomList.add(createRoom(2L, "VIP Meeting Room", RoomType.VIP, MeetingRoomStatus.AVAILABLE, vipEquipment));
         meetingRoomList.add(createRoom(3L, "Small Meeting Room", RoomType.NORMAL, MeetingRoomStatus.UNDER_MAINTENANCE, basicEquipment));
         meetingRoomList.add(createRoom(4L, "Basic Room", RoomType.NORMAL, MeetingRoomStatus.BOOKED, emptyEquipment));
+        MeetingRoom room1 = new MeetingRoom();
+        room1.setRoomId(1L);
+        room1.setName("Conference Room A");
+        room1.setGeoLocation("Building A - Ground Floor");
+        room1.setBuilding("Building A");
+        room1.setFloor(0);
+        room1.setCapacity(10);
+        room1.setOperatingHoursStart(LocalTime.of(8, 0));
+        room1.setOperatingHoursEnd(LocalTime.of(18, 0));
+        room1.setRoomType(RoomType.NORMAL);
+        room1.setStatus(MeetingRoomStatus.AVAILABLE);
+        room1.setEquipmentList(standardEquipment);
+
+        MeetingRoom room2 = new MeetingRoom();
+        room2.setRoomId(2L);
+        room2.setName("VIP Meeting Room");
+        room2.setGeoLocation("Building B - 5th Floor");
+        room2.setBuilding("Building B");
+        room2.setFloor(5);
+        room2.setCapacity(20);
+        room2.setOperatingHoursStart(LocalTime.of(7, 0));
+        room2.setOperatingHoursEnd(LocalTime.of(20, 0));
+        room2.setRoomType(RoomType.VIP);
+        room2.setStatus(MeetingRoomStatus.AVAILABLE);
+        room2.setEquipmentList(vipEquipment);
+
+        MeetingRoom room3 = new MeetingRoom();
+        room3.setRoomId(3L);
+        room3.setName("Small Meeting Room");
+        room3.setGeoLocation("Building A - 2nd Floor");
+        room3.setBuilding("Building A");
+        room3.setFloor(2);
+        room3.setCapacity(5);
+        room3.setOperatingHoursStart(LocalTime.of(9, 0));
+        room3.setOperatingHoursEnd(LocalTime.of(17, 0));
+        room3.setRoomType(RoomType.NORMAL);
+        room3.setStatus(MeetingRoomStatus.UNDER_MAINTENANCE);
+        room3.setEquipmentList(basicEquipment);
+
+        MeetingRoom room4 = new MeetingRoom();
+        room4.setRoomId(4L);
+        room4.setName("Basic Room");
+        room4.setGeoLocation("Building C - 1st Floor");
+        room4.setBuilding("Building C");
+        room4.setFloor(1);
+        room4.setCapacity(8);
+        room4.setOperatingHoursStart(LocalTime.of(8, 30));
+        room4.setOperatingHoursEnd(LocalTime.of(17, 30));
+        room4.setRoomType(RoomType.NORMAL);
+        room4.setStatus(MeetingRoomStatus.BOOKED);
+        room4.setEquipmentList(emptyEquipment);
+
+        meetingRoomList = new ArrayList<>();
+        meetingRoomList.add(room1);
+        meetingRoomList.add(room2);
+        meetingRoomList.add(room3);
+        meetingRoomList.add(room4);
+
+        // Initialize meeting room DTOs
+        MeetingRoomDTO dto1 = new MeetingRoomDTO();
+        dto1.setRoomId(1L);
+        dto1.setName("Conference Room A");
+        dto1.setBuilding("Building A");
+        dto1.setFloor(0);
+        dto1.setCapacity(10);
+        dto1.setRoomType(RoomType.NORMAL);
+        dto1.setStatus(MeetingRoomStatus.AVAILABLE);
+        Set<String> standardEquipmentTypes = new HashSet<>();
+        standardEquipmentTypes.add("Projector");
+        standardEquipmentTypes.add("Whiteboard");
+        dto1.setEquipmentTypes(standardEquipmentTypes);
+
+        MeetingRoomDTO dto2 = new MeetingRoomDTO();
+        dto2.setRoomId(2L);
+        dto2.setName("VIP Meeting Room");
+        dto2.setBuilding("Building B");
+        dto2.setFloor(5);
+        dto2.setCapacity(20);
+        dto2.setRoomType(RoomType.VIP);
+        dto2.setStatus(MeetingRoomStatus.AVAILABLE);
+        Set<String> vipEquipmentTypes = new HashSet<>();
+        vipEquipmentTypes.add("Projector");
+        vipEquipmentTypes.add("Whiteboard");
+        vipEquipmentTypes.add("Video Conferencing");
+        vipEquipmentTypes.add("Microphone");
+        dto2.setEquipmentTypes(vipEquipmentTypes);
+
+        MeetingRoomDTO dto3 = new MeetingRoomDTO();
+        dto3.setRoomId(3L);
+        dto3.setName("Small Meeting Room");
+        dto3.setBuilding("Building A");
+        dto3.setFloor(2);
+        dto3.setCapacity(5);
+        dto3.setRoomType(RoomType.NORMAL);
+        dto3.setStatus(MeetingRoomStatus.UNDER_MAINTENANCE);
+        Set<String> basicEquipmentTypes = new HashSet<>();
+        basicEquipmentTypes.add("Whiteboard");
+        dto3.setEquipmentTypes(basicEquipmentTypes);
+
+        MeetingRoomDTO dto4 = new MeetingRoomDTO();
+        dto4.setRoomId(4L);
+        dto4.setName("Basic Room");
+        dto4.setBuilding("Building C");
+        dto4.setFloor(1);
+        dto4.setCapacity(8);
+        dto4.setRoomType(RoomType.NORMAL);
+        dto4.setStatus(MeetingRoomStatus.BOOKED);
+        dto4.setEquipmentTypes(new HashSet<>()); // Empty equipment set
 
         // Initialize DTOs
         meetingRoomDTOList = new ArrayList<>();
@@ -145,6 +254,7 @@ class MeetingRoomServiceImplementationTest {
             assertEquals(meetingRoomDTOList.get(i).getFloor(), result.get(i).getFloor());
             assertEquals(meetingRoomDTOList.get(i).getCapacity(), result.get(i).getCapacity());
             assertEquals(meetingRoomDTOList.get(i).getEquipmentTypes(), result.get(i).getEquipmentTypes());
+
         }
     }
 }

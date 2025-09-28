@@ -62,7 +62,7 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com", "password");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("error", "invalid username or password");
+        errorMessageMap.put("errorMessage", "invalid username or password");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -79,7 +79,7 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("semaziz2004@yahoo.com", "Incorrect password");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("error", "invalid username or password");
+        errorMessageMap.put("errorMessage", "invalid username or password");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -97,7 +97,7 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("incorrectEmail@example.com", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("error", "invalid username or password");
+        errorMessageMap.put("errorMessage", "invalid username or password");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,8 +112,7 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("error", "Username and password must be provided");
-
+        errorMessageMap.put("errorMessage", "Username and password must be provided");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -128,7 +127,7 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com", "");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("error", "Username and password must be provided");
+        errorMessageMap.put("errorMessage", "Username and password must be provided");
 
 
         this.mockMvc.perform(post("/login")

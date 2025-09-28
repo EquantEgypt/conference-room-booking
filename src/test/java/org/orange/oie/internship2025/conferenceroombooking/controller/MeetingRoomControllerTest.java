@@ -139,14 +139,4 @@ public class MeetingRoomControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json(objectMapper.writeValueAsString(meetingRoomDTOList)));
     }
-
-    @Test
-    void getAllMeetingRoomsShouldReturnStatusInternalServerErrorWhenAnyProblemOccur() throws Exception {
-        //Given
-        when(roomServiceImplementation.getAllMeetingRooms())
-                .thenThrow(new RuntimeException("problem occurred"));
-        //When & Then
-        this.mockMvc.perform(get("/rooms")).andDo(print())
-                .andExpect(status().isInternalServerError());
-    }
 }

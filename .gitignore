@@ -28,3 +28,6 @@ target/
 
 # intellij idea
 .idea/
+
+#removing .DS_store
+.DS_Store
