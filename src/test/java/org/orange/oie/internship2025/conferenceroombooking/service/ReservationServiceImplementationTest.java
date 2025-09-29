@@ -482,8 +482,10 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(new ArrayList<>());
         when(reservationRepository.save(reservation)).thenReturn(reservation);
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
+
+
         //When
-        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId()). get(0);
         //Then
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());
@@ -523,7 +525,7 @@ public class ReservationServiceImplementationTest {
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
 
         //When
-        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId()).get(0);
         //Then
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());

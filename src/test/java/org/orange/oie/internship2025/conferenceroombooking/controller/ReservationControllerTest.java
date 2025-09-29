@@ -168,13 +168,13 @@ public class ReservationControllerTest {
     void updateShouldReturnOkAndReservationResponseWhenSuccess() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), any(Long.class)))
-                .thenReturn(reservationResponse);
+                .thenReturn( List.of(reservationResponse));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
-                .andExpect(status().isCreated()) // Changed from isOk() to isCreated() (201)
+                .andExpect(status().isCreated())
                 .andExpect(content().json(objectMapper.writeValueAsString(reservationResponse)));
     }
 
