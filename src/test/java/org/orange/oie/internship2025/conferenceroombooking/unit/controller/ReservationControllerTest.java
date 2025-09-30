@@ -1,10 +1,11 @@
-package org.orange.oie.internship2025.conferenceroombooking.controller;
+package org.orange.oie.internship2025.conferenceroombooking.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.orange.oie.internship2025.conferenceroombooking.controller.ReservationController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
@@ -168,14 +169,14 @@ public class ReservationControllerTest {
     void updateShouldReturnOkAndReservationResponseWhenSuccess() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), any(Long.class)))
-                .thenReturn(reservationResponse);
+                .thenReturn(List.of(reservationResponse));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated()) // Changed from isOk() to isCreated() (201)
-                .andExpect(content().json(objectMapper.writeValueAsString(reservationResponse)));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(reservationResponse))));
     }
 
     @Test

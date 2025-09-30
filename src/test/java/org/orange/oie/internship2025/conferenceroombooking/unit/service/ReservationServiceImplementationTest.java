@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -470,7 +470,7 @@ public class ReservationServiceImplementationTest {
     }
 
     @Test
-    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccess() throws Exception {
+    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccess() {
         //Given
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(meetingRoom.getRoomId())).thenReturn(Optional.of(meetingRoom));
@@ -483,7 +483,8 @@ public class ReservationServiceImplementationTest {
         when(reservationRepository.save(reservation)).thenReturn(reservation);
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
         //When
-        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        List<ReservationResponse> responses = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        ReservationResponse response = responses.get(0);
         //Then
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());
@@ -507,7 +508,7 @@ public class ReservationServiceImplementationTest {
     }
 
     @Test
-    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccessAndNoTimeConflictInCanUpdateDateTime() throws Exception {
+    void updateBookingShouldReturnReservationResponseWhenUpdateBookingSuccessAndNoTimeConflictInCanUpdateDateTime() {
         //Given
         List<Reservation> reservationList = new ArrayList<>();
         reservationList.add(reservation);
@@ -523,7 +524,8 @@ public class ReservationServiceImplementationTest {
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
 
         //When
-        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        List<ReservationResponse> responses = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
+        ReservationResponse response = responses.get(0);
         //Then
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());

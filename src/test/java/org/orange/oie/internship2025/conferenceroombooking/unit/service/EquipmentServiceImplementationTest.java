@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,6 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.EquipmentDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.repository.EquipmentRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.EquipmentServiceImplementation;
-import org.orange.oie.internship2025.conferenceroombooking.service.interfac.EquipmentService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,7 +62,7 @@ class EquipmentServiceImplementationTest {
     }
 
     @Test
-    void getEquipment_shouldReturnAllEquipmentAsDTOs(){
+    void getEquipment_shouldReturnAllEquipmentAsDTOs() {
         when(equipmentRepository.findAll()).thenReturn(equipmentList);
 
         when(objectMapper.convertValue(equipmentList.get(0), EquipmentDTO.class)).thenReturn(equipmentDTOList.get(0));

@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.mapper;
+package org.orange.oie.internship2025.conferenceroombooking.unit.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,6 +9,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
+import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
