@@ -15,9 +15,6 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;

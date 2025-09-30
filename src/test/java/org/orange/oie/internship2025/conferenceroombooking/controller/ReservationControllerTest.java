@@ -9,8 +9,6 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationReques
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
