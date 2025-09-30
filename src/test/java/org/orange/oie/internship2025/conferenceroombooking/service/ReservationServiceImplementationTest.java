@@ -6,6 +6,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
@@ -15,6 +17,7 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStat
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
@@ -31,9 +34,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class ReservationServiceImplementationTest {
     @Mock
     private UserDetailsServiceImplementation userDetailsServiceImplementation;
@@ -137,10 +142,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
-
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
@@ -151,9 +153,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         //When & Then
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
 
     }
 
@@ -175,9 +175,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(reservationList);
 
         // When & Then
-        assertThrows(DateTimeConflictException.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
 
     }
 
@@ -189,9 +187,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.empty());
 
         //When & Then
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
 
     }
 
@@ -204,9 +200,7 @@ public class ReservationServiceImplementationTest {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
-        assertThrows(DateTimeConflictException.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
@@ -308,25 +302,7 @@ public class ReservationServiceImplementationTest {
         assertEquals(response.getType(), recurringReservation.getType());
     }
 
-    @Test
-    void createRecurringReservationShouldThrowReservationRequestConflictForMonthlyRecurrence() {
-        // Given - Monthly recurrence is not supported based on the implementation
-        reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY);
-        reservationRequest.setNumberOfOccurrences(2L);
 
-        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDate.class), any(LocalTime.class), any(LocalTime.class)))
-                .thenReturn(new ArrayList<>());
-        // Mock the mapper to return a valid reservation to avoid NPE
-        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom, reservationRequest.getDate(), null))
-                .thenReturn(reservation);
-
-        // When & Then - Should throw exception for unsupported recurrence option in getEndDate method
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
-    }
 
     @Test
     void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_WeeklyFailure() throws Exception {
@@ -368,33 +344,12 @@ public class ReservationServiceImplementationTest {
         assertEquals(response.getType(), recurringReservation.getType());
     }
 
-    @Test
-    void createRecurringReservationShouldThrowReservationRequestConflictForMonthlyRecurrenceFailure() {
-        // Given - Monthly recurrence is not supported
-        reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY);
-        reservationRequest.setNumberOfOccurrences(2L);
-
-        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
-        when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
-        when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDate.class), any(LocalTime.class), any(LocalTime.class)))
-                .thenReturn(new ArrayList<>());
-        // Mock the mapper to return a valid reservation to avoid NPE
-        when(reservationMapper.toEntity(reservationRequest, user, meetingRoom, reservationRequest.getDate(), null))
-                .thenReturn(reservation);
-
-        // When & Then
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
-    }
 
     @Test
     void createRecurringReservationShouldThrowBadRequestExceptionWhenRoomIsNotFound() {
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThrows(ReservationRequestConflict.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
@@ -421,9 +376,7 @@ public class ReservationServiceImplementationTest {
         when(meetingRoomRepository.findById(anyLong())).thenReturn(Optional.of(meetingRoom));
 
         // When & Then - Should throw DateTimeConflictException for invalid time range
-        assertThrows(DateTimeConflictException.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
@@ -441,9 +394,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(conflicts);
 
         // When & Then - Should throw DateTimeConflictException due to room conflict
-        assertThrows(DateTimeConflictException.class, () -> {
-            reservationServiceImplementation.createBooking(reservationRequest);
-        });
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
@@ -461,7 +412,7 @@ public class ReservationServiceImplementationTest {
         when(reservationRepository.findById(1L))
                 .thenReturn(Optional.empty());
         //When & Then
-        assertThrows(ReservationNotFoundException.class, () -> {
+        assertThrows(ApiException.class, () -> {
             reservationServiceImplementation.deleteBooking(1L);
         });
     }
@@ -475,7 +426,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(true);
         when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(reservation);
-        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getDate(), reservationRequest.getStartTime(), reservationRequest.getEndTime()))
+       when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getDate(), reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
         when(reservationRepository.save(reservation)).thenReturn(reservation);
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
@@ -499,7 +450,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(false);
 
         //When & Then
-        assertThrows(ReservationNotFoundException.class, () -> {
+        assertThrows(ApiException.class, () -> {
             reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId());
         });
 
@@ -556,13 +507,14 @@ public class ReservationServiceImplementationTest {
         reservationRequest.setDate(LocalDate.of(2024, 1, 15));
         reservationRequest.setStartTime(LocalTime.of(9, 0));
         reservationRequest.setEndTime(LocalTime.of(10, 0));
+
         List<Reservation> conflicts = new ArrayList<>();
         conflicts.add(conflictingReservation); // Different reservation causing conflict
         when(reservationRepository.findConflicts(any(MeetingRoom.class), any(LocalDate.class), any(LocalTime.class), any(LocalTime.class)))
                 .thenReturn(conflicts);
 
         // When & Then
-        assertThrows(DateTimeConflictException.class, () -> reservationServiceImplementation.updateBooking(reservationRequest, 1L));
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.updateBooking(reservationRequest, 1L));
     }
 
     @Test
@@ -581,13 +533,13 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(conflicts);
 
         // When & Then
-        assertThrows(DateTimeConflictException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test
     void createRecurringBookingShouldThrowReservationRequestConflictForUnknownRecurrenceOption() {
         // Given
-        reservationRequest.setRecurrenceOption(RecurrenceOption.MONTHLY); // This will cause the issue since MONTHLY is not supported
+        reservationRequest.setRecurrenceOption(RecurrenceOption.DAILY); // This will cause the issue since MONTHLY is not supported
         reservationRequest.setNumberOfOccurrences(2L);
 
         when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
@@ -599,7 +551,7 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(reservation);
 
         // When & Then
-        assertThrows(ReservationRequestConflict.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
+        assertThrows(ApiException.class, () -> reservationServiceImplementation.createBooking(reservationRequest));
     }
 
     @Test

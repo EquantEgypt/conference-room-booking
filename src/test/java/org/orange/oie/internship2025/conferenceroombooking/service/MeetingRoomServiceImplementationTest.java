@@ -12,6 +12,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.MeetingRoomServiceImplementation;
 
@@ -315,7 +316,7 @@ class MeetingRoomServiceImplementationTest {
     @Test
     void whenGetMeetingRoomByIdShouldThrowResourceNotFoundWhenRoomIsNotFound() {
         when(meetingRoomRepository.findById(1L)).thenReturn(Optional.empty());
-        assertThrows(ResourceNotFoundException.class, () -> {
+        assertThrows(ApiException.class, () -> {
             roomServiceImplementation.getMeetingRoomById(1L);
         });
     }
@@ -328,8 +329,8 @@ class MeetingRoomServiceImplementationTest {
         assertThatThrownBy(() ->
                 roomServiceImplementation.getAvailableRooms(date, startTime, null, 0, Collections.emptySet())
         )
-                .isInstanceOf(DateTimeConflictException.class)
-                .hasMessage("You must provide both startTime and endTime, or leave both empty.");
+                .isInstanceOf(ApiException.class)
+                .hasMessage("You must provide both startTime and endTime, or leave both empty");
     }
 
     @Test
@@ -340,8 +341,8 @@ class MeetingRoomServiceImplementationTest {
         assertThatThrownBy(() ->
                 roomServiceImplementation.getAvailableRooms(date, null, endTime, 0, Collections.emptySet())
         )
-                .isInstanceOf(DateTimeConflictException.class)
-                .hasMessage("You must provide both startTime and endTime, or leave both empty.");
+                .isInstanceOf(ApiException.class)
+                .hasMessage("You must provide both startTime and endTime, or leave both empty");
     }
 
     @Test
@@ -353,7 +354,7 @@ class MeetingRoomServiceImplementationTest {
         assertThatThrownBy(() ->
                 roomServiceImplementation.getAvailableRooms(date, startTime, endTime, 0, Collections.emptySet())
         )
-                .isInstanceOf(DateTimeConflictException.class)
+                .isInstanceOf(ApiException.class)
                 .hasMessage("startTime must be before endTime");
     }
 }

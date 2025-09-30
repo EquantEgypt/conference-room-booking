@@ -13,7 +13,9 @@ public enum ApiError {
     ROOM_ALREADY_BOOKED(HttpStatus.CONFLICT, "Meeting room is already booked for the given time range"),
     RESERVATION_REQUEST_CONFLICT(HttpStatus.BAD_REQUEST, "Reservation request has conflicting attributes"),
     ROOM_ALREADY_BOOKED_UPDATE(HttpStatus.CONFLICT, "Meeting room is already booked for this range, cannot update"),
-    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Username not found");
+    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Username not found"),
+    USERNAME_OR_PASSWORD_INVALID(HttpStatus.UNAUTHORIZED, "Username or password is invalid"),
+    USERNAME_AND_PASSWORD_MISSING(HttpStatus.BAD_REQUEST,"Username and password must be provided");
 
 
 

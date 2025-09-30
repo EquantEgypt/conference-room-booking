@@ -72,12 +72,12 @@ public class Reservation {
     @JsonManagedReference(value = "parent-movement")
     private List<Reservation> childReservations;
 
-    @ManyToOne
+    @ManyToOne( cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference(value = "user-movement")
     private User user;
 
-    @ManyToOne
+    @ManyToOne( cascade = CascadeType.ALL)
     @JoinColumn(name = "room_id", nullable = false)
     @JsonBackReference(value = "meeting-room-movement")
     private MeetingRoom room;

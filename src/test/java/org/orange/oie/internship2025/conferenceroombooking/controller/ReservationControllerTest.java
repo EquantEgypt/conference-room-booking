@@ -7,8 +7,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ApiError;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.ReservationServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -53,7 +55,7 @@ public class ReservationControllerTest {
         reservationRequest.setType(ReservationType.EXTERNAL);
         reservationRequest.setTitle("Team Meeting");
         reservationRequest.setDescription("Weekly team standup meeting");
-        reservationRequest.setDate(LocalDate.of(2024, 1, 15));
+        reservationRequest.setDate(LocalDate.of(2025, 10, 15));
         reservationRequest.setStartTime(LocalTime.of(9, 0));
         reservationRequest.setEndTime(LocalTime.of(10, 0));
         reservationRequest.setRecurrenceOption(RecurrenceOption.WEEKLY);
@@ -63,7 +65,7 @@ public class ReservationControllerTest {
         reservationResponse.setReservationId(1L);
         reservationResponse.setType(ReservationType.EXTERNAL);
         reservationResponse.setDescription("Weekly team standup meeting");
-        reservationResponse.setDate(LocalDate.of(2024, 1, 15));
+        reservationResponse.setDate(LocalDate.of(2025, 10, 15));
         reservationResponse.setStartTime(LocalTime.of(9, 0));
         reservationResponse.setEndTime(LocalTime.of(10, 0));
         reservationResponse.setRecurrenceOption(RecurrenceOption.WEEKLY);
@@ -87,7 +89,7 @@ public class ReservationControllerTest {
     void createShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
         //Given
         when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
-                .thenThrow(new UsernameNotFoundException("username not found"));
+                .thenThrow(new ApiException(ApiError.USER_NOT_FOUND));
         //When & Then
         this.mockMvc.perform(post("/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -100,7 +102,7 @@ public class ReservationControllerTest {
     void createShouldReturnBadRequestWhenAnyErrorInRequestBody() throws Exception {
         //Given
         when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
-                .thenThrow(new ReservationRequestConflict("bad request"));
+                .thenThrow(new ApiException(ApiError.RESERVATION_REQUEST_CONFLICT));
         //When & Then
         this.mockMvc.perform(post("/reserve")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -125,7 +127,7 @@ public class ReservationControllerTest {
     void getAllShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
         //Given
         when(reservationServiceImplementation.getAllReservations())
-                .thenThrow(new UsernameNotFoundException("username not found"));
+                .thenThrow(new ApiException(ApiError.USER_NOT_FOUND));
         //When & Then
         this.mockMvc.perform(get("/reserve"))
                 .andDo(print())
@@ -143,18 +145,18 @@ public class ReservationControllerTest {
     @Test
     void deleteShouldReturnNotFoundWhenReservationNotFound() throws Exception {
         //Given
-        doThrow(new ReservationNotFoundException("reservation not found"))
+        doThrow(new ApiException(ApiError.RESERVATION_NOT_FOUND))
                 .when(reservationServiceImplementation).deleteBooking(1L);
         //When & Then
         this.mockMvc.perform(delete("/reserve/1"))
                 .andDo(print())
-                .andExpect(status().isBadRequest()); // Changed from isNotFound() to isBadRequest() (400)
+                .andExpect(status().isNotFound()); // Changed from isNotFound() to isBadRequest() (400)
     }
 
     @Test
     void deleteShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
         //Given
-        doThrow(new UsernameNotFoundException("username not found"))
+        doThrow(new ApiException(ApiError.USER_NOT_FOUND))
                 .when(reservationServiceImplementation).deleteBooking(1L);
         //When & Then
         this.mockMvc.perform(delete("/reserve/1"))
@@ -173,27 +175,27 @@ public class ReservationControllerTest {
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
                 .andExpect(status().isCreated())
-                .andExpect(content().json(objectMapper.writeValueAsString(reservationResponse)));
+                .andExpect(content().json(objectMapper.writeValueAsString(List.of(reservationResponse))));
     }
 
     @Test
     void updateShouldReturnNotFoundWhenReservationNotFound() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), any(Long.class)))
-                .thenThrow(new ReservationNotFoundException("reservation not found"));
+                .thenThrow(new ApiException(ApiError.RESERVATION_NOT_FOUND));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(reservationRequest)))
                 .andDo(print())
-                .andExpect(status().isBadRequest()); // Changed from isNotFound() to isBadRequest() (400)
+                .andExpect(status().isNotFound()); // Changed from isNotFound() to isBadRequest() (400)
     }
 
     @Test
     void updateShouldReturnBadRequestWhenAnyErrorInRequestBody() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), any(Long.class)))
-                .thenThrow(new ReservationRequestConflict("bad request"));
+                .thenThrow(new ApiException(ApiError.RESERVATION_REQUEST_CONFLICT));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -206,7 +208,7 @@ public class ReservationControllerTest {
     void updateShouldReturnNotFoundWhenUsernameNotFound() throws Exception {
         //Given
         when(reservationServiceImplementation.updateBooking(any(ReservationRequest.class), any(Long.class)))
-                .thenThrow(new UsernameNotFoundException("username not found"));
+                .thenThrow(new ApiException(ApiError.USER_NOT_FOUND));
         //When & Then
         this.mockMvc.perform(put("/reserve/1")
                         .contentType(MediaType.APPLICATION_JSON)

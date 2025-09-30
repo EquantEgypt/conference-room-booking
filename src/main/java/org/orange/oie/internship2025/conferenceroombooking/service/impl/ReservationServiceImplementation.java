@@ -252,6 +252,25 @@ public class ReservationServiceImplementation implements ReservationService {
                 ? oldReservation
                 : oldReservation.getParentReservation();
 
+
+
+
+        // 💡 Conflict check BEFORE branching
+        List<Reservation> conflicts = reservationRepository.findConflicts(
+                meetingRoom,
+                request.getDate(),
+                request.getStartTime(),
+                request.getEndTime()
+        );
+
+        // Exclude the current reservation being updated
+        for (Reservation reservation : conflicts) {
+            if (!reservation.getReservationId().equals(reservation_id)) {
+                throw new ApiException(ApiError.ROOM_ALREADY_BOOKED, "Room is already booked for the selected time.");
+            }
+        }
+
+
         // simple change
         boolean simpleChange = checkSimpleChange(parent, request);
 
@@ -276,12 +295,16 @@ public class ReservationServiceImplementation implements ReservationService {
             }
             responses = reservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
             return responses;
-        } else { // complex change startTime, endTime, date, recurrence option, no of occurrence
+        } else {
+
             deleteBooking(parent.getReservationId());
             responses = createBooking(request);
             return responses;
         }
+
     }
+
+
 
     private boolean isRoomAvailable(MeetingRoom room, LocalDate date, LocalTime startTime, LocalTime endTime) {
         List<Reservation> conflictingReservations = reservationRepository.findConflicts(room, date, startTime, endTime);
