@@ -26,7 +26,7 @@ public class Equipment {
     private String type;
 
 
-    @ManyToMany(mappedBy = "equipmentList")
+    @ManyToMany(mappedBy = "equipmentList" , cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<MeetingRoom> meetingRooms;
 }

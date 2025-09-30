@@ -25,7 +25,7 @@ public class Job {
     @Column(nullable = false, unique = true, length = 100)
     private String title;
 
-    @OneToMany(mappedBy = "job")
+    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "job-movement")
     private List<User> users;
 }

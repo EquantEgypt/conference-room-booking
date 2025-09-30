@@ -1,7 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -10,7 +9,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 

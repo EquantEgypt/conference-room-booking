@@ -1,6 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 
+import jakarta.validation.Valid;
 import org.orange.oie.internship2025.conferenceroombooking.dto.CalendarViewResponse;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
@@ -62,7 +63,7 @@ public class ReservationController {
     }
 
     @PostMapping
-    public ResponseEntity<List<ReservationResponse>> createBooking(@RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity<List<ReservationResponse>> createBooking(@RequestBody @Valid ReservationRequest reservationRequest) {
         List<ReservationResponse> responses = reservationService.createBooking(reservationRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(responses);
     }
@@ -74,7 +75,7 @@ public class ReservationController {
     }
 
     @PutMapping("/{reservationId}")
-    public ResponseEntity<List<ReservationResponse>> updateBooking(@RequestBody ReservationRequest reservationRequest, @PathVariable Long reservationId) {
+    public ResponseEntity<List<ReservationResponse>> updateBooking(@RequestBody @Valid  ReservationRequest reservationRequest, @PathVariable Long reservationId) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(reservationService.updateBooking(reservationRequest, reservationId));
     }

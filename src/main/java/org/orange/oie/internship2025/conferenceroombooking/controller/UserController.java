@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.controller;
 
+import jakarta.validation.Valid;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.UserResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
@@ -28,7 +29,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, String>> login(@RequestBody @Valid LoginRequest loginRequest) {
         if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     Map.of("errorMessage", "Username and password must be provided")

@@ -6,10 +6,7 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.enums.*;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationNotFoundException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ReservationRequestConflict;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.*;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
@@ -51,7 +48,11 @@ public class ReservationServiceImplementation implements ReservationService {
         User user = userDetailsServiceImplementation.getCurrentUser();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+                        reservationRequest.getRoomId())
+                .orElseThrow(() -> new ApiException(
+                        ApiError.ROOM_NOT_FOUND,
+                        "Meeting room not found with id: " + reservationRequest.getRoomId()
+                ));
 
         validateReservation(reservationRequest, null); // validation
 
@@ -99,12 +100,10 @@ public class ReservationServiceImplementation implements ReservationService {
             if (dateScope == DateScope.TODAY) {
                 start = LocalDate.now();
                 end = LocalDate.now();
-            }
-            else if(dateScope == DateScope.NEXT_DAY){
+            } else if (dateScope == DateScope.NEXT_DAY) {
                 start = LocalDate.now().plusDays(1);
                 end = LocalDate.now().plusDays(1);
-            }
-            else{
+            } else {
                 start = LocalDate.now();
                 end = LocalDate.now().plusDays(6);
             }
@@ -113,20 +112,19 @@ public class ReservationServiceImplementation implements ReservationService {
         Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
 
         List<ReservationResponse> reservationResponse = reservationRepository
-                .getReservationWithFilter(start,end,reservationType,recurrenceOption,userId);
+                .getReservationWithFilter(start, end, reservationType, recurrenceOption, userId);
 
-        Map<Long,List<ReservationResponse>> map = new TreeMap<>();
+        Map<Long, List<ReservationResponse>> map = new TreeMap<>();
 
-        for(ReservationResponse res : reservationResponse){
+        for (ReservationResponse res : reservationResponse) {
             Long id = res.getParentId() != null ? res.getParentId() : res.getReservationId();
 
-            if(map.containsKey(id)){
+            if (map.containsKey(id)) {
                 map.get(id).add(res);
-            }
-            else{
+            } else {
                 List<ReservationResponse> list = new ArrayList<>();
                 list.add(res);
-                map.put(id,list);
+                map.put(id, list);
             }
         }
         return new ArrayList<>(map.values());
@@ -134,9 +132,10 @@ public class ReservationServiceImplementation implements ReservationService {
 
     @Override
     public ReservationResponse getReservationById(Long reservationId) {
-        Reservation reservation = reservationRepository.findById(reservationId).orElseThrow(
-                () -> new ReservationNotFoundException("Reservation not found")
-        );
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ApiException(ApiError.RESERVATION_NOT_FOUND,
+                        "Reservation not found with id: " + reservationId)
+                );
         return reservationMapper.toResponse(reservation);
     }
 
@@ -205,7 +204,9 @@ public class ReservationServiceImplementation implements ReservationService {
     public List<ReservationResponse> getUpcomingReservation() {
         List<Reservation> reservations = reservationRepository.findUpcomingReservation(LocalDate.now(),
                 userDetailsServiceImplementation.getCurrentUser().getUserId());
-        if (reservations == null) throw new ReservationNotFoundException("No upcoming reservations");
+
+        if (reservations == null) throw new ApiException(ApiError.RESERVATION_NOT_FOUND,"No upcoming reservations");
+
         return reservations.stream().map(reservationMapper::toResponse).toList();
     }
 
@@ -213,7 +214,9 @@ public class ReservationServiceImplementation implements ReservationService {
     @Transactional
     public void deleteBooking(Long reservationId) {
         Reservation reservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ReservationNotFoundException("Reservation not found"));
+                .orElseThrow(() -> new ApiException(ApiError.RESERVATION_NOT_FOUND,
+                        "Reservation not found with id: " + reservationId)
+                );
 
         Reservation parent = (reservation.getParentReservation() == null)
                 ? reservation
@@ -225,14 +228,17 @@ public class ReservationServiceImplementation implements ReservationService {
 
     @Override
     @Transactional
-    public List<ReservationResponse> updateBooking(ReservationRequest request, Long reservation_id) throws ResourceNotFoundException {
+    public List<ReservationResponse> updateBooking(ReservationRequest request, Long reservation_id){
         User user = userDetailsServiceImplementation.getCurrentUser();
 
-        MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                request.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+        MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getRoomId())
+                .orElseThrow(() -> new ApiException(
+                        ApiError.ROOM_NOT_FOUND,
+                        "Meeting room not found with id: " + request.getRoomId()
+                ));
 
         if (!reservationRepository.existsByReservationIdAndUser(reservation_id, user))
-            throw new ReservationNotFoundException("reservation not found");
+            throw new ApiException(ApiError.RESERVATION_NOT_FOUND);
 
         // reservation found
         Reservation oldReservation = reservationRepository.findByReservationIdAndUser(reservation_id, user);
@@ -245,6 +251,25 @@ public class ReservationServiceImplementation implements ReservationService {
         Reservation parent = (oldReservation.getParentReservation() == null)
                 ? oldReservation
                 : oldReservation.getParentReservation();
+
+
+
+
+        // 💡 Conflict check BEFORE branching
+        List<Reservation> conflicts = reservationRepository.findConflicts(
+                meetingRoom,
+                request.getDate(),
+                request.getStartTime(),
+                request.getEndTime()
+        );
+
+        // Exclude the current reservation being updated
+        for (Reservation reservation : conflicts) {
+            if (!reservation.getReservationId().equals(reservation_id)) {
+                throw new ApiException(ApiError.ROOM_ALREADY_BOOKED, "Room is already booked for the selected time.");
+            }
+        }
+
 
         // simple change
         boolean simpleChange = checkSimpleChange(parent, request);
@@ -270,12 +295,16 @@ public class ReservationServiceImplementation implements ReservationService {
             }
             responses = reservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
             return responses;
-        } else { // complex change startTime, endTime, date, recurrence option, no of occurrence
+        } else {
+
             deleteBooking(parent.getReservationId());
             responses = createBooking(request);
             return responses;
         }
+
     }
+
+
 
     private boolean isRoomAvailable(MeetingRoom room, LocalDate date, LocalTime startTime, LocalTime endTime) {
         List<Reservation> conflictingReservations = reservationRepository.findConflicts(room, date, startTime, endTime);
@@ -291,31 +320,34 @@ public class ReservationServiceImplementation implements ReservationService {
 
     private void validateReservation(ReservationRequest reservationRequest, Reservation reservation) {
 
-        MeetingRoom meetingRoom = meetingRoomRepository.findById(
-                reservationRequest.getRoomId()).orElseThrow(() -> new ReservationRequestConflict("MeetingRoom is not Found"));
+        MeetingRoom meetingRoom = meetingRoomRepository.findById(reservationRequest.getRoomId())
+                .orElseThrow(() -> new ApiException(
+                        ApiError.ROOM_NOT_FOUND,
+                        "Meeting room not found with id: " + reservationRequest.getRoomId()
+                ));
 
         if (meetingRoom.getStatus() == MeetingRoomStatus.UNDER_MAINTENANCE) {
-            throw new ReservationRequestConflict("Room is UNDER_MAINTENANCE");
+            throw new ApiException(ApiError.ROOM_UNDER_MAINTENANCE);
         }
 
         if ((meetingRoom.getRoomType() == RoomType.REGULAR) && (reservationRequest.getType() == ReservationType.EXTERNAL)) {
-            throw new ReservationRequestConflict("External meeting can not be normal rooms");
+            throw new ApiException(ApiError.INVALID_ROOM_TYPE);
         }
 
         if (!reservationRequest.getStartTime().isBefore(reservationRequest.getEndTime())) {
-            throw new DateTimeConflictException("start must be before end.");
+            throw new ApiException(ApiError.START_AFTER_END);
         }
 
         if (reservationRequest.getRecurrenceOption() != RecurrenceOption.ONE_TIME && reservationRequest.getNumberOfOccurrences() < 2) {
-            throw new ReservationRequestConflict("number of occurrences must be greater than or equal 2 in Daily or weekly occurrences.");
+            throw new ApiException(ApiError.INVALID_RECURRENCE);
         }
 
         if ((reservation == null && isRoomAvailable(meetingRoom, reservationRequest.getDate(),
                 reservationRequest.getStartTime(), reservationRequest.getEndTime()))) {
-            throw new DateTimeConflictException("meeting room is booked in these range");
+            throw new ApiException(ApiError.ROOM_ALREADY_BOOKED);
         } else if ((reservation != null && !canUpdateDateTime(Objects.requireNonNull(reservation), meetingRoom, reservationRequest.getDate(),
                 reservationRequest.getStartTime(), reservationRequest.getEndTime()))) {
-            throw new DateTimeConflictException("meeting room is booked in these range can't update");
+            throw new ApiException(ApiError.ROOM_ALREADY_BOOKED_UPDATE);
         }
 
     }
@@ -331,7 +363,7 @@ public class ReservationServiceImplementation implements ReservationService {
             start = getEndDate(start, request.getRecurrenceOption(), 2L);
 
             if (isRoomAvailable(room, start, startTime, endTime)) {
-                throw new DateTimeConflictException("Conflict found for time: " + startTime + " and " + endTime);
+                throw new ApiException(ApiError.ROOM_ALREADY_BOOKED,"Conflict found for time: " + startTime + " and " + endTime);
             }
 
             reservations.add(createOccurrence(request, start, end, parentReservation, room, user));
@@ -372,7 +404,7 @@ public class ReservationServiceImplementation implements ReservationService {
             case WEEKLY -> {
                 return date.plusWeeks(numOfOccurrence - 1);
             }
-            default -> throw new ReservationRequestConflict("Unknown Recurrence Option");
+            default -> throw new ApiException(ApiError.RESERVATION_REQUEST_CONFLICT,"Unknown Recurrence Option");
         }
     }
 

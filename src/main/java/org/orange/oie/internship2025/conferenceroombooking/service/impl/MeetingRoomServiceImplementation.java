@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.DateTimeConflictException;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ApiError;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,7 +37,7 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
 
         // Validation: allow only both null OR both non-null
         if ((startTime == null && endTime != null) || (startTime != null && endTime == null)) {
-            throw new DateTimeConflictException("You must provide both startTime and endTime, or leave both empty.");
+            throw new ApiException(ApiError.INCOMPLETE_TIME_RANGE_FILTER);
         }
 
         // -- default --
@@ -51,7 +50,7 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
         Set<String> equipmentTypesSet = equipmentTypes == null ? Collections.emptySet() : equipmentTypes;
 
         if (!defaultStart.isBefore(defaultEnd)) {
-            throw new DateTimeConflictException("startTime must be before endTime");
+            throw new ApiException(ApiError.START_AFTER_END);
         }
 
         List<MeetingRoom> rooms = meetingRoomRepository.findAvailableRooms(
@@ -83,8 +82,10 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
     @Override
     public MeetingRoomDTO getMeetingRoomById(Long id) {
         MeetingRoom room = meetingRoomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Meeting room not found with id: " + id));
+                .orElseThrow(() -> new ApiException(
+                        ApiError.ROOM_NOT_FOUND,
+                        "Meeting room not found with id: " + id
+                ));
 
 
         MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);

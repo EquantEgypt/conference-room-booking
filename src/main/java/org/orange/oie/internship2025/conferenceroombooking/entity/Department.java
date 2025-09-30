@@ -26,11 +26,11 @@ public class Department {
     @Column(name = "name", nullable = false, unique = true)
     private String deptName;
 
-    @OneToOne
+    @OneToOne( cascade = CascadeType.ALL)
     @JoinColumn(name = "manager_id", referencedColumnName = "user_id")
     private User manager;
 
-    @OneToMany(mappedBy = "department")
+    @OneToMany(mappedBy = "department", cascade = CascadeType.ALL)
     @JsonManagedReference(value = "employee-movement")
     private List<User> employees;
 }
