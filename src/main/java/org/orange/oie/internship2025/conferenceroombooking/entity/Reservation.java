@@ -1,6 +1,7 @@
 package org.orange.oie.internship2025.conferenceroombooking.entity;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,7 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOptio
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "reservations")
@@ -49,6 +51,21 @@ public class Reservation {
     @Column(name = "recurrence_end_date")
     private LocalDateTime recurrenceEndDate;
 
+    @Column(name = "repeat_count")
+    private Long repeatCount;
+
+    @Column(name = "number_of_occurrences")
+    private Long numberOfOccurrences;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "parent_id")
+    @JsonBackReference(value = "parent-movement")
+    private Reservation parentId;
+
+    @OneToMany(mappedBy = "parentId", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference(value = "parent-movement")
+    private List<Reservation> childReservations;
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     @JsonBackReference(value = "user-movement")
@@ -58,6 +75,5 @@ public class Reservation {
     @JoinColumn(name = "room_id", nullable = false)
     @JsonBackReference(value = "meeting-room-movement")
     private MeetingRoom room;
-
 
 }
