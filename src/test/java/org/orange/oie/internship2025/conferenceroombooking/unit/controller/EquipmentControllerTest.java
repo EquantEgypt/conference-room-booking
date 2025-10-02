@@ -1,8 +1,9 @@
-package org.orange.oie.internship2025.conferenceroombooking.controller;
+package org.orange.oie.internship2025.conferenceroombooking.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.orange.oie.internship2025.conferenceroombooking.controller.EquipmentController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.EquipmentDTO;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.EquipmentService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,9 +17,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = EquipmentController.class,
@@ -39,11 +40,11 @@ class EquipmentControllerTest {
     @BeforeEach
     void init() {
         EquipmentDTO equipmentDto1 = new EquipmentDTO();
-        equipmentDto1.setEquipment_id(1L);
+        equipmentDto1.setEquipmentId(1L);
         equipmentDto1.setType("Air Conditioner");
 
         EquipmentDTO equipmentDto2 = new EquipmentDTO();
-        equipmentDto2.setEquipment_id(2L);
+        equipmentDto2.setEquipmentId(2L);
         equipmentDto2.setType("Microphone");
 
         equipmentDTOList = new ArrayList<>(Arrays.asList(equipmentDto1, equipmentDto2));
@@ -68,4 +69,15 @@ class EquipmentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
     }
+
+    @Test
+    void getEquipmentShouldReturnStatusOkWhenServiceReturnsNull() throws Exception {
+        when(equipmentService.getEquipment()).thenReturn(null);
+
+        mockMvc.perform(get("/equipment"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
 }

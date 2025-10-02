@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,7 @@ import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 import org.springframework.security.core.Authentication;
@@ -73,7 +74,7 @@ public class UserDetailsServiceImplementationTest {
         when(userRepository.findByEmail("nonexistent@orange.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> userDetailsServiceImplementation.loadUserByUsername("nonexistent@orange.com"))
-                .isInstanceOf(UsernameNotFoundException.class);
+                .isInstanceOf(ApiException.class);
     }
 
     @Test
@@ -104,7 +105,21 @@ public class UserDetailsServiceImplementationTest {
             when(securityContext.getAuthentication()).thenReturn(authentication);
             when(authentication.getName()).thenReturn("test@orange.com");
             //When & Then
-            assertThrows(UsernameNotFoundException.class, () -> {
+            assertThrows(ApiException.class, () -> {
+                userDetailsServiceImplementation.getCurrentUser();
+            });
+        }
+    }
+
+    @Test
+    void whenGetCurrentUserShouldThrowExceptionWhenAuthenticationIsNull() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMockedStatic
+                     = mockStatic(SecurityContextHolder.class)) {
+            SecurityContext securityContext = mock(SecurityContext.class);
+            securityContextHolderMockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(null);
+            //When & Then
+            assertThrows(Exception.class, () -> {
                 userDetailsServiceImplementation.getCurrentUser();
             });
         }

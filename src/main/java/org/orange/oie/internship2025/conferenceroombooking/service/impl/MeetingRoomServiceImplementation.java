@@ -4,13 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ApiError;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.MeetingRoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -31,14 +33,35 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
 
 
     @Override
-    public List<MeetingRoomDTO> getAvailableRooms(LocalDateTime startTime, LocalDateTime endTime, int capacity, Set<String> equipmentTypes) {
+    public List<MeetingRoomDTO> getAvailableRooms(LocalDate date, LocalTime startTime, LocalTime endTime, Integer capacity, Set<String> equipmentTypes) {
+
+        // Validation: allow only both null OR both non-null
+        if ((startTime == null && endTime != null) || (startTime != null && endTime == null)) {
+            throw new ApiException(ApiError.INCOMPLETE_TIME_RANGE_FILTER);
+        }
+
+        // -- default --
+        // if startTime and endTime not entered
+        // picking an early date (like 2000-01-01) but within the same day.
+        LocalDate defaultDate = (date == null) ? LocalDate.of(2000, 1, 1) : date;
+        LocalTime defaultStart = (startTime == null) ? LocalTime.of(0, 0) : startTime;
+        LocalTime defaultEnd = (endTime == null) ? LocalTime.of(23, 59) : endTime;
+        int defaultCapacity = (capacity == null) ? 1 : capacity;
+        Set<String> equipmentTypesSet = equipmentTypes == null ? Collections.emptySet() : equipmentTypes;
+
+        if (!defaultStart.isBefore(defaultEnd)) {
+            throw new ApiException(ApiError.START_AFTER_END);
+        }
+
         List<MeetingRoom> rooms = meetingRoomRepository.findAvailableRooms(
-                capacity,
-                startTime,
-                endTime,
-                (equipmentTypes == null) ? Collections.emptySet() : equipmentTypes,
+                defaultCapacity,
+                defaultDate,
+                defaultStart,
+                defaultEnd,
+                equipmentTypesSet,
                 (equipmentTypes == null) ? 0L : equipmentTypes.size()
         );
+
         return rooms.stream()
                 .map(room -> {
                     MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
@@ -59,8 +82,10 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
     @Override
     public MeetingRoomDTO getMeetingRoomById(Long id) {
         MeetingRoom room = meetingRoomRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException(
-                        "Meeting room not found with id: " + id));
+                .orElseThrow(() -> new ApiException(
+                        ApiError.ROOM_NOT_FOUND,
+                        "Meeting room not found with id: " + id
+                ));
 
 
         MeetingRoomDTO meetingRoomDTO = objectMapper.convertValue(room, MeetingRoomDTO.class);
@@ -75,5 +100,6 @@ public class MeetingRoomServiceImplementation implements MeetingRoomService {
 
         return meetingRoomDTO;
     }
+    
 
 }

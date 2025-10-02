@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,7 +11,6 @@ import org.orange.oie.internship2025.conferenceroombooking.dto.EquipmentDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.repository.EquipmentRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.EquipmentServiceImplementation;
-import org.orange.oie.internship2025.conferenceroombooking.service.interfac.EquipmentService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -52,18 +51,18 @@ class EquipmentServiceImplementationTest {
         // EquipmentDTO
 
         EquipmentDTO equipmentDto1 = new EquipmentDTO();
-        equipmentDto1.setEquipment_id(1L);
+        equipmentDto1.setEquipmentId(1L);
         equipmentDto1.setType("Air Conditioner");
 
         EquipmentDTO equipmentDto2 = new EquipmentDTO();
-        equipmentDto2.setEquipment_id(2L);
+        equipmentDto2.setEquipmentId(2L);
         equipmentDto2.setType("Microphone");
 
         equipmentDTOList = new ArrayList<>(Arrays.asList(equipmentDto1, equipmentDto2));
     }
 
     @Test
-    void getEquipment_shouldReturnAllEquipmentAsDTOs(){
+    void getEquipment_shouldReturnAllEquipmentAsDTOs() {
         when(equipmentRepository.findAll()).thenReturn(equipmentList);
 
         when(objectMapper.convertValue(equipmentList.get(0), EquipmentDTO.class)).thenReturn(equipmentDTOList.get(0));
@@ -75,5 +74,14 @@ class EquipmentServiceImplementationTest {
         assertEquals("Air Conditioner", result.get(0).getType());
         assertEquals("Microphone", result.get(1).getType());
 
+    }
+
+    @Test
+    void getEquipment_shouldReturnEmptyListWhenNoEquipment() {
+        when(equipmentRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<EquipmentDTO> result = equipmentService.getEquipment();
+
+        assertEquals(0, result.size());
     }
 }

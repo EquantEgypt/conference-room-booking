@@ -15,6 +15,7 @@ public class MeetingRoomDTO {
     private Long roomId;
     private String name;
     private String building;
+    private String geoLocation;
     private Integer floor;
     private Integer capacity;
     private RoomType roomType;

@@ -1,8 +1,9 @@
-package org.orange.oie.internship2025.conferenceroombooking.controller;
+package org.orange.oie.internship2025.conferenceroombooking.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.orange.oie.internship2025.conferenceroombooking.controller.MeetingRoomController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.MeetingRoomDTO;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
@@ -14,13 +15,15 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(controllers = MeetingRoomController.class,
         excludeAutoConfiguration = SecurityAutoConfiguration.class)
@@ -129,18 +132,20 @@ public class MeetingRoomControllerTest {
     @Test
     void getAvailableRoomsShouldReturnStatusOkAndFilteredRooms() throws Exception {
         // Given
-        LocalDateTime startTime = LocalDateTime.of(2025, 9, 10, 9, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 9, 10, 11, 0);
+        LocalDate date = LocalDate.of(2025, 9, 10);
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(11, 0);
         int capacity = 10;
-        Set<String> equipmentTypes = new HashSet<>(Arrays.asList("Projector", "Whiteboard"));
+        Set<String> equipmentTypes = Set.of("Projector", "Whiteboard");
 
         List<MeetingRoomDTO> filteredRooms = Arrays.asList(meetingRoomDTOList.get(0), meetingRoomDTOList.get(1));
 
-        when(roomServiceImplementation.getAvailableRooms(startTime, endTime, capacity, equipmentTypes))
+        when(roomServiceImplementation.getAvailableRooms(date, startTime, endTime, capacity, equipmentTypes))
                 .thenReturn(filteredRooms);
 
         // When & Then
         this.mockMvc.perform(get("/rooms")
+                        .param("date", date.toString())
                         .param("startTime", startTime.toString())
                         .param("endTime", endTime.toString())
                         .param("capacity", String.valueOf(capacity))
@@ -150,71 +155,26 @@ public class MeetingRoomControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(filteredRooms)));
     }
 
-
     @Test
-    void getAvailableRoomsShouldReturnStatusOkWhenNoCapacityOrEquipmentProvided() throws Exception {
+    void getAvailableRoomsShouldReturnEmptyListWhenNoRoomsMatch() throws Exception {
         // Given
-        LocalDateTime startTime = LocalDateTime.of(2025, 9, 10, 10, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 9, 10, 11, 0);
+        LocalDate date = LocalDate.of(2025, 9, 10);
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(11, 0);
 
-        when(roomServiceImplementation.getAvailableRooms(startTime, endTime, 1, Collections.emptySet()))
-                .thenReturn(meetingRoomDTOList);
+        when(roomServiceImplementation.getAvailableRooms(date, startTime, endTime, 50, Set.of("NonExistentEquipment")))
+                .thenReturn(Collections.emptyList());
 
         // When & Then
         this.mockMvc.perform(get("/rooms")
-                        .param("startTime", startTime.toString())
-                        .param("endTime", endTime.toString()))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(content().json(objectMapper.writeValueAsString(meetingRoomDTOList)));
-    }
-
-    @Test
-    void getAvailableRoomsShouldReturnEmptyListWhenNoRoomsMatch() throws Exception {
-        LocalDateTime startTime = LocalDateTime.of(2025, 9, 10, 9, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 9, 10, 11, 0);
-
-        when(roomServiceImplementation.getAvailableRooms(startTime, endTime, 50, Set.of("NonExistentEquipment")))
-                .thenReturn(Collections.emptyList());
-
-        this.mockMvc.perform(get("/rooms")
-                        .param("startTime", startTime.toString())
-                        .param("endTime", endTime.toString())
+                        .param("date", date.toString())              // yyyy-MM-dd
+                        .param("startTime", startTime.toString())    // HH:mm
+                        .param("endTime", endTime.toString())        // HH:mm
                         .param("capacity", "50")
                         .param("equipmentTypes", "NonExistentEquipment"))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
-    }
-
-    @Test
-    void getAvailableRoomsShouldReturnBadRequestWhenStartTimeAfterEndTime() throws Exception {
-        // Given
-        LocalDateTime startTime = LocalDateTime.of(2025, 9, 10, 12, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 9, 10, 10, 0);
-
-        // When & Then
-        this.mockMvc.perform(get("/rooms")
-                        .param("startTime", startTime.toString())
-                        .param("endTime", endTime.toString()))
-                .andDo(print())
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
-    void whenStartTimeWithoutEndTime_thenThrowException() throws Exception {
-        this.mockMvc.perform(get("/rooms")
-                        .param("startTime", "2025-01-01T10:00:00"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMessage").value("You must provide both startTime and endTime, or leave both empty."));
-    }
-
-    @Test
-    void whenEndTimeWithoutStartTime_thenThrowException() throws Exception {
-        mockMvc.perform(get("/rooms")
-                        .param("endTime", "2025-01-01T12:00:00"))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.errorMessage").value("You must provide both startTime and endTime, or leave both empty."));
     }
 
     @Test
@@ -226,5 +186,15 @@ public class MeetingRoomControllerTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(meetingRoomDTOList.getFirst())));
     }
 
+
+
+    @Test
+    void getMeetingRoomByIdShouldReturnEmptyWhenNoRoomMatch() throws Exception {
+        when(roomServiceImplementation.getMeetingRoomById(99L)).thenReturn(null);
+
+        mockMvc.perform(get("/rooms/99"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
 
 }

@@ -1,9 +1,13 @@
-package org.orange.oie.internship2025.conferenceroombooking.controller;
+package org.orange.oie.internship2025.conferenceroombooking.unit.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.orange.oie.internship2025.conferenceroombooking.configuration.SecurityConfiguration;
+import org.orange.oie.internship2025.conferenceroombooking.controller.UserController;
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ApiError;
+import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
+import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -38,6 +42,10 @@ public class UserControllerUnitTest {
     private AuthenticationManager authenticationManager;
 
 
+    @MockBean
+    private UserDetailsServiceImplementation userDetailsServiceImplementation;
+
+
     @Test
     void loginShouldReturnOkAndTokenWhenUsernameAndPasswordAreFound() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
@@ -56,30 +64,32 @@ public class UserControllerUnitTest {
     }
 
     @Test
-    void loginShouldReturnUnAuthorizedAndErrorMessageWhenUsernameAndPasswordAreNotFound() throws Exception {
+    void loginShouldReturnUnBadRequestAndErrorMessageWhenUsernameAndPasswordAreNotFound() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
+                .thenThrow(new ApiException(ApiError.USERNAME_AND_PASSWORD_MISSING));
 
         LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com", "password");
-        Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("errorMessage", "invalid username or password");
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("httpStatus", "BAD_REQUEST");
+        errorResponse.put("errorMessage", "Username and password must be provided");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(loginRequest)))
                 .andDo(print())
-                .andExpect(status().isUnauthorized())
-                .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(errorResponse)));
+
     }
 
     @Test
     void loginShouldReturnUnauthorizedWhenUsernameIsCorrectButPasswordIsIncorrect() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
+                .thenThrow(new ApiException(ApiError.USERNAME_OR_PASSWORD_INVALID));
 
         LoginRequest loginRequest = new LoginRequest("semaziz2004@yahoo.com", "Incorrect password");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("errorMessage", "invalid username or password");
+        errorMessageMap.put("errorMessage", "Username or password is invalid");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -92,12 +102,13 @@ public class UserControllerUnitTest {
     @Test
     void loginShouldReturnUnauthorizedWhenUsernameIsIncorrectButPasswordIsCorrect() throws Exception {
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
-                .thenThrow(new BadCredentialsException("Bad credentials"));
+                .thenThrow(new ApiException(ApiError.USERNAME_OR_PASSWORD_INVALID));
 
 
         LoginRequest loginRequest = new LoginRequest("incorrectEmail@example.com", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("errorMessage", "invalid username or password");
+
+        errorMessageMap.put("errorMessage", "Username or password is invalid");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -112,7 +123,8 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("", "password123");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("errorMessage", "Username and password must be provided");
+        errorMessageMap.put("httpStatus", "BAD_REQUEST");
+        errorMessageMap.put("errorMessage", "username: username is required");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -127,8 +139,24 @@ public class UserControllerUnitTest {
 
         LoginRequest loginRequest = new LoginRequest("semaziz2003@yahoo.com", "");
         Map<String, String> errorMessageMap = new HashMap<>();
-        errorMessageMap.put("errorMessage", "Username and password must be provided");
+        errorMessageMap.put("errorMessage", "password: password is required");
 
+
+        this.mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
+    }
+
+    @Test
+    void loginShouldReturnBadRequestWhenUsernameAndPasswordAreEmpty() throws Exception {
+
+        LoginRequest loginRequest = new LoginRequest("", "");
+        Map<String, String> errorMessageMap = new HashMap<>();
+        errorMessageMap.put("httpStatus", "BAD_REQUEST");
+        errorMessageMap.put("errorMessage", "username: username is required, password: password is required");
 
         this.mockMvc.perform(post("/login")
                         .contentType(MediaType.APPLICATION_JSON)

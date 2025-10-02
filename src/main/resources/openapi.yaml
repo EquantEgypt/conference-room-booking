@@ -1,0 +1,434 @@
+openapi: 3.0.3
+info:
+  title: Conference Room Booking API
+  version: 1.0.0
+  description: API for managing conference room bookings, users, equipment, and reservations.
+servers:
+  - url: http://localhost:8080
+paths:
+  /login:
+    post:
+      summary: User login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  errorMessage:
+                    type: string
+  /username:
+    get:
+      summary: Get current user info
+      responses:
+        '200':
+          description: User info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+  /rooms:
+    get:
+      summary: List available meeting rooms
+      parameters:
+        - in: query
+          name: date
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: startTime
+          schema:
+            type: string
+            format: time
+        - in: query
+          name: endTime
+          schema:
+            type: string
+            format: time
+        - in: query
+          name: capacity
+          schema:
+            type: integer
+        - in: query
+          name: equipmentTypes
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of available rooms
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MeetingRoomDTO'
+  /rooms/{id}:
+    get:
+      summary: Get meeting room by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Meeting room details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingRoomDTO'
+  /equipment:
+    get:
+      summary: List all equipment
+      responses:
+        '200':
+          description: List of equipment
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EquipmentDTO'
+  /reserve:
+    get:
+      summary: List all reservations
+      responses:
+        '200':
+          description: List of reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+    post:
+      summary: Create a new reservation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '201':
+          description: Reservation created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+  /reserve/filter:
+    get:
+      summary: Get reservations by filter
+      parameters:
+        - in: query
+          name: dateScope
+          schema:
+            $ref: '#/components/schemas/DateScope'
+        - in: query
+          name: reservationType
+          schema:
+            $ref: '#/components/schemas/ReservationType'
+        - in: query
+          name: recurrenceOption
+          schema:
+            $ref: '#/components/schemas/RecurrenceOption'
+      responses:
+        '200':
+          description: Filtered reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/ReservationResponse'
+  /reserve/up-coming:
+    get:
+      summary: Get upcoming reservations
+      responses:
+        '200':
+          description: Upcoming reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+  /reserve/{reservationId}:
+    get:
+      summary: Get reservation by ID
+      parameters:
+        - in: path
+          name: reservationId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Reservation details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReservationResponse'
+    delete:
+      summary: Delete reservation
+      parameters:
+        - in: path
+          name: reservationId
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Reservation deleted
+    put:
+      summary: Update reservation
+      parameters:
+        - in: path
+          name: reservationId
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationRequest'
+      responses:
+        '201':
+          description: Reservation updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationResponse'
+  /reserve/date/{reservationDate}:
+    get:
+      summary: Get reservations by date
+      parameters:
+        - in: path
+          name: reservationDate
+          required: true
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Reservations for the date
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CalendarViewResponse'
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+    UserResponse:
+      type: object
+      properties:
+        username:
+          type: string
+    MeetingRoomDTO:
+      type: object
+      properties:
+        roomId:
+          type: integer
+          format: int64
+        name:
+          type: string
+        building:
+          type: string
+        geoLocation:
+          type: string
+        floor:
+          type: integer
+        capacity:
+          type: integer
+        roomType:
+          $ref: '#/components/schemas/RoomType'
+        status:
+          $ref: '#/components/schemas/MeetingRoomStatus'
+        equipmentTypes:
+          type: array
+          items:
+            type: string
+    EquipmentDTO:
+      type: object
+      properties:
+        equipment_id:
+          type: integer
+          format: int64
+        type:
+          type: string
+    ReservationRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ReservationType'
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
+        recurrenceOption:
+          $ref: '#/components/schemas/RecurrenceOption'
+        roomId:
+          type: integer
+          format: int64
+        numberOfOccurrences:
+          type: integer
+          format: int64
+      required:
+        - type
+        - title
+        - date
+        - startTime
+        - endTime
+        - recurrenceOption
+        - roomId
+    ReservationResponse:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/ReservationType'
+        title:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
+        recurrenceOption:
+          $ref: '#/components/schemas/RecurrenceOption'
+        recurrenceEndDate:
+          type: string
+          format: date
+        roomName:
+          type: string
+        roomId:
+          type: integer
+          format: int64
+        numberOfOccurrences:
+          type: integer
+          format: int64
+        parentId:
+          type: integer
+          format: int64
+    CalendarViewResponse:
+      type: object
+      properties:
+        roomId:
+          type: integer
+          format: int64
+        roomName:
+          type: string
+        roomCapacity:
+          type: integer
+          format: int64
+        reservations:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarViewReservation'
+    CalendarViewReservation:
+      type: object
+      properties:
+        reservationId:
+          type: integer
+          format: int64
+        type:
+          $ref: '#/components/schemas/ReservationType'
+        title:
+          type: string
+        date:
+          type: string
+          format: date
+        startTime:
+          type: string
+          format: time
+        endTime:
+          type: string
+          format: time
+        recurrenceOption:
+          $ref: '#/components/schemas/RecurrenceOption'
+        myReservation:
+          type: boolean
+    DateScope:
+      type: string
+      enum:
+        - TODAY
+        - NEXT_DAY
+        - THIS_WEEK
+    ReservationType:
+      type: string
+      enum:
+        - EXTERNAL
+        - INTERNAL
+    RecurrenceOption:
+      type: string
+      enum:
+        - ONE_TIME
+        - DAILY
+        - WEEKLY
+        - MONTHLY
+    RoomType:
+      type: string
+      enum:
+        - ... # Fill with actual values from RoomType enum
+    MeetingRoomStatus:
+      type: string
+      enum:
+        - ... # Fill with actual values from MeetingRoomStatus enum
+
