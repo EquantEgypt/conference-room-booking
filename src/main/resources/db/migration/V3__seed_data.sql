@@ -27,11 +27,11 @@ INSERT IGNORE INTO users (role, first_name, last_name, phone,  business_email, p
     (SELECT job_id FROM jobs WHERE title = 'QA Engineer')
 ),
 
- ('MANAGER', 'Marim', 'Mohamed', '01042756769', 'marim.mohamed@orange.com', '$2y$10$1PeW.8pRWQ.5J4xIPPfdWOw55DmuDGB2BhdB2lgKTQCNmfk/Tcxzi',
+ ('MANAGER', 'Marim', 'Mohamed', '01042756769', 'marim.mohamed@orange.com', '$2y$10$e9MNSpKb0MIhbBbFy53hi...UNqRBq/TKki/v.0dbdjssEFsI05Cq',
     (SELECT department_id FROM departments WHERE name = 'Software'),
     (SELECT job_id FROM jobs WHERE title = 'Team Lead')
 ),
-('EMPLOYEE', 'Nadine', 'Eid', '01052756770', 'nadine.eid@orange.com', '$2y$10$CjE4S03fQS1ejediWNvhJuRbGZYXeFwQfS/7Pk2Vc77FKwznuPg1S',
+('EMPLOYEE', 'Nadine', 'Eid', '01052756770', 'nadine.eid@orange.com', '$2y$10$jJma2hKz3eU5DjVx.SjODeau2qHkhBa8nnmCP1oW9HxUQOLQ7z5t6',
     (SELECT department_id FROM departments WHERE name = 'Product'),
     (SELECT job_id FROM jobs WHERE title = 'Product Manager')
 ),

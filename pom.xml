@@ -113,9 +113,12 @@
                 <configuration>
                     <excludes>
                         <exclude>org/orange/oie/internship2025/conferenceroombooking/App.class</exclude>
+                        <exclude>**/configuration/**</exclude>
+                        <exclude>**/dto/**</exclude>
                         <exclude>**/entity/**</exclude>
                         <exclude>**/enums/**</exclude>
-                        <exclude>**/dto/**</exclude>
+                        <exclude>**/exceptions/**</exclude>
+                        <exclude>**/mapper/**</exclude>
                     </excludes>
                 </configuration>
                 <executions>

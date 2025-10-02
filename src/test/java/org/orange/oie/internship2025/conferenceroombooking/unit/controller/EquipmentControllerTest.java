@@ -40,11 +40,11 @@ class EquipmentControllerTest {
     @BeforeEach
     void init() {
         EquipmentDTO equipmentDto1 = new EquipmentDTO();
-        equipmentDto1.setEquipment_id(1L);
+        equipmentDto1.setEquipmentId(1L);
         equipmentDto1.setType("Air Conditioner");
 
         EquipmentDTO equipmentDto2 = new EquipmentDTO();
-        equipmentDto2.setEquipment_id(2L);
+        equipmentDto2.setEquipmentId(2L);
         equipmentDto2.setType("Microphone");
 
         equipmentDTOList = new ArrayList<>(Arrays.asList(equipmentDto1, equipmentDto2));

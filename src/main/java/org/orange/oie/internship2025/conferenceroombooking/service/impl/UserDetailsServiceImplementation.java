@@ -20,9 +20,9 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         User user = userRepository.findByEmail(username)
-                .orElseThrow(() -> new ApiException(ApiError.USER_NOT_FOUND,"email is not found: " + username));
+                .orElseThrow(() -> new ApiException(ApiError.USERNAME_OR_PASSWORD_INVALID));
 
         return org.springframework.security.core.userdetails.User
                 .withUsername(user.getEmail())
@@ -33,7 +33,7 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
     public User getCurrentUser() {
         return userRepository.findByEmail(
                 SecurityContextHolder.getContext().getAuthentication().getName()
-        ).orElseThrow(() ->  new ApiException(ApiError.USER_NOT_FOUND));
+        ).orElseThrow(() -> new ApiException(ApiError.USER_NOT_FOUND));
     }
 
     public UserResponse getCurrentUsername() {

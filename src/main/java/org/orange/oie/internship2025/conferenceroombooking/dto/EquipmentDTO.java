@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class EquipmentDTO {
-    private Long equipment_id;
+    private Long equipmentId;
     private String type;
 }

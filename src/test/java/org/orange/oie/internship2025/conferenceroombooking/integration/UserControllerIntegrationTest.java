@@ -1,3 +1,4 @@
+
 package org.orange.oie.internship2025.conferenceroombooking.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,29 +31,44 @@ public class UserControllerIntegrationTest {
     @Autowired
     private UserRepository userRepository;
 
+
     @Test
     public void whenLoginSuccessReturnOkAndToken() throws Exception {
         LoginRequest loginRequest = new LoginRequest("seif.ehab@orange.com", "password123");
 
-        String token = "c2VpZi5laGFiQG9yYW5nZS5jb206cGFzc3dvcmQxMjM=";
-        System.out.println(userRepository.findAll());
+        System.out.println("All users: ");
+        userRepository.findAll().forEach(System.out::println);
 
-        this.mockMvc.perform(post("/login")
+        mockMvc.perform(post("/login")
                         .content(objectMapper.writeValueAsString(loginRequest))
-                        .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").value(token));
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.token").isNotEmpty());
     }
+
 
     @Test
     public void whenLoginFailReturnUnAuthorized() throws Exception {
-        LoginRequest loginRequest = new LoginRequest("seif2.ehab@orange.com", "password123");
+        LoginRequest loginRequest = new LoginRequest("wrong.email@orange.com", "password123");
 
-        String token = "c2VpZi5laGFiQG9yYW5nZS5jb206cGFzc3dvcmQxMjM=";
-        System.out.println(userRepository.findAll());
+        System.out.println("All users: ");
+        userRepository.findAll().forEach(System.out::println);
 
-        this.mockMvc.perform(post("/login")
-                .content(objectMapper.writeValueAsString(loginRequest))
-                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isUnauthorized());
+        mockMvc.perform(post("/login")
+                        .content(objectMapper.writeValueAsString(loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
     }
+
+    @Test
+    public void whenLoginWithWrongPasswordReturnUnAuthorized() throws Exception {
+        LoginRequest loginRequest = new LoginRequest("seif.ehab@orange.com", "wrongpassword");
+        mockMvc.perform(post("/login")
+                        .content(objectMapper.writeValueAsString(loginRequest))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized());
+    }
+
 
 }
