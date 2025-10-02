@@ -75,4 +75,13 @@ class EquipmentServiceImplementationTest {
         assertEquals("Microphone", result.get(1).getType());
 
     }
+
+    @Test
+    void getEquipment_shouldReturnEmptyListWhenNoEquipment() {
+        when(equipmentRepository.findAll()).thenReturn(new ArrayList<>());
+
+        List<EquipmentDTO> result = equipmentService.getEquipment();
+
+        assertEquals(0, result.size());
+    }
 }

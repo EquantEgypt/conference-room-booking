@@ -69,4 +69,15 @@ class EquipmentControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().json("[]"));
     }
+
+    @Test
+    void getEquipmentShouldReturnStatusOkWhenServiceReturnsNull() throws Exception {
+        when(equipmentService.getEquipment()).thenReturn(null);
+
+        mockMvc.perform(get("/equipment"))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
 }

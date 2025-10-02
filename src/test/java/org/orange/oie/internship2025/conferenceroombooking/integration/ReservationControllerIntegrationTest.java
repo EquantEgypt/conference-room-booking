@@ -39,6 +39,13 @@ public class ReservationControllerIntegrationTest {
                 .with(httpBasic(USER, PASS)))
                 .andExpect(status().isOk());
     }
+    @Test
+    void getPastReservations_shouldReturnBadRequest() throws Exception {
+        mockMvc.perform(get("/reserve/past")
+                .with(httpBasic(USER, PASS)))
+                .andExpect(status().isBadRequest());
+    }
+
 
     @Test
     void getUpcomingReservation_shouldReturnOk() throws Exception {
@@ -60,6 +67,10 @@ public class ReservationControllerIntegrationTest {
                 .with(httpBasic(USER, PASS)))
                 .andExpect(status().isOk());
     }
+
+
+
+
 
     @Test
     void createBooking_shouldReturnCreated() throws Exception {
@@ -83,7 +94,7 @@ public class ReservationControllerIntegrationTest {
     }
 
    @Test
-    void updateBooking_shouldReturnOk() throws Exception {
+    void updateBooking_shouldReturnNotFound() throws Exception {
         String updateRequestBody = """
             {
                 "type": "INTERNAL",
@@ -105,7 +116,7 @@ public class ReservationControllerIntegrationTest {
     }
 
     @Test
-    void deleteBooking_shouldReturnNoContent() throws Exception {
+    void deleteBooking_shouldReturnNotFound() throws Exception {
         mockMvc.perform(delete("/reserve/{reservationId}", 1L)
                 .with(httpBasic(USER, PASS)))
                 .andExpect(status().isNotFound());

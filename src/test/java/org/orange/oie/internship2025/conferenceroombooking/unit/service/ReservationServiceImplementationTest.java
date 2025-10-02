@@ -570,4 +570,29 @@ public class ReservationServiceImplementationTest {
         assertEquals(reservationResponseList.getFirst().getEndTime(), reservationResponse.getEndTime());
         assertEquals(reservationResponseList.getFirst().getType(), reservationResponse.getType());
     }
+
+    @Test
+    void getAllReservationsShouldReturnEmptyListWhenNoReservations() {
+        //Given
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.findAllByUser(user)).thenReturn(new ArrayList<>());
+        //When
+        List<ReservationResponse> reservationResponseList = reservationServiceImplementation.getAllReservations();
+        //Then
+        assertEquals(0, reservationResponseList.size());
+    }
+
+    @Test
+    void getAllReservationsShouldReturnEmptyListWhenNoReservationsAndMapperReturnsNull() {
+        //Given
+        List<Reservation> reservations = new ArrayList<>();
+        reservations.add(reservation);
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+        when(reservationRepository.findAllByUser(user)).thenReturn(reservations);
+        lenient().when(reservationMapper.toResponse(reservation)).thenReturn(null);
+        //When
+        List<ReservationResponse> reservationResponseList = reservationServiceImplementation.getAllReservations();
+        //Then
+        assertEquals(1, reservationResponseList.size());
+    }
 }

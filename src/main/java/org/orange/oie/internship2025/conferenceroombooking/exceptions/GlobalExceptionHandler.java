@@ -51,7 +51,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 .getFieldErrors()
                 .stream()
                 .map(err -> err.getField() + ": " + err.getDefaultMessage())
-                .reduce((msg1, msg2) -> msg1 + "; " + msg2)
+                .reduce((msg1, msg2) -> msg1 + ", " + msg2)
                 .orElse("Invalid input");
 
         ErrorCode errorDetails = new ErrorCode(HttpStatus.BAD_REQUEST, errorMessage);

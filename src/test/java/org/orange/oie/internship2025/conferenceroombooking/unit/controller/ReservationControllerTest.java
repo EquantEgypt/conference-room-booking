@@ -112,6 +112,33 @@ public class ReservationControllerTest {
     }
 
     @Test
+    void createShouldReturnNotFoundWhenRoomNotFound() throws Exception {
+        //Given
+        when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
+                .thenThrow(new ApiException(ApiError.ROOM_NOT_FOUND));
+        //When & Then
+        this.mockMvc.perform(post("/reserve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void createShouldReturnBadRequestWhenReservationConflict() throws Exception {
+        //Given
+        when(reservationServiceImplementation.createBooking(any(ReservationRequest.class)))
+                .thenThrow(new ApiException(ApiError. RESERVATION_REQUEST_CONFLICT));
+        //When & Then
+        this.mockMvc.perform(post("/reserve")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(reservationRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+
+    @Test
     void getAllShouldReturnOkAndReservationResponseListWhenSuccess() throws Exception {
         //Given
         when(reservationServiceImplementation.getAllReservations())

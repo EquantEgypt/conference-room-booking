@@ -46,5 +46,12 @@ public class MeetingRoomControllerIntegrationTest {
                 .andExpect(status().isUnauthorized());
     }
 
+    @Test
+    void getRoomById_shouldReturnNotFoundForNonExistingId() throws Exception {
+        mockMvc.perform(get("/rooms/{id}", 9999L)
+                        .with(httpBasic(USER, PASS)))
+                .andExpect(status().isNotFound());
+    }
+
 
 }

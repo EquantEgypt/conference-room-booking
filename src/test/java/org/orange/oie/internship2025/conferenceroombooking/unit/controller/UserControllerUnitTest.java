@@ -150,5 +150,21 @@ public class UserControllerUnitTest {
                 .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
     }
 
+    @Test
+    void loginShouldReturnBadRequestWhenUsernameAndPasswordAreEmpty() throws Exception {
+
+        LoginRequest loginRequest = new LoginRequest("", "");
+        Map<String, String> errorMessageMap = new HashMap<>();
+        errorMessageMap.put("httpStatus", "BAD_REQUEST");
+        errorMessageMap.put("errorMessage", "username: username is required, password: password is required");
+
+        this.mockMvc.perform(post("/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(loginRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest())
+                .andExpect(content().json(objectMapper.writeValueAsString(errorMessageMap)));
+    }
+
 
 }

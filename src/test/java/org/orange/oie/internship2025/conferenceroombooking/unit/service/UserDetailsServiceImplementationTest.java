@@ -110,4 +110,18 @@ public class UserDetailsServiceImplementationTest {
             });
         }
     }
+
+    @Test
+    void whenGetCurrentUserShouldThrowExceptionWhenAuthenticationIsNull() {
+        try (MockedStatic<SecurityContextHolder> securityContextHolderMockedStatic
+                     = mockStatic(SecurityContextHolder.class)) {
+            SecurityContext securityContext = mock(SecurityContext.class);
+            securityContextHolderMockedStatic.when(SecurityContextHolder::getContext).thenReturn(securityContext);
+            when(securityContext.getAuthentication()).thenReturn(null);
+            //When & Then
+            assertThrows(Exception.class, () -> {
+                userDetailsServiceImplementation.getCurrentUser();
+            });
+        }
+    }
 }

@@ -187,4 +187,14 @@ public class MeetingRoomControllerTest {
     }
 
 
+
+    @Test
+    void getMeetingRoomByIdShouldReturnEmptyWhenNoRoomMatch() throws Exception {
+        when(roomServiceImplementation.getMeetingRoomById(99L)).thenReturn(null);
+
+        mockMvc.perform(get("/rooms/99"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(""));
+    }
+
 }
