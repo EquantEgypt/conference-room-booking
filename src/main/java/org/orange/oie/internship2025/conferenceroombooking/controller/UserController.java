@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,17 +34,22 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest loginRequest) {
         if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of("errorMessage", "Username and password must be provided")
-            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("errorMessage", "Username and password must be provided"));
         }
 
-        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
-                loginRequest.getPassword()));
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
         if (authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.OK).body(
-                    Map.of("token", jwtService.generateToken(loginRequest.getUsername()))
-            );
+            final UserDetails userDetails = userDetailsServiceImplementation.loadUserByUsername(loginRequest.getUsername());
+            final String jwt = jwtService.generateToken(userDetails);
+
+            return ResponseEntity.ok(Map.of("token", jwt));
         } else {
             throw new UsernameNotFoundException("Invalid user request!");
         }
