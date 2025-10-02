@@ -1,5 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.service.impl;
 
+import org.orange.oie.internship2025.conferenceroombooking.dto.UserResponse;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,15 +22,17 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
         User user = userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("email is not found: " + username));
 
-        return org.springframework.security.core.userdetails.User
-                .withUsername(user.getEmail())
-                .password(user.getPassword())
-                .roles("USER").build();
+        return new UserInfoDetails(user);
     }
 
     public User getCurrentUser() {
         return userRepository.findByEmail(
                 SecurityContextHolder.getContext().getAuthentication().getName()
         ).orElseThrow(() -> new UsernameNotFoundException("UserName is not found"));
+    }
+
+    public UserResponse getCurrentUsername() {
+        User user = getCurrentUser();
+        return new UserResponse(user.getFirstName() + " " + user.getLastName());
     }
 }
