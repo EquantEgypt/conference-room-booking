@@ -55,3 +55,21 @@ public class SecurityConfiguration {
         return new BCryptPasswordEncoder();
     }
 }
+
+
+//        @Bean
+//        public WebMvcConfigurer webMvcConfigurer() {
+//            return new WebMvcConfigurer() {
+//                @Override
+//                public void addCorsMappings(CorsRegistry registry) {
+//                    registry.addMapping("/**")
+//                            .allowedOrigins(
+//                                    "http://localhost:4200",
+//                                    "http://192.168.19.93"
+//                            )
+//                            .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+//                            .allowedHeaders("*");
+//                }
+//            };
+//        }
+

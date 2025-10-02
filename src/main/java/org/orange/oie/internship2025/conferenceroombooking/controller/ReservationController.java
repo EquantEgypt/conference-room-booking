@@ -11,6 +11,7 @@ import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -69,10 +70,13 @@ public class ReservationController {
     }
 
     @DeleteMapping("/{reservationId}")
+    @PreAuthorize("hasAnyRole('USER', 'MANAGER')")
     public ResponseEntity<HttpStatus> deleteBooking(@PathVariable Long reservationId) {
         reservationService.deleteBooking(reservationId);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
+
+
 
     @PutMapping("/{reservationId}")
     public ResponseEntity<List<ReservationResponse>> updateBooking(@RequestBody @Valid  ReservationRequest reservationRequest, @PathVariable Long reservationId) {

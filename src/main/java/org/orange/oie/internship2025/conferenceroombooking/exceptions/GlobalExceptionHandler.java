@@ -1,10 +1,13 @@
 package org.orange.oie.internship2025.conferenceroombooking.exceptions;
 
 import org.orange.oie.internship2025.conferenceroombooking.dto.ErrorCode;
+import org.orange.oie.internship2025.conferenceroombooking.enums.ApiError;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -28,6 +31,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorCode> handleAccessDenied(AccessDeniedException ex) {
+        ApiError error = ApiError.ACCESS_DENIED;
+        ErrorCode errorResponse = new ErrorCode(error.getHttpStatus(), error.getDefaultMessage());
+        return new ResponseEntity<>(errorResponse, error.getHttpStatus());
+    }
+
 
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(

@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class ReservationServiceImplementation implements ReservationService {
 
     private final UserDetailsServiceImplementation userDetailsServiceImplementation;
+
     private final MeetingRoomRepository meetingRoomRepository;
     private final ReservationRepository reservationRepository;
     private final ReservationMapper reservationMapper;
@@ -205,7 +206,7 @@ public class ReservationServiceImplementation implements ReservationService {
         List<Reservation> reservations = reservationRepository.findUpcomingReservation(LocalDate.now(),
                 userDetailsServiceImplementation.getCurrentUser().getUserId());
 
-        if (reservations == null) throw new ApiException(ApiError.RESERVATION_NOT_FOUND,"No upcoming reservations");
+        if (reservations == null) throw new ApiException(ApiError.RESERVATION_NOT_FOUND, "No upcoming reservations");
 
         return reservations.stream().map(reservationMapper::toResponse).toList();
     }
@@ -213,22 +214,41 @@ public class ReservationServiceImplementation implements ReservationService {
     @Override
     @Transactional
     public void deleteBooking(Long reservationId) {
+        User currentUser = userDetailsServiceImplementation.getCurrentUser();
         Reservation reservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ApiException(ApiError.RESERVATION_NOT_FOUND,
                         "Reservation not found with id: " + reservationId)
                 );
-
         Reservation parent = (reservation.getParentReservation() == null)
                 ? reservation
                 : reservation.getParentReservation();
 
+        // check permissions: allow if manager OR owner of the reservation
+        if (!parent.getUser().getUserId().equals(currentUser.getUserId())
+                && !currentUser.getRole().equals(UserRole.MANAGER)) {
+            throw new ApiException(ApiError.UNAUTHORIZED, "You are not allowed to cancel this booking");
+        }
+
+        // delete parent -> cascades all children (the entire series)
         reservationRepository.delete(parent);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllBookings() {
+        User currentUser = userDetailsServiceImplementation.getCurrentUser();
+
+        if (!currentUser.getRole().equals(UserRole.MANAGER)) {
+            throw new ApiException(ApiError.UNAUTHORIZED, "Only managers can cancel all bookings");
+        }
+
+        reservationRepository.deleteAll();
     }
 
 
     @Override
     @Transactional
-    public List<ReservationResponse> updateBooking(ReservationRequest request, Long reservation_id){
+    public List<ReservationResponse> updateBooking(ReservationRequest request, Long reservation_id) {
         User user = userDetailsServiceImplementation.getCurrentUser();
 
         MeetingRoom meetingRoom = meetingRoomRepository.findById(request.getRoomId())
@@ -340,7 +360,7 @@ public class ReservationServiceImplementation implements ReservationService {
             start = getEndDate(start, request.getRecurrenceOption(), 2L);
 
             if (isRoomAvailable(room, start, startTime, endTime)) {
-                throw new ApiException(ApiError.ROOM_ALREADY_BOOKED,"Conflict found for time: " + startTime + " and " + endTime);
+                throw new ApiException(ApiError.ROOM_ALREADY_BOOKED, "Conflict found for time: " + startTime + " and " + endTime);
             }
 
             reservations.add(createOccurrence(request, start, end, parentReservation, room, user));
@@ -381,7 +401,7 @@ public class ReservationServiceImplementation implements ReservationService {
             case WEEKLY -> {
                 return date.plusWeeks(numOfOccurrence - 1);
             }
-            default -> throw new ApiException(ApiError.RESERVATION_REQUEST_CONFLICT,"Unknown Recurrence Option");
+            default -> throw new ApiException(ApiError.RESERVATION_REQUEST_CONFLICT, "Unknown Recurrence Option");
         }
     }
 
@@ -391,6 +411,4 @@ public class ReservationServiceImplementation implements ReservationService {
                 && request.getStartTime().equals(oldReservation.getStartTime())
                 && request.getEndTime().equals(oldReservation.getEndTime());
     }
-
 }
-

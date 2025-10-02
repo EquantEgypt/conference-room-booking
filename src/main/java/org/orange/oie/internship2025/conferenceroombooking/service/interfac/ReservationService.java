@@ -12,6 +12,7 @@ import java.util.List;
 
 public interface ReservationService {
     void deleteBooking(Long reservationId);
+    void deleteAllBookings();
 
     List<ReservationResponse> updateBooking(ReservationRequest reservationRequest, Long reservationId);
 
@@ -28,7 +29,10 @@ public interface ReservationService {
     List<CalendarViewResponse> getReservationByDate(LocalDate reservationDate);
 
     List<ReservationResponse> getUpcomingReservation();
-}
+
+
+    }
+
 
 
 

@@ -13,9 +13,9 @@ public enum ApiError {
     ROOM_ALREADY_BOOKED(HttpStatus.CONFLICT, "Meeting room is already booked for the given time range"),
     RESERVATION_REQUEST_CONFLICT(HttpStatus.BAD_REQUEST, "Reservation request has conflicting attributes"),
     ROOM_ALREADY_BOOKED_UPDATE(HttpStatus.CONFLICT, "Meeting room is already booked for this range, cannot update"),
-    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Username not found");
-
-
+    USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, "Username not found"),
+    UNAUTHORIZED(HttpStatus.FORBIDDEN, "You are not allowed to perform this action"),
+    ACCESS_DENIED(HttpStatus.FORBIDDEN, "You do not have permission to access this resource");
 
     private final HttpStatus httpStatus;
     private final String defaultMessage;
