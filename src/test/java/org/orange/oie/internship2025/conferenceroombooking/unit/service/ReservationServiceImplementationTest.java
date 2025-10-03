@@ -32,6 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.orange.oie.internship2025.conferenceroombooking.enums.DateScope.*;
 import static org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption.ONE_TIME;
 import static org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType.INTERNAL;
 
@@ -759,5 +760,79 @@ public class ReservationServiceImplementationTest {
         assertEquals(18L, room10.getRoomCapacity());
         assertTrue(room10.getReservations().isEmpty());
     }
+
+    private void runReservationWithFilterTest(
+            DateScope dateScope,
+            LocalDate expectedStart,
+            LocalDate expectedEnd
+    ) {
+        // Given
+        User user = new User();
+        user.setUserId(1L);
+        when(userDetailsServiceImplementation.getCurrentUser()).thenReturn(user);
+
+        // Mock repository response
+        ReservationResponse res1 = new ReservationResponse();
+        res1.setReservationId(1L);
+        res1.setDate(expectedStart);
+
+        ReservationResponse res2 = new ReservationResponse();
+        res2.setReservationId(2L);
+        res2.setParentId(1L);
+        res2.setDate(expectedStart);
+
+        ReservationResponse res3 = new ReservationResponse();
+        res3.setReservationId(3L);
+        res3.setDate(expectedStart);
+
+        List<ReservationResponse> repoResult = List.of(res1, res2, res3);
+
+        when(reservationRepository.getReservationWithFilter(
+                expectedStart,
+                expectedEnd,
+                ReservationType.INTERNAL,
+                RecurrenceOption.ONE_TIME,
+                user.getUserId()
+        )).thenReturn(repoResult);
+
+        // When
+        List<List<ReservationResponse>> result = reservationServiceImplementation
+                .getReservationWithFilter(dateScope, ReservationType.INTERNAL, RecurrenceOption.ONE_TIME);
+
+        // Then
+        assertEquals(2, result.size());
+
+        // Group 1 -> res1 + res2
+        List<ReservationResponse> group1 = result.getFirst();
+        assertEquals(2, group1.size());
+        assertTrue(group1.stream().anyMatch(r -> r.getReservationId() == 1L));
+        assertTrue(group1.stream().anyMatch(r -> r.getReservationId() == 2L));
+
+        // Group 2 -> res3
+        List<ReservationResponse> group2 = result.get(1);
+        assertEquals(1, group2.size());
+        assertEquals(3L, group2.getFirst().getReservationId());
+    }
+
+    @Test
+    void getReservationWithFilterTodayShouldReturnTodayReservations() {
+        LocalDate today = LocalDate.now();
+        runReservationWithFilterTest(TODAY, today, today);
+    }
+
+    @Test
+    void getReservationWithFilterNextDayShouldReturnNextDayReservations() {
+        LocalDate nextDay = LocalDate.now().plusDays(1);
+        runReservationWithFilterTest(NEXT_DAY, nextDay, nextDay);
+    }
+
+    @Test
+    void getReservationWithFilterWeekShouldReturnWeekReservations() {
+        LocalDate today = LocalDate.now();
+        LocalDate weekEnd = today.plusDays(6);
+        runReservationWithFilterTest(THIS_WEEK, today, weekEnd);
+    }
+
+
 
 }
