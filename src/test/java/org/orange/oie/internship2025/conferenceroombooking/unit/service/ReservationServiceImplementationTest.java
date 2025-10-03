@@ -1,4 +1,4 @@
-package org.orange.oie.internship2025.conferenceroombooking.service;
+package org.orange.oie.internship2025.conferenceroombooking.unit.service;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,15 +8,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationRequest;
-import org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse;
+import org.orange.oie.internship2025.conferenceroombooking.dto.*;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
-import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
-import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
-import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
-import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
+import org.orange.oie.internship2025.conferenceroombooking.enums.*;
 import org.orange.oie.internship2025.conferenceroombooking.exceptions.ApiException;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
@@ -27,15 +23,17 @@ import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDeta
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
+import static org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption.ONE_TIME;
+import static org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType.INTERNAL;
 
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
@@ -85,7 +83,7 @@ public class ReservationServiceImplementationTest {
         reservationRequest.setDate(LocalDate.of(2024, 1, 15));
         reservationRequest.setStartTime(LocalTime.of(9, 0));
         reservationRequest.setEndTime(LocalTime.of(10, 0));
-        reservationRequest.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservationRequest.setRecurrenceOption(ONE_TIME);
         reservationRequest.setRoomId(1L);
 
         reservation = new Reservation();
@@ -96,7 +94,7 @@ public class ReservationServiceImplementationTest {
         reservation.setDate(LocalDate.of(2024, 1, 15));
         reservation.setStartTime(LocalTime.of(9, 0));
         reservation.setEndTime(LocalTime.of(10, 0));
-        reservation.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation.setRecurrenceOption(ONE_TIME);
         reservation.setUser(user);
         reservation.setRoom(meetingRoom);
 
@@ -107,7 +105,7 @@ public class ReservationServiceImplementationTest {
         reservationResponse.setDate(LocalDate.of(2024, 1, 15));
         reservationResponse.setStartTime(LocalTime.of(9, 0));
         reservationResponse.setEndTime(LocalTime.of(10, 0));
-        reservationResponse.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservationResponse.setRecurrenceOption(ONE_TIME);
     }
 
     @Test
@@ -303,7 +301,6 @@ public class ReservationServiceImplementationTest {
     }
 
 
-
     @Test
     void createRecurringReservationShouldReturnReservationResponseWhenCreateRecurringBookingSuccess_WeeklyFailure() throws Exception {
         // This test seems to be testing a scenario that should succeed, renaming for clarity
@@ -426,14 +423,14 @@ public class ReservationServiceImplementationTest {
                 .thenReturn(true);
         when(reservationRepository.findByReservationIdAndUser(reservation.getReservationId(), user))
                 .thenReturn(reservation);
-       when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getDate(), reservationRequest.getStartTime(), reservationRequest.getEndTime()))
+        when(reservationRepository.findConflicts(meetingRoom, reservationRequest.getDate(), reservationRequest.getStartTime(), reservationRequest.getEndTime()))
                 .thenReturn(new ArrayList<>());
         when(reservationRepository.save(reservation)).thenReturn(reservation);
         when(reservationMapper.toResponse(reservation)).thenReturn(reservationResponse);
 
 
         //When
-        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId()). get(0);
+        ReservationResponse response = reservationServiceImplementation.updateBooking(reservationRequest, reservation.getReservationId()).get(0);
         //Then
         assertEquals(response.getReservationId(), reservationResponse.getReservationId());
         assertEquals(response.getStartTime(), reservationResponse.getStartTime());
@@ -595,4 +592,172 @@ public class ReservationServiceImplementationTest {
         //Then
         assertEquals(1, reservationResponseList.size());
     }
+
+    // test get reservation by date
+
+    @Test
+    void getReservationByDateShouldReturnStartAfterEndException() {
+        // Given
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now().minusDays(1);
+
+        // When + Then
+        ApiException exception = assertThrows(ApiException.class,
+                () -> reservationServiceImplementation.getReservationByDate(startDate, endDate));
+
+        // Assert the specific error
+        assertEquals(ApiError.START_AFTER_END, exception.getApiError());
+    }
+
+    private CalendarView mapToCalendarView(Long roomId, String roomName, Long roomCapacity,
+                                           CalendarViewReservation reservation, Long userId) {
+        CalendarView view = new CalendarView();
+        view.setRoomId(roomId);
+        view.setRoomName(roomName);
+        view.setRoomCapacity(roomCapacity);
+        if (reservation != null) {
+            view.setReservationId(reservation.getReservationId());
+            view.setReservationType(reservation.getType());
+            view.setReservationTitle(reservation.getTitle());
+            view.setReservationDate(reservation.getDate());
+            view.setReservationStartTime(reservation.getStartTime());
+            view.setReservationEndTime(reservation.getEndTime());
+            view.setReservationRecurrenceOption(reservation.getRecurrenceOption());
+            view.setUserId(userId);
+        }
+        return view;
+    }
+
+    @Test
+    void getReservationByDateShouldReturnListOfCalendarViewDto() {
+        // Given
+        LocalDate startDate = LocalDate.now();
+        LocalDate endDate = LocalDate.now();
+
+        // Reservation 1
+        CalendarViewReservation reservation1 = new CalendarViewReservation();
+        reservation1.setReservationId(1L);
+        reservation1.setType(ReservationType.INTERNAL);
+        reservation1.setTitle("meeting");
+        reservation1.setDate(LocalDate.of(2025, 10, 5));
+        reservation1.setStartTime(LocalTime.of(10, 0));
+        reservation1.setEndTime(LocalTime.of(11, 0));
+        reservation1.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation1.setMyReservation(true);
+
+        // Reservation 2
+        CalendarViewReservation reservation2 = new CalendarViewReservation();
+        reservation2.setReservationId(4L);
+        reservation2.setType(ReservationType.INTERNAL);
+        reservation2.setTitle("meeting");
+        reservation2.setDate(LocalDate.of(2025, 10, 5));
+        reservation2.setStartTime(LocalTime.of(11, 0));
+        reservation2.setEndTime(LocalTime.of(12, 0));
+        reservation2.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation2.setMyReservation(true);
+
+        // Reservation 3
+        CalendarViewReservation reservation3 = new CalendarViewReservation();
+        reservation3.setReservationId(2L);
+        reservation3.setType(ReservationType.INTERNAL);
+        reservation3.setTitle("meeting");
+        reservation3.setDate(LocalDate.of(2025, 10, 5));
+        reservation3.setStartTime(LocalTime.of(10, 0));
+        reservation3.setEndTime(LocalTime.of(11, 0));
+        reservation3.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation3.setMyReservation(false);
+
+        // Reservation 4
+        CalendarViewReservation reservation4 = new CalendarViewReservation();
+        reservation4.setReservationId(3L);
+        reservation4.setType(ReservationType.INTERNAL);
+        reservation4.setTitle("meeting");
+        reservation4.setDate(LocalDate.of(2025, 10, 5));
+        reservation4.setStartTime(LocalTime.of(11, 0));
+        reservation4.setEndTime(LocalTime.of(12, 0));
+        reservation4.setRecurrenceOption(RecurrenceOption.ONE_TIME);
+        reservation4.setMyReservation(false);
+
+        // Build CalendarView list (repository return value)
+        List<CalendarView> calendarViewList = new ArrayList<>();
+        calendarViewList.add(mapToCalendarView(1L, "Nefertiti", 30L, reservation1, 1L));
+        calendarViewList.add(mapToCalendarView(1L, "Nefertiti", 30L, reservation2, 1L));
+        calendarViewList.add(mapToCalendarView(2L, "Ramses", 25L, reservation3, 2L));
+        calendarViewList.add(mapToCalendarView(2L, "Ramses", 25L, reservation4, 2L));
+        calendarViewList.add(mapToCalendarView(4L, "Cleopatra", 11L, null, null));
+        calendarViewList.add(mapToCalendarView(5L, "Karnak", 21L, null, null));
+        calendarViewList.add(mapToCalendarView(8L, "Le Nil", 29L, null, null));
+        calendarViewList.add(mapToCalendarView(9L, "Sphinx", 27L, null, null));
+        calendarViewList.add(mapToCalendarView(10L, "Philae", 18L, null, null));
+
+        when(reservationRepository.findRoomsWithReservationsByDate(startDate, endDate))
+                .thenReturn(calendarViewList);
+
+        // When
+        User user = new User();
+        user.setUserId(1L);
+
+        when(userDetailsServiceImplementation.getCurrentUser())
+                .thenReturn(user);
+
+        List<CalendarViewResponse> actualResponse =
+                reservationServiceImplementation.getReservationByDate(startDate, endDate);
+
+        // Then
+        assertNotNull(actualResponse);
+        assertEquals(7, actualResponse.size()); // 7 rooms total
+
+        // Room 1 - Nefertiti
+        CalendarViewResponse room1 = actualResponse.getFirst();
+        assertEquals(1L, room1.getRoomId());
+        assertEquals("Nefertiti", room1.getRoomName());
+        assertEquals(30L, room1.getRoomCapacity());
+        assertEquals(2, room1.getReservations().size());
+        assertEquals("meeting", room1.getReservations().getFirst().getTitle());
+        assertTrue(room1.getReservations().getFirst().isMyReservation());
+
+        // Room 2 - Ramses
+        CalendarViewResponse room2 = actualResponse.get(1);
+        assertEquals(2L, room2.getRoomId());
+        assertEquals("Ramses", room2.getRoomName());
+        assertEquals(25L, room2.getRoomCapacity());
+        assertEquals(2, room2.getReservations().size());
+        assertFalse(room2.getReservations().getFirst().isMyReservation());
+
+        // Room 4 - Cleopatra (no reservations)
+        CalendarViewResponse room4 = actualResponse.get(2);
+        assertEquals(4L, room4.getRoomId());
+        assertEquals("Cleopatra", room4.getRoomName());
+        assertEquals(11L, room4.getRoomCapacity());
+        assertTrue(room4.getReservations().isEmpty());
+
+        // Room 5 - Karnak
+        CalendarViewResponse room5 = actualResponse.get(3);
+        assertEquals(5L, room5.getRoomId());
+        assertEquals("Karnak", room5.getRoomName());
+        assertEquals(21L, room5.getRoomCapacity());
+        assertTrue(room5.getReservations().isEmpty());
+
+        // Room 8 - Le Nil
+        CalendarViewResponse room8 = actualResponse.get(4);
+        assertEquals(8L, room8.getRoomId());
+        assertEquals("Le Nil", room8.getRoomName());
+        assertEquals(29L, room8.getRoomCapacity());
+        assertTrue(room8.getReservations().isEmpty());
+
+        // Room 9 - Sphinx
+        CalendarViewResponse room9 = actualResponse.get(5);
+        assertEquals(9L, room9.getRoomId());
+        assertEquals("Sphinx", room9.getRoomName());
+        assertEquals(27L, room9.getRoomCapacity());
+        assertTrue(room9.getReservations().isEmpty());
+
+        // Room 10 - Philae
+        CalendarViewResponse room10 = actualResponse.get(6);
+        assertEquals(10L, room10.getRoomId());
+        assertEquals("Philae", room10.getRoomName());
+        assertEquals(18L, room10.getRoomCapacity());
+        assertTrue(room10.getReservations().isEmpty());
+    }
+
 }
