@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -79,13 +81,13 @@ public class ReservationControllerIntegrationTest {
                 "type": "INTERNAL",
                 "title": "Team Meeting",
                 "description": "Monthly team sync-up",
-                "date": "2025-12-20",
+                "date": "%s",
                 "startTime": "09:00",
                 "endTime": "10:00",
                 "recurrenceOption": "ONE_TIME",
                 "roomId": 1
             }
-            """;
+            """.replace("%s",LocalDate.now().plusDays(1).toString());
         mockMvc.perform(post("/reserve")
                 .with(httpBasic(USER, PASS))
                 .contentType(MediaType.APPLICATION_JSON)
@@ -100,13 +102,13 @@ public class ReservationControllerIntegrationTest {
                 "type": "INTERNAL",
                 "title": "Updated Team Meeting",
                 "description": "Monthly team sync-up",
-                "date": "2025-10-02",
+                "date": "%s",
                 "startTime": "09:00",
                 "endTime": "10:00",
                 "recurrenceOption": "ONE_TIME",
                 "roomId": 1
             }
-            """;
+            """.replace("%s",LocalDate.now().plusDays(1).toString());
 
         mockMvc.perform(put("/reserve/{reservationId}", 1L)
                 .with(httpBasic(USER, PASS))
@@ -156,26 +158,26 @@ public class ReservationControllerIntegrationTest {
                 "type": "INTERNAL",
                 "title": "First Meeting",
                 "description": "First meeting description",
-                "date": "2025-10-30",
+                "date": "%s",
                 "startTime": "09:00",
                 "endTime": "10:00",
                 "recurrenceOption": "ONE_TIME",
                 "roomId": 1
             }
-            """;
+            """.replace("%s", LocalDate.now().plusDays(1).toString());
 
         String overlappingRequestBody = """
             {
                 "type": "INTERNAL",
                 "title": "Overlapping Meeting",
                 "description": "This meeting overlaps with the first",
-                "date": "2025-10-30",
+                "date": "%s",
                 "startTime": "09:30",
                 "endTime": "10:30",
                 "recurrenceOption": "ONE_TIME",
                 "roomId": 1
             }
-            """;
+            """.replace("%s", LocalDate.now().plusDays(1).toString());
 
         mockMvc.perform(post("/reserve")
                 .with(httpBasic(USER, PASS))
