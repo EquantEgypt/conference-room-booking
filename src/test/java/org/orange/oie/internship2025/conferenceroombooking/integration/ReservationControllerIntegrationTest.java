@@ -63,7 +63,7 @@ public class ReservationControllerIntegrationTest {
 
     @Test
     void getReservationByDate_shouldReturnOk() throws Exception {
-        mockMvc.perform(get("/reserve/date/{reservationDate}", "2025-10-01")
+        mockMvc.perform(get("/reserve/calendar?startDate=2025-10-02&endDate=2025-10-02")
                 .with(httpBasic(USER, PASS)))
                 .andExpect(status().isOk());
     }

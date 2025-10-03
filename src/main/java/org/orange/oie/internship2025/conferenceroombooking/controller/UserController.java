@@ -30,11 +30,6 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> login(@RequestBody @Valid LoginRequest loginRequest) {
-        if (loginRequest.getUsername().isEmpty() || loginRequest.getPassword().isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of("errorMessage", "Username and password must be provided")
-            );
-        }
 
         UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword());
         authenticationManager.authenticate(authenticationToken);

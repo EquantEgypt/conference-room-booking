@@ -140,9 +140,14 @@ public class ReservationServiceImplementation implements ReservationService {
     }
 
     @Override
-    public List<CalendarViewResponse> getReservationByDate(LocalDate reservationDate) {
+    public List<CalendarViewResponse> getReservationByDate(LocalDate startDate,LocalDate endDate) {
+
+        if (startDate.isAfter(endDate)) {
+            throw new ApiException(ApiError.START_AFTER_END);
+        }
+
         List<CalendarViewResponse> cvResponse = new ArrayList<>();
-        List<CalendarView> cvDB = reservationRepository.findRoomsWithReservationsByDate(reservationDate);
+        List<CalendarView> cvDB = reservationRepository.findRoomsWithReservationsByDate(startDate,endDate);
         Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
         Map<Long, List<CalendarView>> map = new TreeMap<>();
 

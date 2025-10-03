@@ -47,10 +47,11 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
             FROM MeetingRoom AS mr
             LEFT JOIN Reservation AS r
               ON mr.roomId = r.room.roomId
-             AND r.date = :date
+             AND r.date >= :start_date
+             AND r.date <= :end_date
             WHERE mr.status = org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus.AVAILABLE
             """)
-    List<CalendarView> findRoomsWithReservationsByDate(@Param("date") LocalDate date);
+    List<CalendarView> findRoomsWithReservationsByDate(@Param("start_date") LocalDate startDate, @Param("end_date") LocalDate endDate);
 
     @Query(value = """
              SELECT r FROM Reservation AS r

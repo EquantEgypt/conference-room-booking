@@ -56,9 +56,10 @@ public class ReservationController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @GetMapping("date/{reservationDate}")
-    public ResponseEntity<List<CalendarViewResponse>> getReservationByDate(@PathVariable LocalDate reservationDate) {
-        List<CalendarViewResponse> response = reservationService.getReservationByDate(reservationDate);
+    @GetMapping("/calendar")
+    public ResponseEntity<List<CalendarViewResponse>> getReservationsByDate(@RequestParam LocalDate startDate,
+                                                                            @RequestParam LocalDate endDate) {
+        List<CalendarViewResponse> response = reservationService.getReservationByDate(startDate,endDate);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
