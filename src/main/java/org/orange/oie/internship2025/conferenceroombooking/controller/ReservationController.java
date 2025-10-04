@@ -27,7 +27,7 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @GetMapping()
+    @GetMapping
     public ResponseEntity<List<ReservationResponse>> getAllReservations() {
         List<ReservationResponse> responses = reservationService.getAllReservations();
         return ResponseEntity.status(HttpStatus.OK).body(responses);
@@ -37,12 +37,19 @@ public class ReservationController {
     public ResponseEntity<List<List<ReservationResponse>>> getReservationByFilter(
             @RequestParam(required = false) DateScope dateScope,
             @RequestParam(required = false) ReservationType reservationType,
-            @RequestParam(required = false) RecurrenceOption recurrenceOption) {
+            @RequestParam(required = false) RecurrenceOption recurrenceOption,
+            @RequestParam(defaultValue = "false") boolean isManager,
+            @RequestParam(required = false) String managerView
+    ) {
+        List<List<ReservationResponse>> responses = reservationService.getReservationWithFilter(
+                dateScope,
+                reservationType,
+                recurrenceOption,
+                isManager,
+                managerView
+        );
 
-        List<List<ReservationResponse>> responses = reservationService
-                .getReservationWithFilter(dateScope,reservationType,recurrenceOption);
-
-        return ResponseEntity.status(HttpStatus.OK).body(responses);
+        return ResponseEntity.ok(responses);
     }
 
     @GetMapping("/up-coming")

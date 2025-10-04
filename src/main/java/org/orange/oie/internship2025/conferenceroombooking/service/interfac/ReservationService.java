@@ -20,9 +20,14 @@ public interface ReservationService {
 
     List<ReservationResponse> getAllReservations();
 
-    List<List<ReservationResponse>> getReservationWithFilter(DateScope dateScope,
-                                                       ReservationType reservationType,
-                                                       RecurrenceOption recurrenceOption);
+    List<List<ReservationResponse>> getReservationWithFilter(
+            DateScope dateScope,
+            ReservationType reservationType,
+            RecurrenceOption recurrenceOption,
+            boolean isManager,
+            String managerView
+    );
+
 
     ReservationResponse getReservationById(Long reservationId);
 

@@ -26,4 +26,10 @@
         private Long roomId;
         private Long numberOfOccurrences;
         private Long parentId;
+
+        private Long userId;
+        private String bookedBy;
+
+
+        private boolean isOwner;
     }

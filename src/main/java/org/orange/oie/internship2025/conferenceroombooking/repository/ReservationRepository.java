@@ -7,6 +7,8 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Reservation;
 import org.orange.oie.internship2025.conferenceroombooking.entity.User;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RecurrenceOption;
 import org.orange.oie.internship2025.conferenceroombooking.enums.ReservationType;
+import org.orange.oie.internship2025.conferenceroombooking.enums.UserRole;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -15,7 +17,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-public interface ReservationRepository extends CrudRepository<Reservation, Long> {
+public interface ReservationRepository extends JpaRepository<Reservation, Long> {
 
     void deleteByReservationIdAndUser(Long reservationId, User user);
 
@@ -59,28 +61,27 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
             \s""")
     List<Reservation> findUpcomingReservation(@Param("date") LocalDate date, @Param("userId") Long userId);
 
+
+
     @Query("""
-               SELECT new org.orange.oie.internship2025.conferenceroombooking.dto.ReservationResponse(
-                    r.reservationId,r.type,r.title,r.description,
-                    r.date,r.startTime,r.endTime,r.recurrenceOption,
-                    r.recurrenceEndDate,r.room.name,r.room.roomId,
-                    r.numberOfOccurrences,r.parentReservation.reservationId
-               )
-               FROM Reservation r
-               WHERE :userId = r.user.userId
-                 AND r.date >= CURRENT_DATE
-                 AND ((:start IS NULL AND :end IS NULL) OR (r.date BETWEEN :start AND :end))
-                 AND (:reservationType IS NULL OR r.type = :reservationType)
-                 AND (:recurrenceOption IS NULL OR r.recurrenceOption = :recurrenceOption)
-               ORDER BY
-                    r.date ASC,
-                    r.startTime ASC
-            """)
-    List<ReservationResponse> getReservationWithFilter(
-            @Param("start") LocalDate startDate,
-            @Param("end") LocalDate endDate,
+    SELECT r FROM Reservation r
+    WHERE (:start IS NULL OR r.date >= :start)
+      AND (:end IS NULL OR r.date <= :end)
+      AND (:reservationType IS NULL OR r.type = :reservationType)
+      AND (:recurrenceOption IS NULL OR r.recurrenceOption = :recurrenceOption)
+      AND (
+            (:userId IS NOT NULL AND r.user.userId = :userId)
+            OR (:employeeIds IS NOT NULL AND r.user.userId IN :employeeIds)
+            OR (:userId IS NULL AND :employeeIds IS NULL)
+          )
+""")
+    List<Reservation> getReservationWithFilter(
+            @Param("start") LocalDate start,
+            @Param("end") LocalDate end,
             @Param("reservationType") ReservationType reservationType,
             @Param("recurrenceOption") RecurrenceOption recurrenceOption,
-            @Param("userId") Long userId);
+            @Param("employeeIds") List<Long> employeeIds,
+            @Param("userId") Long userId
+    );
 
 }

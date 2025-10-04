@@ -10,6 +10,7 @@ import org.orange.oie.internship2025.conferenceroombooking.exceptions.*;
 import org.orange.oie.internship2025.conferenceroombooking.mapper.ReservationMapper;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.repository.ReservationRepository;
+import org.orange.oie.internship2025.conferenceroombooking.repository.UserRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.interfac.ReservationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,16 +29,19 @@ public class ReservationServiceImplementation implements ReservationService {
 
     private final MeetingRoomRepository meetingRoomRepository;
     private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
     private final ReservationMapper reservationMapper;
 
     @Autowired
     public ReservationServiceImplementation(UserDetailsServiceImplementation userDetailsServiceImplementation
             , MeetingRoomRepository meetingRoomRepository
             , ReservationRepository reservationRepository
+            ,UserRepository userRepository
             , ReservationMapper reservationMapper) {
         this.userDetailsServiceImplementation = userDetailsServiceImplementation;
         this.meetingRoomRepository = meetingRoomRepository;
         this.reservationRepository = reservationRepository;
+        this.userRepository = userRepository;
         this.reservationMapper = reservationMapper;
     }
 
@@ -83,18 +87,29 @@ public class ReservationServiceImplementation implements ReservationService {
         reservationResponses = savedReservations.stream().map(reservationMapper::toResponse).collect(Collectors.toList());
         return reservationResponses;
     }
-
     @Override
     public List<ReservationResponse> getAllReservations() {
-        User user = userDetailsServiceImplementation.getCurrentUser();
-        return reservationRepository.findAllByUser(user).stream().map(reservationMapper::toResponse).toList();
+        User currentUser = userDetailsServiceImplementation.getCurrentUser();
+        if (currentUser.getRole().equals(UserRole.MANAGER)) {
+            return reservationRepository.findAll()
+                    .stream()
+                    .map(reservationMapper::toResponse)
+                    .toList();
+        }else{
+        return reservationRepository.findAllByUser(currentUser)
+                .stream()
+                .map(reservationMapper::toResponse)
+                .toList();
+    }
     }
 
     @Override
     public List<List<ReservationResponse>> getReservationWithFilter(
             DateScope dateScope,
             ReservationType reservationType,
-            RecurrenceOption recurrenceOption
+            RecurrenceOption recurrenceOption,
+            boolean isManager,
+            String managerView
     ) {
         LocalDate start = null, end = null;
         if (dateScope != null) {
@@ -104,32 +119,58 @@ public class ReservationServiceImplementation implements ReservationService {
             } else if (dateScope == DateScope.NEXT_DAY) {
                 start = LocalDate.now().plusDays(1);
                 end = LocalDate.now().plusDays(1);
-            } else {
+            } else if (dateScope == DateScope.THIS_WEEK) {
                 start = LocalDate.now();
                 end = LocalDate.now().plusDays(6);
             }
         }
 
-        Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
+        User currentUser = userDetailsServiceImplementation.getCurrentUser();
 
-        List<ReservationResponse> reservationResponse = reservationRepository
-                .getReservationWithFilter(start, end, reservationType, recurrenceOption, userId);
+        Long currentUserId = null;
+        List<Long> employeeIds = null;
 
-        Map<Long, List<ReservationResponse>> map = new TreeMap<>();
-
-        for (ReservationResponse res : reservationResponse) {
-            Long id = res.getParentId() != null ? res.getParentId() : res.getReservationId();
-
-            if (map.containsKey(id)) {
-                map.get(id).add(res);
-            } else {
-                List<ReservationResponse> list = new ArrayList<>();
-                list.add(res);
-                map.put(id, list);
+        if (!isManager) {
+            // Employee → only their own reservations
+            currentUserId = currentUser.getUserId();
+        } else {
+            switch (ManagerViewOption.valueOf(managerView)) {
+                case MY_RESERVATIONS -> {
+                    currentUserId = currentUser.getUserId();
+                }
+                case EMPLOYEE_RESERVATIONS -> {
+                    // Only employees, not manager
+                    employeeIds = userRepository.findAllByRole(UserRole.EMPLOYEE)
+                            .stream()
+                            .map(User::getUserId)
+                            .toList();
+                }
+                case ALL_RESERVATIONS -> {
+                    // Manager + employees
+                    employeeIds = userRepository.findAll().stream()
+                            .map(User::getUserId)
+                            .toList();
+                }
             }
         }
+
+        List<Reservation> reservations = reservationRepository
+                .getReservationWithFilter(start, end, reservationType, recurrenceOption, employeeIds, currentUserId);
+
+        List<ReservationResponse> reservationResponse = reservations.stream()
+                .map(reservationMapper::toResponse)
+                .toList();
+
+        Map<Long, List<ReservationResponse>> map = new TreeMap<>();
+        for (ReservationResponse res : reservationResponse) {
+            Long id = res.getParentId() != null ? res.getParentId() : res.getReservationId();
+            map.computeIfAbsent(id, k -> new ArrayList<>()).add(res);
+        }
+
         return new ArrayList<>(map.values());
     }
+
+
 
     @Override
     public ReservationResponse getReservationById(Long reservationId) {

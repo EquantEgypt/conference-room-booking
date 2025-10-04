@@ -44,7 +44,7 @@ public class UserController {
 
     }
 
-    @GetMapping("username")
+    @GetMapping("/username")
     public ResponseEntity<UserResponse> getUsername() {
         return ResponseEntity.ok(userDetailsServiceImplementation.getCurrentUsername());
     }
