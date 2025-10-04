@@ -1,6 +1,6 @@
 package org.orange.oie.internship2025.conferenceroombooking.configuration;
 
-import org.orange.oie.internship2025.conferenceroombooking.filter.JwtAuthFilter;
+import org.orange.oie.internship2025.conferenceroombooking.jwt.filter.JwtAuthFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

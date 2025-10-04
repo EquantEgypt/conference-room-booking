@@ -2,7 +2,7 @@ package org.orange.oie.internship2025.conferenceroombooking.controller;
 
 import org.orange.oie.internship2025.conferenceroombooking.dto.LoginRequest;
 import org.orange.oie.internship2025.conferenceroombooking.dto.UserResponse;
-import org.orange.oie.internship2025.conferenceroombooking.service.impl.JwtService;
+import org.orange.oie.internship2025.conferenceroombooking.jwt.util.JwtProvider;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.UserDetailsServiceImplementation;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,13 +22,13 @@ import java.util.Map;
 public class UserController {
     private final AuthenticationManager authenticationManager;
     private final UserDetailsServiceImplementation userDetailsServiceImplementation;
-    private final JwtService jwtService;
+    private final JwtProvider jwtProvider;
 
     public UserController(AuthenticationManager authenticationManager
-            , UserDetailsServiceImplementation userDetailsServiceImplementation, JwtService jwtService) {
+            , UserDetailsServiceImplementation userDetailsServiceImplementation, JwtProvider jwtProvider) {
         this.authenticationManager = authenticationManager;
         this.userDetailsServiceImplementation = userDetailsServiceImplementation;
-        this.jwtService = jwtService;
+        this.jwtProvider = jwtProvider;
     }
 
     @PostMapping("/login")
@@ -47,7 +47,7 @@ public class UserController {
 
         if (authentication.isAuthenticated()) {
             final UserDetails userDetails = userDetailsServiceImplementation.loadUserByUsername(loginRequest.getUsername());
-            final String jwt = jwtService.generateToken(userDetails);
+            final String jwt = jwtProvider.generateToken(userDetails);
 
             return ResponseEntity.ok(Map.of("token", jwt));
         } else {
