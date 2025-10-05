@@ -63,7 +63,7 @@ CREATE TABLE reservations (
                               end_time DATETIME NOT NULL,
                               reservation_type VARCHAR(20) NOT NULL,
                               recurrence_option VARCHAR(20) NOT NULL DEFAULT 'ONE_TIME'
-                                  CHECK (recurrence_option IN ('ONE_TIME', 'DAILY', 'WEEKLY', 'MONTHLY')),
+                                  CHECK (recurrence_option IN ('ONE_TIME', 'DAILY', 'WEEKLY')),
                               recurrence_end_date DATETIME,
                               user_id BIGINT NOT NULL,
                               room_id BIGINT NOT NULL,
