@@ -38,6 +38,6 @@ public class UserDetailsServiceImplementation implements UserDetailsService {
 
     public UserResponse getCurrentUsername() {
         User user = getCurrentUser();
-        return new UserResponse(user.getFirstName() + " " + user.getLastName());
+        return new UserResponse(user.getFirstName()+" "+user.getLastName(), user.getRole());
     }
 }

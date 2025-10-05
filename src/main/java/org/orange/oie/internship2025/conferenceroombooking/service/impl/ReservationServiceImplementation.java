@@ -149,6 +149,7 @@ public class ReservationServiceImplementation implements ReservationService {
         List<CalendarViewResponse> cvResponse = new ArrayList<>();
         List<CalendarView> cvDB = reservationRepository.findRoomsWithReservationsByDate(startDate,endDate);
         Long userId = userDetailsServiceImplementation.getCurrentUser().getUserId();
+        boolean isManager = userDetailsServiceImplementation.getCurrentUser().getRole() == UserRole.MANAGER;
         Map<Long, List<CalendarView>> map = new TreeMap<>();
 
         for (CalendarView item : cvDB) {
@@ -195,7 +196,7 @@ public class ReservationServiceImplementation implements ReservationService {
                                     row.getReservationStartTime(),
                                     row.getReservationEndTime(),
                                     row.getReservationRecurrenceOption(),
-                                    row.getUserId().equals(userId)
+                                    isManager || row.getUserId().equals(userId)
                             )
                     );
                 }

@@ -56,7 +56,7 @@ public interface ReservationRepository extends CrudRepository<Reservation, Long>
     @Query(value = """
              SELECT r FROM Reservation AS r
                          WHERE r.date = :date AND r.user.userId = :userId\s
-                         ORDER BY r.date ASC\s, startTime ASC\s
+                         ORDER BY r.date ASC , r.startTime ASC\s
             \s""")
     List<Reservation> findUpcomingReservation(@Param("date") LocalDate date, @Param("userId") Long userId);
 
