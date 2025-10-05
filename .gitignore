@@ -29,6 +29,9 @@ target/
 # intellij idea
 .idea/
 
+
+private_key.pem
+
 #removing .DS_store
 .DS_Store
 conference-room-booking.iml
