@@ -148,34 +148,4 @@ FROM meeting_rooms mr
 JOIN equipment e ON e.type IN ('Projector','Microphone','LED Screen','Conference Phone')
 WHERE mr.name = 'Philae';
 
-
-INSERT IGNORE INTO reservations (description, start_time, end_time, reservation_type, recurrence_option, user_id, room_id) VALUES
-('Sprint Planning', '2025-09-05 09:00:00', '2025-09-05 10:00:00', 'INTERNAL', 'WEEKLY',
-    (SELECT user_id FROM users WHERE  business_email = 'seif.ehab@orange.com'),
-    (SELECT room_id FROM meeting_rooms WHERE name = 'Sphinx')
-),
-('Project Review', '2025-09-06 14:00:00', '2025-09-06 15:30:00', 'EXTERNAL', 'ONE_TIME',
-    (SELECT user_id FROM users WHERE  business_email ='fatma.hesham@orange.com'),
-    (SELECT room_id FROM meeting_rooms WHERE name = 'Philae')
-),
-('Weekly Standup', '2025-09-07 10:00:00', '2025-09-07 10:30:00', 'INTERNAL', 'WEEKLY',
-    (SELECT user_id FROM users WHERE  business_email = 'nadine.eid@orange.com'),
-    (SELECT room_id FROM meeting_rooms WHERE name = 'Cleopatra')
-),
-('HR Meeting', '2025-09-08 11:00:00', '2025-09-08 12:00:00', 'INTERNAL', 'ONE_TIME',
-    (SELECT user_id FROM users WHERE  business_email = 'marim.mohamed@orange.com'),
-    (SELECT room_id FROM meeting_rooms WHERE name = 'Nefertiti')
-),
-('Client Demo', '2025-09-09 15:00:00', '2025-09-09 16:00:00', 'EXTERNAL', 'ONE_TIME',
-    (SELECT user_id FROM users WHERE  business_email = 'omar.ahmed@orange.com'),
-    (SELECT room_id FROM meeting_rooms WHERE name = 'Nefertiti')
-);
-
-
-
-
-
-
-
-
 SET foreign_key_checks = 1;
