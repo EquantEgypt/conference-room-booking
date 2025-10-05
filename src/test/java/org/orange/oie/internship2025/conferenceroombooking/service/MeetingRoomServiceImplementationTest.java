@@ -12,15 +12,15 @@ import org.orange.oie.internship2025.conferenceroombooking.entity.Equipment;
 import org.orange.oie.internship2025.conferenceroombooking.entity.MeetingRoom;
 import org.orange.oie.internship2025.conferenceroombooking.enums.MeetingRoomStatus;
 import org.orange.oie.internship2025.conferenceroombooking.enums.RoomType;
-import org.orange.oie.internship2025.conferenceroombooking.exceptions.ResourceNotFoundException;
 import org.orange.oie.internship2025.conferenceroombooking.repository.MeetingRoomRepository;
 import org.orange.oie.internship2025.conferenceroombooking.service.impl.MeetingRoomServiceImplementation;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
@@ -192,14 +192,20 @@ class MeetingRoomServiceImplementationTest {
     void testGetAvailableRooms_WithStandardEquipment() {
         // define parameters
         int capacity = 5;
-        LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 10, 10, 11, 0);
+        LocalDate date = LocalDate.of(2025, 10, 10);
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(11, 0);
         Set<String> requiredEquipments = Set.of("Projector", "Whiteboard");
 
         // Mock repository -> return rooms that satisfy the query
-        when(meetingRoomRepository.findAvailableRooms
-                (eq(capacity), eq(startTime), eq(endTime), argThat(set -> set.equals(requiredEquipments)), eq((long) requiredEquipments.size())))
-                .thenReturn(List.of(meetingRoomList.get(0)));
+        when(meetingRoomRepository.findAvailableRooms(
+                eq(capacity),
+                eq(date),
+                eq(startTime),
+                eq(endTime),
+                argThat(set -> set.equals(requiredEquipments)),
+                eq((long) requiredEquipments.size())
+        )).thenReturn(List.of(meetingRoomList.get(0)));
 
         // Mock objectMapper -> map entity to DTO
         when(objectMapper.convertValue(meetingRoomList.get(0), MeetingRoomDTO.class))
@@ -207,25 +213,33 @@ class MeetingRoomServiceImplementationTest {
 
         // Act
         List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
-                startTime, endTime, capacity, requiredEquipments);
+                date, startTime, endTime, capacity, requiredEquipments);
 
+        // Assert
         assertThat(result).hasSize(1);
         MeetingRoomDTO dto = result.getFirst();
         assertThat(dto.getName()).isEqualTo("Conference Room A");
         assertThat(dto.getEquipmentTypes()).containsExactlyInAnyOrder("Projector", "Whiteboard");
     }
 
+
     @Test
     void testGetAvailableRooms_WhenEquipmentTypesNull() {
         // define parameters
         int capacity = 8;
-        LocalDateTime startTime = LocalDateTime.of(2025, 10, 10, 9, 0);
-        LocalDateTime endTime = LocalDateTime.of(2025, 10, 10, 15, 0);
+        LocalDate date = LocalDate.of(2025, 10, 10);
+        LocalTime startTime = LocalTime.of(9, 0);
+        LocalTime endTime = LocalTime.of(15, 0);
 
         // Mock repository -> return rooms that satisfy the query
-        when(meetingRoomRepository.findAvailableRooms
-                (eq(capacity), eq(startTime), eq(endTime), eq(Collections.emptySet()), eq(0L)))
-                .thenReturn(List.of(meetingRoomList.get(3)));
+        when(meetingRoomRepository.findAvailableRooms(
+                eq(capacity),
+                eq(date),
+                eq(startTime),
+                eq(endTime),
+                eq(Collections.emptySet()),
+                eq(0L)
+        )).thenReturn(List.of(meetingRoomList.get(3)));
 
         // Mock objectMapper -> map entity to DTO
         when(objectMapper.convertValue(meetingRoomList.get(3), MeetingRoomDTO.class))
@@ -233,8 +247,10 @@ class MeetingRoomServiceImplementationTest {
 
         // Act
         List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
-                startTime, endTime, capacity, null);
+                date, startTime, endTime, capacity, null
+        );
 
+        // Assert
         assertThat(result).hasSize(1);
         MeetingRoomDTO dto = result.getFirst();
         assertThat(dto.getName()).isEqualTo("Basic Room");
@@ -243,24 +259,29 @@ class MeetingRoomServiceImplementationTest {
 
     @Test
     void getAvailableRoomsShouldReturnEmptyEquipmentTypesWhenEquipmentListIsNull() {
-
         // Given
         List<MeetingRoom> rooms = meetingRoomList;
         MeetingRoom roomWithoutEquipment = rooms.get(2);
-        MeetingRoomDTO dto = new MeetingRoomDTO();
-        dto.setRoomId(2L);
-        dto.setName("Conference B");
 
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime endTime = startTime.plusHours(1);
+        LocalDate date = LocalDate.now();
+        LocalTime startTime = LocalTime.of(9, 0);  // Fixed time: 09:00
+        LocalTime endTime = LocalTime.of(10, 0);   // Fixed time: 10:00
 
-        when(meetingRoomRepository.findAvailableRooms(0, startTime, endTime, Collections.emptySet(), 0L))
-                .thenReturn(List.of(meetingRoomList.get(2)));
+        when(meetingRoomRepository.findAvailableRooms(
+                0,
+                date,
+                startTime,
+                endTime,
+                Collections.emptySet(),
+                0L
+        )).thenReturn(List.of(roomWithoutEquipment));
+
         when(objectMapper.convertValue(roomWithoutEquipment, MeetingRoomDTO.class))
                 .thenReturn(meetingRoomDTOList.get(2));
 
         // When
         List<MeetingRoomDTO> result = roomServiceImplementation.getAvailableRooms(
+                date,
                 startTime,
                 endTime,
                 0,
@@ -272,6 +293,7 @@ class MeetingRoomServiceImplementationTest {
         MeetingRoomDTO returned = result.get(0);
         assertThat(returned.getEquipmentTypes()).isEmpty();
     }
+
 
     @Test
     void whenGetMeetingRoomByIdShouldReturnMeetingRoomDtoWhenSuccess() {
@@ -296,5 +318,42 @@ class MeetingRoomServiceImplementationTest {
         assertThrows(ResourceNotFoundException.class, () -> {
             roomServiceImplementation.getMeetingRoomById(1L);
         });
+    }
+
+    @Test
+    void whenStartTimeWithoutEndTime_thenThrowException() {
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        LocalTime startTime = LocalTime.of(10, 0);
+
+        assertThatThrownBy(() ->
+                roomServiceImplementation.getAvailableRooms(date, startTime, null, 0, Collections.emptySet())
+        )
+                .isInstanceOf(DateTimeConflictException.class)
+                .hasMessage("You must provide both startTime and endTime, or leave both empty.");
+    }
+
+    @Test
+    void whenEndTimeWithoutStartTime_thenThrowException() {
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        LocalTime endTime = LocalTime.of(12, 0);
+
+        assertThatThrownBy(() ->
+                roomServiceImplementation.getAvailableRooms(date, null, endTime, 0, Collections.emptySet())
+        )
+                .isInstanceOf(DateTimeConflictException.class)
+                .hasMessage("You must provide both startTime and endTime, or leave both empty.");
+    }
+
+    @Test
+    void whenStartTimeNotBeforeEndTime_thenThrowException() {
+        LocalDate date = LocalDate.of(2025, 1, 1);
+        LocalTime startTime = LocalTime.of(12, 0);
+        LocalTime endTime = LocalTime.of(10, 0); // invalid: end before start
+
+        assertThatThrownBy(() ->
+                roomServiceImplementation.getAvailableRooms(date, startTime, endTime, 0, Collections.emptySet())
+        )
+                .isInstanceOf(DateTimeConflictException.class)
+                .hasMessage("startTime must be before endTime");
     }
 }
